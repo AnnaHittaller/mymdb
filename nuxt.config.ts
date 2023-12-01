@@ -1,9 +1,23 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import { resolve } from 'path'
+import { defineNuxtConfig } from 'nuxt/config'
+//import { resolve } from 'path'
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  alias: {
-    '@': resolve(__dirname, "/")
+  // alias: {
+  //   '@': resolve(__dirname, "/")
+  // },
+  modules: [
+    '@nuxt/ui', 
+    '@vueuse/nuxt',
+    '@pinia/nuxt',
+  ],
+  colorMode: {
+    preference: 'system',
+    //fallback: 'dark'
   },
-  modules: ['@nuxt/ui']
+  ui: {
+    icons: "all",
+  }
 })
+
+
