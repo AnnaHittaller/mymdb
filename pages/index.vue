@@ -1,7 +1,7 @@
 <script setup>
 
 const colorMode = useColorMode()
-const config = useAppConfig()
+const { handlePrimaryColorChange } = useColorChange()
 
 const isDark = computed({
     get() {
@@ -12,16 +12,6 @@ const isDark = computed({
     }
 })
 
-//console.log(config)
-
-function updatePrimaryColor(color) {
-    config.ui.primary = color
-}
-
-function handlePrimaryColorChange(event) {
-    const selectedColor = event.target.value
-    updatePrimaryColor(selectedColor)
-}
 </script>
 
 <template>
@@ -34,7 +24,6 @@ function handlePrimaryColorChange(event) {
         <ClientOnly>
             <UButton :icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'" color="gray" variant="ghost"
                 aria-label="Theme" @click="isDark = !isDark" />
-
             <template #fallback>
                 <div class="w-8 h-8" />
             </template>
