@@ -33,11 +33,11 @@ const hoverStyle = computed(() => {
 </script>
 
 <template>
-    <footer class="flex items-center px-4 py-4 sm:pt-8 absolute max-sm:w-full bottom-0 left-0 sm:h-full ">
+    <footer class="flex items-center px-4 py-4">
         <nav class="flex justify-around sm:justify-start sm:gap-16 items-center w-full sm:flex-col sm:h-full">
-            <Logo class="max-sm:hidden max-w-full flex m-0 shrink"/>
+            <Logo class="max-sm:hidden max-w-full flex m-0 shrink" />
             <!-- Avatar placeholder is the initials of the alt prop: must be the user name -->
-            <UAvatar class="max-sm:hidden" :ui="{ background: 'dark:bg-gray-800' }" src="" alt="User Name" size="2xl"/> 
+            <UAvatar class="max-sm:hidden" :ui="{ background: 'dark:bg-gray-800' }" src="" alt="User Name" size="2xl" />
             <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
                 <UIcon name="i-heroicons-home" class="text-primary sm:text-3xl" />
             </NuxtLink>
@@ -47,6 +47,18 @@ const hoverStyle = computed(() => {
             <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
                 <UIcon name="i-heroicons-star-solid" class="text-primary sm:text-3xl" />
             </NuxtLink>
+            <!-- UI primary color changer -->
+
+            <UPopover :popper="{ arrow: true }" class="flex items-center hover-filter text-primary"
+                :style="hoverStyle">
+                <UIcon name="i-ph-swatches-fill" class="text-primary text-2xl sm:text-3xl " />
+                <template #panel="{ close }">
+                    <div class="p-8">
+                        <UButton label="Close" @click="close" />
+                    </div>
+                </template>
+            </UPopover>
+
             <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
                 <UIcon name="i-heroicons-ellipsis-vertical-20-solid" class="text-primary sm:text-3xl" />
             </NuxtLink>
@@ -57,7 +69,7 @@ const hoverStyle = computed(() => {
 <style >
 footer {
     background-color: #3d3d3d;
-    box-shadow: 0 0px 10px -3px rgb(0,0,0, 1);
+    box-shadow: 0 0px 10px -3px rgb(0, 0, 0, 1);
 }
 
 footer a span {

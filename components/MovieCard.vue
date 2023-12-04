@@ -34,16 +34,7 @@ defineProps({
     </div>
     <!-- <button @click="toggleLoad">Load</button> -->
     <br />
-<!-- for footer icon color changer -->
-                <!-- <UPopover :popper="{ placement: 'top-end', arrow: true }">
-                    <UIcon name="i-ph-swatches-fill" class="text-primary text-2xl" />
 
-                    <template #panel="{ close }">
-                        <div class="p-8">
-                            <UButton label="Close" @click="close" />
-                        </div>
-                    </template>
-                </UPopover> -->
 </template>
 
 <style></style>

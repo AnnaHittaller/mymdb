@@ -31,9 +31,9 @@ span::before {
     content: "";
     display: inline-block;
     position: absolute;
-    height: 100%;
+    height: 80%;
     left: 0;
-    width: 4px;
+    width: .25rem;
    
 }
 </style>

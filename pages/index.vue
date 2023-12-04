@@ -37,3 +37,14 @@ const isDark = computed({
         <Heading>Favorites</Heading>
     </div>
 </template> 
+
+<!-- TODO
+Swiper for now trending, test with random img
+pinia store for color change button into footer (pinia todos)
+color change popper menu
+popper menu for kebab icon: about, contact, profile
+data fetching tut with tmdb API
+Komarnicki movie tut
+swiper slider for movie list + favs
+
+-->
