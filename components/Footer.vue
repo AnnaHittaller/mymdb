@@ -1,32 +1,75 @@
 <script setup>
+const { config } = useColorChange()
+const glowColor = ref(config.ui.primary)
+watchEffect(() => {
+    glowColor.value = config.ui.primary;
+    //console.log(glowColor.value)
+})
+
+const hoverStyle = computed(() => {
+    if (glowColor.value) {
+        let colorValue = '';
+        switch (glowColor.value) {
+            case 'mandy':
+                colorValue = "#ea546c";
+                break;
+            case 'dusk':
+                colorValue = "#839dd1";
+                break;
+            case 'emerald':
+                colorValue = "#10b981";
+                break;
+            default:
+                colorValue = '';
+        }
+        return {
+            '--glow-color': colorValue,
+        };
+    }
+    return {}; // Return an empty object if the value is not yet available
+});
+
 
 </script>
 
 <template>
-    <footer>
-        <nav class="flex justify-evenly items-center">
-            <NuxtLink to="/" class="">
-                <UIcon name="i-heroicons-home" class="text-primary" />
+    <footer class="flex items-center px-4 py-4 sm:pt-8 absolute max-sm:w-full bottom-0 left-0 sm:h-full ">
+        <nav class="flex justify-around sm:justify-start sm:gap-16 items-center w-full sm:flex-col sm:h-full">
+            <Logo class="max-sm:hidden max-w-full flex m-0 shrink"/>
+            <!-- Avatar placeholder is the initials of the alt prop: must be the user name -->
+            <UAvatar class="max-sm:hidden" :ui="{ background: 'dark:bg-gray-800' }" src="" alt="User Name" size="2xl"/> 
+            <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
+                <UIcon name="i-heroicons-home" class="text-primary sm:text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/">
-                <UIcon name="i-heroicons-list-bullet-20-solid" class="text-primary" />
+            <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
+                <UIcon name="i-heroicons-list-bullet-20-solid" class="text-primary sm:text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/">
-                <UIcon name="i-heroicons-star-solid" class="text-primary" />
+            <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
+                <UIcon name="i-heroicons-star-solid" class="text-primary sm:text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/">
-                <UIcon name="i-heroicons-ellipsis-vertical-20-solid" class="text-primary" />
+            <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
+                <UIcon name="i-heroicons-ellipsis-vertical-20-solid" class="text-primary sm:text-3xl" />
             </NuxtLink>
         </nav>
     </footer>
 </template>
 
-<style>
+<style >
+footer {
+    background-color: #3d3d3d;
+    box-shadow: 0 0px 10px -3px rgb(0,0,0, 1);
+}
+
 footer a span {
     font-size: 1.5rem;
 }
 
-footer a:hover {
-    filter: drop-shadow(0 0 2px rgba(255, 30, 30, 1));
+.hover-filter {
+    filter: none;
+    transition: filter 0.3s ease;
+}
+
+.hover-filter:hover {
+    filter: drop-shadow(0 0 3px var(--glow-color));
 }
 </style>

@@ -1,9 +1,7 @@
 <template>
-    <header>
+    <header class="m-auto pb-8">
         <nav>
-            <NuxtLink to="/">
-            <Logo/>
-            </NuxtLink>
+            <Logo />
         </nav>
     </header>
 </template>
