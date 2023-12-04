@@ -26,7 +26,6 @@ function handlePrimaryColorChange(event) {
 
 <template>
     <div>
-
         home page
         <UButton to="/login" :ui="{ rounded: 'rounded-lg' }">Button</UButton>
         <UButton to="/" color="dusk">Button2</UButton>
