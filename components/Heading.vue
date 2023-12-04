@@ -7,7 +7,7 @@
     </div>
 </template>
 
-<style scoped>
+<style scoped> 
 h2::before {
     content: "";
     display: inline-block;
