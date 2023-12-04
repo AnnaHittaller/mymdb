@@ -33,25 +33,33 @@ const hoverStyle = computed(() => {
 </script>
 
 <template>
-    <footer>
-        <nav class="flex justify-evenly items-center">
-            <NuxtLink to="/" class="hover-filter" :style="hoverStyle">
-                <UIcon name="i-heroicons-home" class="text-primary" />
+    <footer class="flex items-center px-4 py-4 sm:pt-8 absolute max-sm:w-full bottom-0 left-0 sm:h-full ">
+        <nav class="flex justify-around sm:justify-start sm:gap-16 items-center w-full sm:flex-col sm:h-full">
+            <Logo class="max-sm:hidden max-w-full flex m-0 shrink"/>
+            <!-- Avatar placeholder is the initials of the alt prop: must be the user name -->
+            <UAvatar class="max-sm:hidden" :ui="{ background: 'dark:bg-gray-800' }" src="" alt="User Name" size="2xl"/> 
+            <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
+                <UIcon name="i-heroicons-home" class="text-primary sm:text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/" class="hover-filter" :style="hoverStyle">
-                <UIcon name="i-heroicons-list-bullet-20-solid" class="text-primary" />
+            <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
+                <UIcon name="i-heroicons-list-bullet-20-solid" class="text-primary sm:text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/" class="hover-filter" :style="hoverStyle">
-                <UIcon name="i-heroicons-star-solid" class="text-primary" />
+            <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
+                <UIcon name="i-heroicons-star-solid" class="text-primary sm:text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/" class="hover-filter" :style="hoverStyle">
-                <UIcon name="i-heroicons-ellipsis-vertical-20-solid" class="text-primary" />
+            <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
+                <UIcon name="i-heroicons-ellipsis-vertical-20-solid" class="text-primary sm:text-3xl" />
             </NuxtLink>
         </nav>
     </footer>
 </template>
 
 <style >
+footer {
+    background-color: #3d3d3d;
+    box-shadow: 0 0px 10px -3px rgb(0,0,0, 1);
+}
+
 footer a span {
     font-size: 1.5rem;
 }

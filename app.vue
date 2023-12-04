@@ -15,3 +15,9 @@ useHead({
         </NuxtLayout>
     </div>
 </template>
+
+<style>
+body {
+    padding: 1rem;
+}
+</style>

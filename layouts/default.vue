@@ -1,7 +1,6 @@
 <template>
     <div>
-        <p>Default layout</p>
-        <Header />
+        <Header class="sm:hidden"/>
         <slot />
         <Footer />
     </div>
