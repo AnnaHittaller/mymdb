@@ -17,7 +17,5 @@ useHead({
 </template>
 
 <style>
-/* body {
-    padding: 1rem;
-} */
+
 </style>

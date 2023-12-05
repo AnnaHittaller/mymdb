@@ -1,5 +1,5 @@
 <template>
-    <header class="m-auto pb-8">
+    <header class="mx-auto pb-8">
         <nav>
             <Logo />
         </nav>
