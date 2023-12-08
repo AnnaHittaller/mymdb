@@ -1,9 +1,23 @@
         
 <script setup>
-// import function to register Swiper custom elements
 import { register } from 'swiper/element/bundle';
-// register Swiper custom elements
 register();
+
+// const options = {
+//     method: 'GET',
+//     headers: {
+//         accept: 'application/json',
+//         Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MTA3M2QxMjg4OGE3YmYwYjVlZjRlMGY1OWMxMDFkMSIsInN1YiI6IjY1NzA4MWI3ZTFmYWVkMDEzOGFkMTYzMSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.vWGa1AfuKEqJ7TIuciZQXA-zgakUns9Jhw5ieQdKbds'
+//     }
+// }; 
+
+//const { data, pending, error } = await useFetch('https://api.themoviedb.org/3/trending/movie/day?language=en-US', options)
+const { data: trending, pending, error } = await useFetch('/api/movies/trending')
+//const { data: hello } = await useFetch('/api/hello')
+console.log("DATA----:", toRaw(trending.value))
+//console.log("DATAhello---:", toRaw(hello.value))
+const config = useRuntimeConfig()
+console.log("config 2 base url", config.apiBaseUrl) 
 </script>
 
 <template>
@@ -41,6 +55,9 @@ register();
             </swiper-slide>
         </swiper-container>
     </div>
+    <div v-if="trending">DataNEW: {{ trending }}</div>
+    <div v-if="error">error: {{ error }}</div>
+    <div v-if="pending">Pending: loading</div>
 </template>
 
 <style scoped>

@@ -1,10 +1,13 @@
 import { defineStore } from "pinia";
 
-export const useUiColorStore = defineStore("ui-color", () => {
+export const useUiColorStore = defineStore("colorStore", () => {
 	const config = useAppConfig();
+	const uiColor = ref("emerald");
 
 	function updatePrimaryColor(color) {
 		config.ui.primary = color;
+		uiColor.value = config.ui.primary;
+		console.log("uiColor:", uiColor.value);
 	}
 
 	function handlePrimaryColorChange(event) {
@@ -12,6 +15,5 @@ export const useUiColorStore = defineStore("ui-color", () => {
 		updatePrimaryColor(selectedColor);
 	}
 
-
-	return { config, updatePrimaryColor, handlePrimaryColorChange };
+	return { config, uiColor, handlePrimaryColorChange };
 });

@@ -1,16 +1,16 @@
 <script setup>
-const { config } = useColorChange()
-const glowColor = ref(config.ui.primary)
-watchEffect(() => {
-    glowColor.value = config.ui.primary;
-    //console.log(glowColor.value)
-})
+// const glowColor = ref(config.ui.primary)
+// watchEffect(() => {
+//     glowColor.value = config.ui.primary;
+//     //console.log(glowColor.value)
+// })
 
+const colorStore = useUiColorStore()
 
 const hoverStyle = computed(() => {
-    if (glowColor.value) {
+    if (colorStore.uiColor) {
         let colorValue = '';
-        switch (glowColor.value) {
+        switch (colorStore.uiColor) {
             case 'mandy':
                 colorValue = "#ea546c";
                 break;
@@ -39,19 +39,34 @@ const items = [
     }], [{
         label: 'Profile',
         icon: 'i-heroicons-user-circle',
-        to: '/'
+        to: '/profile'
     }], [{
         label: 'Settings',
-        icon: 'i-heroicons-cog-6-tooth'
+        icon: 'i-heroicons-cog-6-tooth',
+        to: '/profile/settings'
     }, {
         label: 'About',
         icon: 'i-heroicons-information-circle',
         to: '/about'
+    }, {
+        label: 'Contact',
+        icon: 'i-heroicons-chat-bubble-left-ellipsis',
+        to: '/contact'
     }], [{
         label: 'Sign out',
         icon: 'i-heroicons-arrow-left-on-rectangle'
     }]
 ]
+const { width } = useWindowSize()
+const popperConfig = computed(() => {
+    if (width.value <= 640) {
+        return { placement: 'top' }; // For small screens, place popper on top
+    } else {
+        return { placement: 'right-start' }; // For larger screens, place popper on the right
+    }
+});
+
+
 </script>
 
 <template>
@@ -69,9 +84,9 @@ const items = [
                 <UIcon name="i-heroicons-star-solid" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
 
-            <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }"
-                :popper="{ placement: 'right-start' }">
-                <UAvatar src="" :ui="{ background: 'dark:bg-gray-800' }" alt="User Name" class="avatar" />
+            <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }">
+                <UAvatar src="" :ui="{ background: 'dark:bg-gray-800' }" alt="User Name"
+                    class="avatar border hover:border-primary" />
 
                 <template #account="{ item }">
                     <div class="text-left">
@@ -85,10 +100,10 @@ const items = [
                 </template>
 
                 <template #item="{ item }">
-                    <span class="truncate">{{ item.label }}</span>
+                    <span class="truncate ">{{ item.label }}</span>
 
-                    <UIcon :name="item.icon"
-                        class="flex-shrink-0 h-4 w-4 text-gray-400 dark:text-gray-500 ms-auto hover:text-primary" />
+                    <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500 ms-auto"
+                        :style="hoverStyle" />
                 </template>
             </UDropdown>
         </nav>
@@ -103,12 +118,7 @@ footer {
 }
 
 .avatar {
-    transition: .3s ease;
-    border: 1px solid gray;
-}
-
-.avatar:hover {
-    border: 1px solid green;
+    transition: .2s ease;
 }
 
 *[role="menuitem"]>span:nth-child(2) {
@@ -116,7 +126,7 @@ footer {
 }
 
 *[role="menuitem"]:hover>span:nth-child(2) {
-    color: green;
+    color: var(--glow-color);
 }
 
 .hover-filter {
