@@ -1,5 +1,5 @@
 <script setup>
-import TrendingNowSwiper from '~/components/TrendingNowSwiper.vue';
+//import TrendingNowSwiper from '~/components/TrendingNowSwiper.vue';
 
 const colorStore = useUiColorStore()
 
@@ -9,8 +9,7 @@ const colorStore = useUiColorStore()
 
 <template>
     <div>
-        <Heading>Now trending</Heading>
-        <TrendingNowSwiper/>
+        <Hero/>
         <Heading>My movies</Heading>
         <Heading>Favorites</Heading>
     </div>
