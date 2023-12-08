@@ -1,7 +1,7 @@
 
 <template>
     <div class="pb-4">
-        <h2 class="before:bg-primary pl-4 relative">
+        <h2 class="before:bg-primary pl-4 relative z-20">
             <slot/>
         </h2>
     </div>
