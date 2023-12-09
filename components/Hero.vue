@@ -4,7 +4,7 @@ register();
 
 const { data: trending, pending, error } = await useFetch('/api/movies/trending')
 
-const trendingMovies = toRaw(trending.value.results.splice(0, 10))
+const trendingMovies = toRaw(trending?.value.results.splice(0, 10))
 console.log("DATA tre m:", trendingMovies)
 //console.log(toRaw(trending.value.results))
 const baseImageUrl = "https://image.tmdb.org/t/p/original"
@@ -32,34 +32,57 @@ const onSlideChange = (e) => {
     //https://www.youtube.com/watch?v= +key attribute from videos API
 }
 
+const colorStore = useUiColorStore()
+
+const hoverStyle = computed(() => {
+    if (colorStore.uiColor) {
+        let colorValue = '';
+        switch (colorStore.uiColor) {
+            case 'mandy':
+                colorValue = "#ea546c";
+                break;
+            case 'dusk':
+                colorValue = "#839dd1";
+                break;
+            case 'emerald':
+                colorValue = "#10b981";
+                break;
+            default:
+                colorValue = '';
+        }
+        return {
+            '--glow-color': colorValue,
+        };
+    }
+    return {}; // Return an empty object if the value is not yet available
+});
+
 </script>
 
 <template>
-    <div class="bg-gradient-to-r from-[#27272a] from-40% md:from-30% to-80% md:to-70% w-full h-full">
-        <img :src="`${baseImageUrl}${backdropImage}`" alt="" class="max-h-[500px] ml-auto max-lg:hidden  ">
-        <Heading >Now trending</Heading>
-        <!-- <div class="hero max-sm:hidden relative">  -->
-            <!-- <img :src="`${baseImageUrl}${backdropImage}`" alt="" class="max-h-[500px] ml-auto"> -->
-            <!-- <div class="bg-gradient-to-r from-[#27272a] from-40% md:from-30% to-80% md:to-70% w-full h-full absolute top-0 bottom-0 z-10"></div> -->
-            
-        <!-- </div> -->
-
-        <div class="max-w-[500px] sm:max-w-[700px] w-full max-h-[500px] py-8  max-sm:mx-auto lg:absolute sm:top-0 z-20">
-            <swiper-container class="mySwiper w-full " loop="true" effect="coverflow" grab-cursor="true"
-                centered-slides="true" slides-per-view="auto" coverflow-effect-rotate="15" coverflow-effect-stretch="0"
-                coverflow-effect-depth="300" coverflow-effect-modifier="1" coverflow-effect-slide-shadows="true"
-                navigation="true" @swiperslidechange="onSlideChange">
-                <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
-                    <NuxtLink :to="`/movie/${movie.id}`">
-                        <img :src="`${baseImageUrl}${movie.poster_path}`" />
-                    </NuxtLink>
-                </swiper-slide>
-            </swiper-container>
+        <div
+            class="lg:bg-gradient-to-r from-[#27272a] from-[500px] to-[800px] w-full h-full pb-8 mb-8 bg-contain  bg-no-repeat bg-right lg:relative">
+            <img :src="`${baseImageUrl}${backdropImage}`" alt=""
+                class="max-h-[500px] ml-auto max-lg:hidden lg:relative lg:-z-10">
+            <Heading class="pl-4 sm:pt-4 z-20 lg:absolute lg:top-0">Now trending</Heading>
+            <div
+                class="max-w-[500px] sm:max-w-[700px] lg:max-w-[650px] w-full max-h-[500px] px-4 max-lg:mx-auto z-20  lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
+                <swiper-container class="mySwiper max-w-fullh-full" loop="true" effect="coverflow"
+                    grab-cursor="true" centered-slides="true" pagination="true" slides-per-view="auto"
+                    coverflow-effect-rotate="15" coverflow-effect-stretch="0" coverflow-effect-depth="300"
+                    coverflow-effect-modifier="1" coverflow-effect-slide-shadows="true" navigation="true"
+                    @swiperslidechange="onSlideChange" :style="hoverStyle">
+                    <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
+                        <NuxtLink :to="`/movie/${movie.id}`">
+                            <img :src="`${baseImageUrl}${movie.poster_path}`" />
+                        </NuxtLink>
+                    </swiper-slide>
+                </swiper-container>
+            </div>
+            <!-- <div v-if="trending">DataNEW: {{ trending }}</div> -->
+            <!-- <div v-if="error">error: {{ error }}</div>
+            <div v-else-if="pending">Loading</div> -->
         </div>
-        <!-- <div v-if="trending">DataNEW: {{ trending }}</div> -->
-        <!-- <div v-if="error">error: {{ error }}</div>
-        <div v-else-if="pending">Loading</div> -->
-    </div>
 </template>
 
 <style scoped>
@@ -67,10 +90,20 @@ swiper-container {
     height: 100%;
 }
 
+swiper-container::part(wrapper) {
+    padding-bottom: 2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
 swiper-slide {
     background-position: center;
     background-size: cover;
     max-width: 200px;
+
+    @media screen and (max-width: 460px) {
+        max-width: 150px;
+    }
 }
 
 swiper-slide img {
@@ -81,20 +114,42 @@ swiper-slide img {
     /* -webkit-box-reflect: below 1px linear-gradient(transparent, transparent, #0002, #0004); */
 }
 
+
 swiper-container::part(button-next),
 swiper-container::part(button-prev) {
-    color: white;
-    background-color: #27272a;
+    color: transparent;
+    background-color: var(--glow-color);
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: .75rem;
-    height: 2rem;
-    width: 2rem;
+    height: 1rem;
+    width: 1rem;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    background-position: center;
 
     @media screen and (max-width: 640px) {
         display: none;
     }
+}
+
+swiper-container::part(button-next) {
+    background-image: url("https://api.iconify.design/heroicons:arrow-right-circle-20-solid.svg?color=%233d3d3d");
+}
+
+swiper-container::part(button-prev) {
+    background-image: url("https://api.iconify.design/heroicons:arrow-left-circle-20-solid.svg?color=%233d3d3d");
+}
+
+swiper-container::part(bullet-active),
+swiper-container::part(bullet) {
+    background-color: var(--glow-color);
+}
+
+swiper-container::part(pagination) {
+    position: absolute;
+    bottom: 0;
 }
 </style>
