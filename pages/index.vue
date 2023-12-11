@@ -17,5 +17,7 @@ Komarnicki movie tut
 swiper slider for movie list + favs
 create a composable from hoverstyle / glow-color return and also baseImageUrl
 make slider bulletpoints clickable
-create skeleton for swiper slider
+create skeleton for swiper sliders and hero image
+
+including series too
 -->
