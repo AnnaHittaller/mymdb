@@ -3,19 +3,21 @@
     <div>
         <Hero />
         <Heading class="pl-4">My movies</Heading>
+        //<MovieSlider />
+        <!-- <MovieCard /> -->
         <Heading class="pl-4">Favorites</Heading>
     </div>
 </template> 
 
-<style scoped>
-
-</style>
+<style scoped></style>
 
 <!-- TODO
-data fetching tut with tmdb API
 Komarnicki movie tut
 swiper slider for movie list + favs
 create a composable from hoverstyle / glow-color return and also baseImageUrl
 make slider bulletpoints clickable
-create skeleton for swiper slider
+create skeleton for swiper sliders and hero image
+adding toast for movie page: rating and list modifications
+
+including series too
 -->

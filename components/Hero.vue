@@ -12,6 +12,7 @@ const baseImageUrl = "https://image.tmdb.org/t/p/original"
 
 let hrefValue = ref(null)
 let backdropImage = ref(null)
+let imageAlt = ref(null)
 
 const onSlideChange = (e) => {
     const [swiper, progress] = e.detail;
@@ -27,6 +28,8 @@ const onSlideChange = (e) => {
         //console.log(backdropMovie.backdrop_path, Number(movieIdFromHref));
         backdropImage.value = backdropMovie.backdrop_path;
     }
+
+    imageAlt.value = backdropMovie.title
 
     //console.log('Href attribute:', hrefValue.value);
     //https://www.youtube.com/watch?v= +key attribute from videos API
@@ -60,29 +63,29 @@ const hoverStyle = computed(() => {
 </script>
 
 <template>
+    <div
+        class="lg:bg-gradient-to-r from-[#27272a] from-[500px] to-[800px] xl:from-[600px] xl:to-[800px] 2xl:from-[850px] 2xl:to-[1200px] 3xl:from-[700px] 3xl:to-[1300px] w-full h-full pb-8 mb-8 bg-contain bg-no-repeat bg-right lg:relative ">
+        <img :src="`${baseImageUrl}${backdropImage}`" :alt="`${imageAlt}`"
+            class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 ">
+        <Heading class="pl-4 sm:pt-4 z-20 lg:absolute lg:top-0">Now trending</Heading>
         <div
-            class="lg:bg-gradient-to-r from-[#27272a] from-[500px] to-[800px] w-full h-full pb-8 mb-8 bg-contain  bg-no-repeat bg-right lg:relative">
-            <img :src="`${baseImageUrl}${backdropImage}`" alt=""
-                class="max-h-[500px] ml-auto max-lg:hidden lg:relative lg:-z-10">
-            <Heading class="pl-4 sm:pt-4 z-20 lg:absolute lg:top-0">Now trending</Heading>
-            <div
-                class="max-w-[500px] sm:max-w-[700px] lg:max-w-[650px] w-full max-h-[500px] px-4 max-lg:mx-auto z-20  lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
-                <swiper-container class="mySwiper max-w-fullh-full" loop="true" effect="coverflow"
-                    grab-cursor="true" centered-slides="true" pagination="true" slides-per-view="auto"
-                    coverflow-effect-rotate="15" coverflow-effect-stretch="0" coverflow-effect-depth="300"
-                    coverflow-effect-modifier="1" coverflow-effect-slide-shadows="true" navigation="true"
-                    @swiperslidechange="onSlideChange" :style="hoverStyle">
-                    <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
-                        <NuxtLink :to="`/movie/${movie.id}`">
-                            <img :src="`${baseImageUrl}${movie.poster_path}`" />
-                        </NuxtLink>
-                    </swiper-slide>
-                </swiper-container>
-            </div>
-            <!-- <div v-if="trending">DataNEW: {{ trending }}</div> -->
-            <!-- <div v-if="error">error: {{ error }}</div>
-            <div v-else-if="pending">Loading</div> -->
+            class="max-w-[500px] sm:max-w-[700px] lg:max-w-[650px] 3xl:max-w-[850px] w-full max-h-[500px] px-4 max-lg:mx-auto z-20  lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
+            <swiper-container class="mySwiper max-w-full h-full" loop="true" effect="coverflow" grab-cursor="false"
+                centered-slides="true" pagination="true" slides-per-view="auto" coverflow-effect-rotate="15"
+                coverflow-effect-stretch="0" coverflow-effect-depth="300" coverflow-effect-modifier="1"
+                coverflow-effect-slide-shadows="true" navigation="true" autoplay-delay="5000" pauseOnMouseEnter="true"
+                 @swiperslidechange="onSlideChange" :style="hoverStyle">
+                <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
+                    <NuxtLink :to="`/movie/${movie.id}`">
+                        <img :src="`${baseImageUrl}${movie.poster_path}`" />
+                    </NuxtLink>
+                </swiper-slide>
+            </swiper-container>
         </div>
+        <!-- <div v-if="trending">DataNEW: {{ trending }}</div> -->
+        <!-- <div v-if="error">error: {{ error }}</div>
+            <div v-else-if="pending">Loading</div> -->
+    </div>
 </template>
 
 <style scoped>

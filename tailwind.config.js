@@ -40,6 +40,9 @@ module.exports = {
 					950: "#262c40",
 				},
 			},
+			screens: {
+				"3xl": "1800px",
+			},
 		},
 	},
 	plugins: [],

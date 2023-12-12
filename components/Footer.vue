@@ -85,8 +85,8 @@ const popperConfig = computed(() => {
             </NuxtLink>
 
             <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }">
-                <UAvatar src="" :ui="{ background: 'dark:bg-gray-800' }" alt="User Name"
-                    class="avatar border hover:border-primary" />
+                <UAvatar src="" :ui="{ background: 'dark:bg-gray-800', placeholder: 'dark:text-primary' }" alt="User Name"
+                    class="avatar border hover:border-primary " />
 
                 <template #account="{ item }">
                     <div class="text-left">
