@@ -6,7 +6,7 @@ definePageMeta({
 const { sayHello } = useSample()
 sayHello()
 
-import {useCounterStore} from "~/stores/testStore"
+import { useCounterStore } from "~/stores/testStore"
 const store = useCounterStore()
 console.log(store)
 
@@ -21,6 +21,7 @@ console.log(toRaw(data.value))
 <template>
     <div>
         login page
-        <p>{{data.hello}}</p>
+        <p>{{ data.hello }}</p>
+        <MovieSlider />
     </div>
 </template>
