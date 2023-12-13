@@ -1,9 +1,17 @@
 
+<script setup>
+const { data: trending, pending, error } = await useLazyFetch('/api/movies/trending')
+
+const trendingMovies = toRaw(trending?.value.results.splice(0, 10))
+</script>
+
 <template>
     <div>
         <Hero />
         <Heading class="pl-4">My movies</Heading>
-
+       
+            <Slider :movies="trendingMovies"/>
+        
         <!-- <MovieSlider /> -->
         <Heading class="pl-4 pt-8">Favorites</Heading>
     </div>
