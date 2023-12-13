@@ -64,7 +64,7 @@ const hoverStyle = computed(() => {
 
 <template>
     <div
-        class="lg:bg-gradient-to-r from-[#27272a] from-[500px] to-[800px] xl:from-[600px] xl:to-[800px] 2xl:from-[850px] 2xl:to-[1200px] 3xl:from-[700px] 3xl:to-[1300px] w-full h-full pb-8 mb-8 bg-contain bg-no-repeat bg-right lg:relative ">
+        class="lg:bg-gradient-to-r from-[#27272a] from-[500px] to-[800px] xl:from-[600px] xl:to-[800px] 2xl:from-[700px] 2xl:to-[1200px] 3xl:from-[700px] 3xl:to-[1300px] w-full h-full pb-8 mb-8 bg-contain bg-no-repeat bg-right lg:relative ">
         <img :src="`${baseImageUrl}${backdropImage}`" :alt="`${imageAlt}`"
             class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 ">
         <Heading class="pl-4 sm:pt-4 z-20 lg:absolute lg:top-0">Now trending</Heading>
@@ -74,7 +74,9 @@ const hoverStyle = computed(() => {
                 centered-slides="true" pagination="true" slides-per-view="auto" coverflow-effect-rotate="15"
                 coverflow-effect-stretch="0" coverflow-effect-depth="300" coverflow-effect-modifier="1"
                 coverflow-effect-slide-shadows="true" navigation="true" autoplay-delay="5000" pauseOnMouseEnter="true"
-                 @swiperslidechange="onSlideChange" :style="hoverStyle">
+                @swiperslidechange="onSlideChange" :style="hoverStyle" :pagination="{
+                    clickable: true,
+                }">
                 <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
                     <NuxtLink :to="`/movie/${movie.id}`">
                         <img :src="`${baseImageUrl}${movie.poster_path}`" />

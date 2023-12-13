@@ -3,9 +3,9 @@
     <div>
         <Hero />
         <Heading class="pl-4">My movies</Heading>
-        //<MovieSlider />
-        <!-- <MovieCard /> -->
-        <Heading class="pl-4">Favorites</Heading>
+
+        <!-- <MovieSlider /> -->
+        <Heading class="pl-4 pt-8">Favorites</Heading>
     </div>
 </template> 
 
