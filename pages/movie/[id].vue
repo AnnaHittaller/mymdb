@@ -50,16 +50,16 @@ const toggleBadge = (color, rating) => {
 
 <template>
     <Heading>{{ movie?.title }}</Heading>
-    <div class="flex flex-col md:flex-row items-center gap-8 pb-4">
+    <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4">
         <div class="flex flex-col gap-4 items-center">
             <img :src="`${baseImageUrl}${movie.poster_path}`" :alt="`${movie.title}`" class="w-full max-w-sm lg:max-w-xl">
             <div class="icon-group flex gap-4">
                     <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="My movies"
-                        class="flex flex-col gap-1" />
+                        class="flex flex-col gap-1 w-16" />
                     <UButton icon="i-heroicons-star-solid" color="primary" variant="outline" label="Watch next"
-                        class="flex flex-col gap-1" />
+                        class="flex flex-col gap-1 w-16" />
                     <UButton icon="i-heroicons-check-circle" color="primary" variant="outline" label="Seen"
-                        class="flex flex-col gap-1" />
+                        class="flex flex-col gap-1 w-16" />
                 </div>
         </div>
         <div class="w-full flex flex-col gap-4">

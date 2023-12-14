@@ -15,23 +15,28 @@ const validate = (state: any): FormError[] => {
 
 async function onSubmit(event: FormSubmitEvent<any>) {
     // Do something with data
-    console.log(event.data)
+    console.log("CONTACT FORM SUBMIT EVENT", event.data)
 }
 </script>
 
 <template>
-    <UForm :validate="validate" :state="state" class="space-y-4 max-w-lg" @submit="onSubmit" >
-        <UFormGroup label="Subject" name="subject" required>
-            <UInput v-model="state.subject" placeholder="Subject" size="md" />
-        </UFormGroup>
+    <div class="max-w-[700px] mx-auto">
+        <Heading>Contact</Heading>
+        <UForm :validate="validate" :state="state" class="space-y-4 w-full pt-8 " @submit="onSubmit">
+            <UFormGroup label="Subject " name="subject" required size="xl">
+                <UInput v-model="state.subject" placeholder="Subject" size="xl" :ui="{ size: { xl: 'text-xl' } }"
+                    class="mt-2" />
+            </UFormGroup>
 
-        <UFormGroup label="Message" name="message"  required >
-            <UTextarea v-model="state.message" placeholder="Message" :rows="5" />
-        </UFormGroup>
+            <UFormGroup label="Message " name="message" required class="pb-8" size="xl">
+                <UTextarea v-model="state.message" placeholder="Message" size="xl" :rows="5" autoresize
+                    :ui="{ size: { xl: 'text-xl' } }" class="mt-2" />
+            </UFormGroup>
 
-        <UButton type="submit">
-            Send message
-        </UButton>
-    </UForm>
+            <UButton type="submit" class="text-xl">
+                Send message
+            </UButton>
+        </UForm>
+    </div>
 </template>
 

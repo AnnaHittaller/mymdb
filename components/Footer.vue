@@ -57,14 +57,14 @@ const items = [
         icon: 'i-heroicons-arrow-left-on-rectangle'
     }]
 ]
-const { width } = useWindowSize()
-const popperConfig = computed(() => {
-    if (width.value <= 640) {
-        return { placement: 'top' }; // For small screens, place popper on top
-    } else {
-        return { placement: 'right-start' }; // For larger screens, place popper on the right
-    }
-});
+// const { width } = useWindowSize()
+// const popperConfig = computed(() => {
+//     if (width.value <= 640) {
+//         return { placement: 'top' }; // For small screens, place popper on top
+//     } else {
+//         return { placement: 'right-start' }; // For larger screens, place popper on the right
+//     }
+// });
 
 
 </script>

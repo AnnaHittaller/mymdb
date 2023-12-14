@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="text-xl">
         <Heading>About</Heading>
         <p>Welcome to your ultimate movie collection app, designed with one goal in mind: making your cinematic journey a
             breeze.
@@ -15,12 +15,9 @@
             movie is on your radar for your next movie night. </p>
         <p>Life's too short to miss out on great movies, and MyMDb is here to ensure you don't. Let’s embark on a cinematic
             adventure where you'll never lose track of your favorite movies again.</p>
-        <div class="flex items-center gap-1 my-8">
+        <div class="flex items-center gap-2 mt-16 leading-6">
             <UIcon name="i-fe-github" class="text-primary text-2xl" />
-            <span>Anna Hittaller</span>
-            <span class="relative flex items-center">
-                <span class="before:bg-primary pl-2 flex items-center">@ 2023</span>
-            </span>
+            <span class="text-xl leading-6">Anna Hittaller @ 2023</span>
         </div>
     </div>
 </template>
@@ -32,13 +29,4 @@ p {
     font-weight: 400;
 }
 
-span::before {
-    content: "";
-    display: inline-block;
-    position: absolute;
-    height: 80%;
-    left: 0;
-    width: .25rem;
-
-}
 </style>
