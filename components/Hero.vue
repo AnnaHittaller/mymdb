@@ -5,7 +5,7 @@ register();
 const { data: trending, pending, error } = await useFetch('/api/movies/trending')
 
 const trendingMovies = toRaw(trending?.value.results.splice(0, 10))
-console.log("DATA tre m:", trendingMovies)
+//console.log("DATA tre m:", trendingMovies)
 //console.log(toRaw(trending.value.results))
 const baseImageUrl = "https://image.tmdb.org/t/p/original"
 
@@ -64,12 +64,13 @@ const hoverStyle = computed(() => {
 
 <template>
     <div
-        class="lg:bg-gradient-to-r from-[#27272a] from-[500px] to-[800px] xl:from-[600px] xl:to-[800px] 2xl:from-[700px] 2xl:to-[1200px] 3xl:from-[700px] 3xl:to-[1300px] w-full h-full pb-8 mb-8 bg-contain bg-no-repeat bg-right lg:relative ">
-        <img :src="`${baseImageUrl}${backdropImage}`" :alt="`${imageAlt}`"
+        class="lg:bg-gradient-to-r from-[#27272a] via-[#27272a] from-[400px] to-[600px] 2xl:to-[900px] 3xl:from-[600px] 3xl:to-[800px] w-full h-full pb-8 mb-8 bg-contain bg-no-repeat bg-right lg:relative">
+        <img v-if="trendingMovies" :src="`${baseImageUrl}${backdropImage}`" :alt="`${imageAlt}`"
             class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 ">
+        <!-- <USkeleton v-if="pending" class="max-h-[500px] 2xl:max-h-[600px] h-full max-lg:hidden lg:relative lg:-z-10 " /> -->
         <Heading class="pl-4 sm:pt-4 z-20 lg:absolute lg:top-0">Now trending</Heading>
-        <div
-            class="max-w-[500px] sm:max-w-[700px] lg:max-w-[650px] 3xl:max-w-[850px] w-full max-h-[500px] px-4 max-lg:mx-auto z-20  lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
+        <div v-if="trendingMovies"
+            class="max-w-[500px] sm:max-w-[700px] 3xl:max-w-[850px] w-full max-h-[500px] px-4 max-lg:mx-auto z-20  lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
             <swiper-container class="mySwiper max-w-full h-full" loop="true" effect="coverflow" grab-cursor="false"
                 centered-slides="true" pagination="true" slides-per-view="auto" coverflow-effect-rotate="15"
                 coverflow-effect-stretch="0" coverflow-effect-depth="300" coverflow-effect-modifier="1"

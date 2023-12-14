@@ -1,6 +1,5 @@
 <template>
-    <div>
-        <p>Not logged in layout</p>
+    <div class="p-4">
         <Header />
         <slot />
     </div>
