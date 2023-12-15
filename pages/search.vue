@@ -1,8 +1,22 @@
 <script setup>
+
 // Search related data
-const search = ref('')
+const searchTerm = ref("")
 const isInMyMoviesChecked = ref(false); // Checked state for "In my movies" button
 const isSeenChecked = ref(false); // Checked state for "Seen" button
+
+
+//const searchResults = toRaw(data?.value.results)
+const url = computed(() => {
+    // if (searchTerm.value.length >= 3) {
+        return `api/movies/search?query=${searchTerm.value}`;
+    //}
+    // Return an empty string if the search term is not long enough
+    return '';
+})
+
+const { data, pending, error } = await useFetch(url)
+
 
 // Function to toggle checkbox for "In my movies" button
 const toggleInMyMoviesCheckbox = () => {
@@ -39,13 +53,13 @@ const selectMenuConfig = {
 <template>
     <div>
         <div class="flex flex-col gap-4 pb-8">
-            <UInput size="xl" placeholder="Search..." v-model="search" name="search"
+            <UInput size="xl" placeholder="Search..." v-model="searchTerm" name="search"
                 :ui="{ icon: { trailing: { pointer: '' } }, size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
                 class="relative">
                 <template #trailing>
 
-                    <UButton v-show="search !== ''" color="white" variant="link" icon="i-heroicons-x-mark-20-solid"
-                        :padded="false" @click="search = ''" class="pr-10" />
+                    <UButton v-show="searchTerm !== ''" color="white" variant="link" icon="i-heroicons-x-mark-20-solid"
+                        :padded="false" @click="searchTerm = ''" class="pr-10" />
                     <div
                         class="bg-primary absolute right-0 top-0 h-full search-btn cursor-pointer rounded-r-md flex items-center justify-center">
                         <UIcon name="i-heroicons-magnifying-glass-20-solid" class="text-zinc-900 text-xl " />
@@ -77,7 +91,10 @@ const selectMenuConfig = {
         <div>
             <Heading>Results</Heading>
             <p class="text-xl">No matching result can be found.</p>
-            <div class="movie-grid grid"></div>
+            <div class="movie-grid grid">
+                <!-- moviecard component, movie passed down as prop, results sorted by popularity??? -->
+                <p v-for="movie in data?.results">{{ movie.title }}</p>
+            </div>
         </div>
     </div>
 </template>

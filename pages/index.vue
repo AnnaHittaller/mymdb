@@ -1,6 +1,6 @@
 
 <script setup>
-const { data: trending, pending, error } = await useLazyFetch('/api/movies/trending')
+const { data: trending, pending, error } = await useFetch('/api/movies/trending')
 
 const trendingMovies = toRaw(trending?.value?.results.splice(0, 10))
 </script>
