@@ -41,12 +41,12 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         <Heading>Sign in</Heading>
         <UForm :validate="validate" :state="state" class="space-y-4 w-full pt-8 " @submit="onSubmit">
             <UFormGroup label="Username or email" name="username" required size="xl">
-                <UInput v-model="state.username" placeholder="Username or email" size="xl" :ui="{ size: { xl: 'text-xl' } }"
+                <UInput v-model="state.username" placeholder="Username or email" size="xl" :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
                     class="mt-2" />
             </UFormGroup>
 
             <UFormGroup label="Password " name="password" required size="xl">
-                <UInput v-model="state.password" placeholder="Password" size="xl" :ui="{ size: { xl: 'text-xl' } }"
+                <UInput v-model="state.password" placeholder="Password" size="xl" :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
                     class="mt-2" type="password" />
             </UFormGroup>
 
