@@ -83,6 +83,9 @@ const items = [
             <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
                 <UIcon name="i-heroicons-star-solid" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
+            <NuxtLink to="/search" class="hover-filter flex item-center" :style="hoverStyle">
+                <UIcon name="i-heroicons-magnifying-glass-solid" class="text-primary sm:text-3xl text-2xl" />
+            </NuxtLink>
 
             <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }">
                 <UAvatar src="" :ui="{ background: 'dark:bg-gray-800', placeholder: 'dark:text-primary' }" alt="User Name"
