@@ -23,13 +23,16 @@ const { movies } = toRefs(props)
 
 const breakpoints = {
     0: {
+        itemsToShow: 2,
+    },
+    400: {
         itemsToShow: 3,
     },
-    640: {
-        itemsToShow: 3,
-    },
-    768: {
+    700: {
         itemsToShow: 4,
+    },
+    900: {
+        itemsToShow: 5,
     },
     1024: {
         itemsToShow: 6,
@@ -47,19 +50,21 @@ const baseImageUrl = "https://image.tmdb.org/t/p/original"
 </script>
 
 <template>
-    <div class="max-w-full px-4 relative">
-        <div v-if="!isAtEnd"
-            class="w-full h-full z-10 bg-gradient-to-l from-[#27272a] via--[#27272a] from-0% to-20% absolute top-0 left-0 pointer-events-none" />
+    <div class="left-0 right-0 pl-4 ">
+        <!-- <div v-if="!isAtEnd"
+            class="w-full h-full z-10 bg-gradient-to-l from-[#27272a] via--[#27272a] from-0% to-20% absolute top-0 left-0 pointer-events-none" /> -->
         <Carousel ref="carousel" :breakpoints="breakpoints" :items-to-scroll="1" :wrap-around="false" :transition="500"
-            snapAlign="start" class="bg-transparent movie-carousel" @slide-end="handleSlideEnd">
-            <Slide v-for="slide, index in movies" :key="slide"
-                class="flex items-center object-cover bg-transparent max-w-full">
-                <div class="object-cover h-[100%] hover:shadow-lg cursor-pointer mr-4">
-                    <NuxtLink :to="`/movie/${slide.id}`">
-                        <img v-if="movies" style="user-select: none" class="pointer-events-none h-[100%] z-[-1]"
-                            :src="`${baseImageUrl}${slide.poster_path}`">
-                    </NuxtLink>
+            snapAlign="start" class="bg-transparent movie-carousel max-w-full" @slide-end="handleSlideEnd">
+            <Slide v-for="slide, index in movies" :key="slide" class=" bg-transparent self-start max-h-full max-w-full">
+                <div class="w-full mr-4">
+                    <MovieCard :movie="slide" class="" />
                 </div>
+                <!-- <div class="object-cover hover:shadow-lg cursor-pointer mr-4"> -->
+                <!-- <NuxtLink :to="`/movie/${slide.id}`">
+                    <img v-if="movies" style="user-select: none" class="pointer-events-none h-[100%] z-[-1]"
+                        :src="`${baseImageUrl}${slide.poster_path}`">
+                </NuxtLink> -->
+                <!-- </div> -->
             </Slide>
             <template #addons>
                 <Navigation class="nav-arrow" />

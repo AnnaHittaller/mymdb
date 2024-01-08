@@ -3,10 +3,10 @@ import { register } from 'swiper/element/bundle';
 register();
 
 const { data: trending, pending, error } = await useFetch('/api/movies/trending')
-
-const trendingMovies = toRaw(trending?.value.results.splice(0, 10))
-//console.log("DATA tre m:", trendingMovies)
-//console.log(toRaw(trending.value.results))
+//console.log("trending", trending)
+const trendingMovies = toRaw(trending?.value)
+console.log("DATA tre m:", trendingMovies)
+//console.log(toRaw(trending.value))
 const baseImageUrl = "https://image.tmdb.org/t/p/original"
 
 
@@ -26,7 +26,7 @@ const onSlideChange = (e) => {
 
     if (backdropMovie) {
         //console.log(backdropMovie.backdrop_path, Number(movieIdFromHref));
-        backdropImage.value = backdropMovie.backdrop_path;
+        backdropImage.value = backdropMovie.backdrop;
     }
 
     imageAlt.value = backdropMovie.title
@@ -67,6 +67,7 @@ const hoverStyle = computed(() => {
         class="lg:bg-gradient-to-r from-[#27272a] via-[#27272a] from-[400px] to-[600px] 2xl:to-[900px] 3xl:from-[600px] 3xl:to-[800px] w-full h-full pb-8 mb-8 bg-contain bg-no-repeat bg-right lg:relative">
         <img v-if="trendingMovies" :src="`${baseImageUrl}${backdropImage}`" :alt="`${imageAlt}`"
             class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 ">
+        <!-- <div v-if="trendingMovies" class="bg-gray-500 max-lg:hidden ">{{}}</div> -->
         <!-- <USkeleton v-if="pending" class="max-h-[500px] 2xl:max-h-[600px] h-full max-lg:hidden lg:relative lg:-z-10 " /> -->
         <Heading class="pl-4 sm:pt-4 z-20 lg:absolute lg:top-0">Now trending</Heading>
         <div v-if="trendingMovies"
@@ -80,13 +81,17 @@ const hoverStyle = computed(() => {
                 }">
                 <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
                     <NuxtLink :to="`/movie/${movie.id}`">
-                        <img :src="`${baseImageUrl}${movie.poster_path}`" />
+                        <img :src="`${baseImageUrl}${movie.poster}`" class="relative" />
+                        <p
+                            class="carousel-title text-lg text-center absolute bottom-2 left-0 right-0 bg-gray-800 bg-opacity-70 duration-200">
+                            {{ movie.title }}</p>
                     </NuxtLink>
                 </swiper-slide>
             </swiper-container>
         </div>
+        <div v-if="error"> {{ error }}</div>
         <!-- <div v-if="trending">DataNEW: {{ trending }}</div> -->
-        <!-- <div v-if="error">error: {{ error }}</div>
+        <!-- 
             <div v-else-if="pending">Loading</div> -->
     </div>
 </template>
@@ -157,5 +162,14 @@ swiper-container::part(bullet) {
 swiper-container::part(pagination) {
     position: absolute;
     bottom: 0;
+}
+
+.carousel-title {
+    opacity: 0;
+
+}
+
+swiper-slide:hover .carousel-title {
+    opacity: 1;
 }
 </style>

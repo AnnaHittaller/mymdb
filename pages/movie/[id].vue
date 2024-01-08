@@ -49,11 +49,14 @@ const toggleBadge = (color, rating) => {
 </script>
 
 <template>
-    <Heading>{{ movie?.title }}</Heading>
-    <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4">
-        <div class="flex flex-col gap-4 items-center">
-            <img :src="`${baseImageUrl}${movie.poster_path}`" :alt="`${movie.title}`" class="w-full max-w-sm lg:max-w-xl">
-            <div class="icon-group flex gap-4">
+    <div v-if="movie">
+
+        <Heading>{{ movie?.title }}</Heading>
+        <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4">
+            <div class="flex flex-col gap-4 items-center">
+                <img :src="`${baseImageUrl}${movie.poster_path}`" :alt="`${movie.title}`"
+                    class="w-full max-w-sm lg:max-w-xl">
+                <div class="icon-group flex gap-4">
                     <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="My movies"
                         class="flex flex-col gap-1 w-16" />
                     <UButton icon="i-heroicons-star-solid" color="primary" variant="outline" label="Watch next"
@@ -61,46 +64,53 @@ const toggleBadge = (color, rating) => {
                     <UButton icon="i-heroicons-check-circle" color="primary" variant="outline" label="Seen"
                         class="flex flex-col gap-1 w-16" />
                 </div>
+            </div>
+            <div class="w-full flex flex-col gap-4">
+                <div>
+                    <span v-for="genre in movie?.genres" class="text-lg font-bold">
+                        <div v-if="movie.genres[0] != genre" class="bg-primary h-4 w-[.25rem] inline-block ml-2 mr-1"></div>
+                        {{ genre.name }}
+                    </span>
+                </div>
+                <h3 class="text-lg">{{ movie.tagline }}</h3>
+                <p class="max-w-2xl">{{ movie.overview }}</p>
+                <Heading class="pt-4">Details</Heading>
+                <div>Release date: {{ movie.release_date }}</div>
+                <div>Runtime: {{ movie.runtime }} min</div>
+                <div>Average rating: {{ movie.vote_average.toFixed(1) }}</div>
+                <Heading class="pt-4">Actors</Heading>
+                <div>
+                    <span v-for="actor in movie.credits.cast.slice(0, 4)">{{ actor.name }}, </span>
+                    <span>{{ movie.credits.cast[4].name }}</span>
+                </div>
+                <Heading class="pt-4">MyMDb rating</Heading>
+                <div class="flex gap-2">
+                    <UBadge color="red" :variant="ratingBadge.red" @click="toggleBadge('red', 1)" label="1" size="md"
+                        class="cursor-pointer" />
+                    <UBadge color="orange" :variant="ratingBadge.orange" @click="toggleBadge('orange', 2)" label="2"
+                        size="md" class="cursor-pointer" />
+                    <UBadge color="amber" :variant="ratingBadge.amber" @click="toggleBadge('amber', 3)" label="3" size="md"
+                        class="cursor-pointer" />
+                    <UBadge color="lime" :variant="ratingBadge.lime" @click="toggleBadge('lime', 4)" label="4" size="md"
+                        class="cursor-pointer" />
+                    <UBadge color="green" :variant="ratingBadge.green" @click="toggleBadge('green', 5)" label="5" size="md"
+                        class="cursor-pointer" />
+                </div>
+                <!-- <div class="icon-group flex gap-4">
+                    <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="My movies"
+                        class="flex flex-col gap-1" />
+                    <UButton icon="i-heroicons-star-solid" color="primary" variant="outline" label="Watch next"
+                        class="flex flex-col gap-1" />
+                    <UButton icon="i-heroicons-check-circle" color="primary" variant="outline" label="Seen"
+                        class="flex flex-col gap-1" />
+                </div> -->
+            </div>
         </div>
-        <div class="w-full flex flex-col gap-4">
-            <div>
-
-                <span v-for="genre in movie?.genres" class="text-lg font-bold">
-                    <div v-if="movie.genres[0] != genre" class="bg-primary h-4 w-[.25rem] inline-block ml-2 mr-1"></div>
-                    {{ genre.name }}
-                </span>
-            </div>
-            <h3 class="text-lg">{{ movie.tagline }}</h3>
-            <p class="max-w-2xl">{{ movie.overview }}</p>
-            <Heading class="pt-4">Actors</Heading>
-            <div>
-                <span v-for="actor in movie.credits.cast.slice(0, 4)">{{ actor.name }}, </span>
-                <span>{{ movie.credits.cast[4].name }}</span>
-            </div>
-            <Heading class="pt-4">My rating</Heading>
-            <div class="flex gap-2">
-                <UBadge color="red" :variant="ratingBadge.red" @click="toggleBadge('red', 1)" label="1" size="md"
-                    class="cursor-pointer" />
-                <UBadge color="orange" :variant="ratingBadge.orange" @click="toggleBadge('orange', 2)" label="2" size="md"
-                    class="cursor-pointer" />
-                <UBadge color="amber" :variant="ratingBadge.amber" @click="toggleBadge('amber', 3)" label="3" size="md"
-                    class="cursor-pointer" />
-                <UBadge color="lime" :variant="ratingBadge.lime" @click="toggleBadge('lime', 4)" label="4" size="md"
-                    class="cursor-pointer" />
-                <UBadge color="green" :variant="ratingBadge.green" @click="toggleBadge('green', 5)" label="5" size="md"
-                    class="cursor-pointer" />
-            </div>
-            <!-- <div class="icon-group flex gap-4">
-                <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="My movies"
-                    class="flex flex-col gap-1" />
-                <UButton icon="i-heroicons-star-solid" color="primary" variant="outline" label="Watch next"
-                    class="flex flex-col gap-1" />
-                <UButton icon="i-heroicons-check-circle" color="primary" variant="outline" label="Seen"
-                    class="flex flex-col gap-1" />
-            </div> -->
-        </div>
+        <Heading class="pt-4">More like this</Heading>
     </div>
-    <Heading class="pt-4">More like this</Heading>
+    <div v-else>
+        <p> {{ error}}</p>
+    </div>
 </template> 
 
 <style scoped></style>

@@ -2,6 +2,7 @@
 
 // Search related data
 const searchTerm = ref("")
+const debouncedSearchTerm = refDebounced(searchTerm, 700)
 const isInMyMoviesChecked = ref(false); // Checked state for "In my movies" button
 const isSeenChecked = ref(false); // Checked state for "Seen" button
 
@@ -9,7 +10,7 @@ const isSeenChecked = ref(false); // Checked state for "Seen" button
 //const searchResults = toRaw(data?.value.results)
 const url = computed(() => {
     // if (searchTerm.value.length >= 3) {
-        return `api/movies/search?query=${searchTerm.value}`;
+    return `api/movies/search?query=${debouncedSearchTerm.value}`;
     //}
     // Return an empty string if the search term is not long enough
     return '';
@@ -48,6 +49,7 @@ const selectMenuConfig = {
     placeholder: 'text-primary',
     select: 'cursor-pointer'
 }
+console.log(data)
 </script>
 
 <template>
@@ -90,10 +92,10 @@ const selectMenuConfig = {
         </div>
         <div>
             <Heading>Results</Heading>
-            <p class="text-xl">No matching result can be found.</p>
-            <div class="movie-grid grid">
+            <p v-if="data?.results.length === 0" class="text-xl">No matching result can be found.</p>
+            <div class="movie-grid ">
                 <!-- moviecard component, movie passed down as prop, results sorted by popularity??? -->
-                <p v-for="movie in data?.results">{{ movie.title }}</p>
+                <MovieCard :movie="movie" v-for="movie in data?.results" :key="movie.id" />
             </div>
         </div>
     </div>
@@ -102,5 +104,12 @@ const selectMenuConfig = {
 <style scoped>
 .search-btn {
     aspect-ratio: 1/1;
+}
+
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    row-gap: 2rem;
+    column-gap: 1rem;
 }
 </style>
