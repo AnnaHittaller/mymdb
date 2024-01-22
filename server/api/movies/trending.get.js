@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
 	try {
 		const config = useRuntimeConfig();
 		const response = await $fetch(
-			`https://api.themoviedb.org/3/trending/movie/week?language=en-US`,
+			`${config.apiBaseUrl}/trending/movie/week?language=en-US`,
 			{
 				method: "GET",
 				headers: {
