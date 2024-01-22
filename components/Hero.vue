@@ -3,10 +3,10 @@ import { register } from 'swiper/element/bundle';
 register();
 
 const { data: trending, pending, error } = await useFetch('/api/movies/trending')
-//console.log("trending", trending)
+
 const trendingMovies = toRaw(trending?.value)
-console.log("DATA tre m:", trendingMovies)
-//console.log(toRaw(trending.value))
+//console.log("DATA tre m:", trendingMovies)
+
 const baseImageUrl = "https://image.tmdb.org/t/p/original"
 
 
@@ -25,7 +25,6 @@ const onSlideChange = (e) => {
     const backdropMovie = trendingMovies.find(movie => movie.id === Number(movieIdFromHref));
 
     if (backdropMovie) {
-        //console.log(backdropMovie.backdrop_path, Number(movieIdFromHref));
         backdropImage.value = backdropMovie.backdrop;
     }
 
@@ -69,9 +68,9 @@ const hoverStyle = computed(() => {
             class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 ">
         <!-- <div v-if="trendingMovies" class="bg-gray-500 max-lg:hidden ">{{}}</div> -->
         <!-- <USkeleton v-if="pending" class="max-h-[500px] 2xl:max-h-[600px] h-full max-lg:hidden lg:relative lg:-z-10 " /> -->
-        <Heading class="pl-4 sm:pt-4 z-20 lg:absolute lg:top-0">Now trending</Heading>
+        <Heading class="pl-4 sm:pt-4 lg:absolute lg:top-0 z-20">Now trending</Heading>
         <div v-if="trendingMovies"
-            class="max-w-[500px] sm:max-w-[700px] 3xl:max-w-[850px] w-full max-h-[500px] px-4 max-lg:mx-auto z-20  lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
+            class="max-w-[500px] sm:max-w-[700px] 3xl:max-w-[850px] w-full max-h-[500px] px-4 max-lg:mx-auto z-0  lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
             <swiper-container class="mySwiper max-w-full h-full" loop="true" effect="coverflow" grab-cursor="false"
                 centered-slides="true" pagination="true" slides-per-view="auto" coverflow-effect-rotate="15"
                 coverflow-effect-stretch="0" coverflow-effect-depth="300" coverflow-effect-modifier="1"
@@ -90,7 +89,6 @@ const hoverStyle = computed(() => {
             </swiper-container>
         </div>
         <div v-if="error"> {{ error }}</div>
-        <!-- <div v-if="trending">DataNEW: {{ trending }}</div> -->
         <!-- 
             <div v-else-if="pending">Loading</div> -->
     </div>
@@ -148,10 +146,17 @@ swiper-container::part(button-prev) {
 
 swiper-container::part(button-next) {
     background-image: url("https://api.iconify.design/heroicons:arrow-right-circle-20-solid.svg?color=%233d3d3d");
+    transition: all .2s ease-in;
 }
 
 swiper-container::part(button-prev) {
     background-image: url("https://api.iconify.design/heroicons:arrow-left-circle-20-solid.svg?color=%233d3d3d");
+    transition: all .2s ease-in;
+}
+
+swiper-container::part(button-prev):hover,
+swiper-container::part(button-next):hover {
+    scale: 1.1;
 }
 
 swiper-container::part(bullet-active),

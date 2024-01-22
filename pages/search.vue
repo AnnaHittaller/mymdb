@@ -5,18 +5,124 @@ const searchTerm = ref("")
 const debouncedSearchTerm = refDebounced(searchTerm, 700)
 const isInMyMoviesChecked = ref(false); // Checked state for "In my movies" button
 const isSeenChecked = ref(false); // Checked state for "Seen" button
+let movies = ref([])
+let currentPage = 1;
 
-
-//const searchResults = toRaw(data?.value.results)
 const url = computed(() => {
-    // if (searchTerm.value.length >= 3) {
-    return `api/movies/search?query=${debouncedSearchTerm.value}`;
-    //}
-    // Return an empty string if the search term is not long enough
-    return '';
+    return `api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`;
 })
 
 const { data, pending, error } = await useFetch(url)
+
+
+watchEffect(() => {
+    // Your logic here to handle movies change
+    //movies.value = data.value
+       // Reset currentPage for a new search
+    currentPage = 1;
+
+    // Fetch data based on the current search term and page
+    useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`).then(({ data, pending, error }) => {
+        // Update the movies ref with the new data, replacing existing movies
+        movies.value = toRaw(data.value);
+    }).catch(error => {
+        console.error('Error while searching for movies:', error);
+    });
+});
+//const initialMovies  = toRaw(data?.value) || [];
+//let movieArray = []
+//movieArray.push(...initialMovies)
+//console.log("movieArray:",movieArray)
+//const query = debouncedSearchTerm.value.toLowerCase();
+//const filteredMovies = ref([])
+//console.log("filteredmovies",filteredMovies.value)
+//const pageSize = 20;
+
+// const filterMovies = () => {
+//     filteredMovies.value = movieArray.filter(movie => {
+//         const titleMatch = movie.title.toLowerCase().includes(debouncedSearchTerm.value.toLowerCase());
+//         return titleMatch;
+//     });
+// };
+
+const moviesWithPoster = computed(() => {
+    //this is the problem
+   // movies.value.push(data.value)
+    // const rawMovies = toRaw(movies.value);
+    // console.log("this",rawMovies);
+    // return rawMovies.filter(movie => movie.poster !== null) 
+      return movies.value.filter(movie => movie.poster !== null);
+});
+
+// Sort the remaining movies by popularity in descending order
+const sortedMovies = computed(() => {
+    return moviesWithPoster.value.slice().sort((a, b) => b.popularity - a.popularity);
+});
+
+//let moreMovies = ref("")
+const loadMoreMovies = async () => {
+    try {
+        currentPage++;
+
+        const { data, pending, error } = await useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`);
+       
+       // moreMovies.value = toRaw(data.value)
+        //console.log(moreMovies)
+        // Update the movies ref with the new data
+        console.log("movies", movies)
+        const newMovies = toRaw(data.value);
+             movies.value = [...movies.value, ...newMovies.filter(newMovie => !movies.value.some(existingMovie => existingMovie.id === newMovie.id))];
+       // movies.value = [...movies, ...moreMovies];
+       // console.log("movies after", movies)
+
+    } catch (error) {
+        console.error('Error while loading more movies:', error);
+    }
+};
+
+
+//just for discover type search
+const loadMoreMoviesss = async () => {
+   try {
+       currentPage++;
+        if (currentPage <= 20) {
+            
+                // Fetch more movies based on the original query and current page
+                const { data: moreMovies, pending, error }  = await useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`);
+            
+                // Append the new movies to the existing movie array
+                //movieArray.push(...moreMovies.value);
+            
+                // Apply filtering to the updated movie array
+                //filterMovies()
+
+        }
+   } catch(error) {
+     console.error('Error while loading more movies:', error);
+   }
+    
+};
+
+//     //for discover type search
+// watchEffect(() => {
+//     // currentPage = 1;
+   
+//     // filterMovies()
+
+//     // console.log(toRaw(filteredMovies.value), filteredMovies.value.length);
+//     //  if (filteredMovies.value.length < pageSize) {
+//     //     loadMoreMovies();
+//     // }
+
+//    url.value = `/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`
+//   // const { data, pending, error } =  useFetch(url)
+
+//     console.log(data)
+//     movies = toRaw(data.value)
+//     console.log(toRaw(data.value))
+//     //const { data, pending, error } = await useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}`)
+// });
+
 
 
 // Function to toggle checkbox for "In my movies" button
@@ -49,7 +155,7 @@ const selectMenuConfig = {
     placeholder: 'text-primary',
     select: 'cursor-pointer'
 }
-console.log(data)
+
 </script>
 
 <template>
@@ -90,13 +196,17 @@ console.log(data)
                     color="primary" :uiMenu="selectMenuConfig" />
             </div>
         </div>
-        <div>
-            <Heading>Results</Heading>
-            <p v-if="data?.results.length === 0" class="text-xl">No matching result can be found.</p>
-            <div class="movie-grid ">
+        <div class="flex flex-col items-stretch">
+            <Heading v-if="debouncedSearchTerm !== ''">Results</Heading>
+            <p>{{ movies.value }}</p>
+            <p v-if="debouncedSearchTerm !== '' && data && data?.length === 0" class="text-xl">No matching
+                results can be found.</p>
+            <div class="movie-grid " v-if="moviesWithPoster.length > 0">
                 <!-- moviecard component, movie passed down as prop, results sorted by popularity??? -->
-                <MovieCard :movie="movie" v-for="movie in data?.results" :key="movie.id" />
+                <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
+                <!-- <MovieCard :movie="movie" v-for="movie in moreMovies" :key="movie.id" /> -->
             </div>
+            <UButton label="Load more" @click="loadMoreMovies" class="my-8 self-center" size="xl" v-if="moviesWithPoster.length > 0"/>
         </div>
     </div>
 </template>

@@ -20,7 +20,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 </script>
 
 <template>
-    <div class="max-w-[700px] mx-auto">
+    <div class="max-w-[700px]">
         <Heading>Contact</Heading>
         <UForm :validate="validate" :state="state" class="space-y-4 w-full pt-8 " @submit="onSubmit">
             <UFormGroup label="Subject " name="subject" required size="xl">

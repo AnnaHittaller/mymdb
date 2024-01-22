@@ -23,7 +23,7 @@ function updateColor(color) {
             <label :for="color.value" >
                 <input type="radio" :id="color.value" :value="color.value" v-model="selectedColor"
                     @change="updateColor(color.value)" class="hidden" />
-                <UBadge :color="color.value" size="lg">{{ color.label }}</UBadge>
+                <UBadge :color="color.value" size="lg" class="cursor-pointer">{{ color.label }}</UBadge>
             </label>
         </div>
     </div>

@@ -1,13 +1,35 @@
-export default defineNuxtRouteMiddleware((to, from) => {
-   // const isLoggedIn = false
-    console.log("hello from middleware auth")
-    // if(isLoggedIn) {
-    //     return navigateTo(to.fullPath)
-    // } else {
-    //     return navigateTo("/login")
-    // }
-})
+export default defineNuxtRouteMiddleware(async(to, from) => {
 
-function defineNuxtRouteMiddleware(arg0: (to: any, from: any) => void) {
-    throw new Error("Function not implemented.");
-}
+const { currentUserPromise } = useFirebaseAuth();
+
+//console.log("auth middleware says hi");
+
+  try {
+        const currentUser = await currentUserPromise();
+
+        // For authenticated users
+        if (currentUser) {
+            if (['/login', '/register'].includes(to.path)) {
+                return navigateTo('/');
+            }
+            return; // Continue to the requested page for authenticated users
+        }
+
+        // For non-authenticated users
+        if (!currentUser) {
+            if (['/login', '/register'].includes(to.path)) {
+                return; // Allow access to login and register pages for non-authenticated users
+            }
+            return navigateTo('/login'); // Redirect non-authenticated users to the login page for other pages
+        }
+    } catch (error) {
+        console.error("Error getting current user:", error);
+        // Handle error or redirect as needed
+        if (error.message === "No user found" && to.path === '/register') {
+            return;
+        }
+
+        return navigateTo('/login');
+    }
+
+})

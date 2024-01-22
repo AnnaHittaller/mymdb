@@ -4,6 +4,12 @@
 //     glowColor.value = config.ui.primary;
 //     //console.log(glowColor.value)
 // })
+const { logout, currentUserPromise } = useFirebaseAuth()
+const { getUser } = useFirestore()
+
+const userData = await currentUserPromise()
+const user = await getUser(userData.uid)
+console.log("User:", user)
 
 const colorStore = useUiColorStore()
 
@@ -33,7 +39,7 @@ const hoverStyle = computed(() => {
 
 const items = [
     [{
-        label: 'user@example.com',
+        label: user?.email,
         slot: 'account',
         disabled: true
     }], [{
@@ -54,26 +60,19 @@ const items = [
         to: '/contact'
     }], [{
         label: 'Sign out',
-        icon: 'i-heroicons-arrow-left-on-rectangle'
+        icon: 'i-heroicons-arrow-left-on-rectangle',
+        click: () => {
+            logout()
+        }
     }]
 ]
-// const { width } = useWindowSize()
-// const popperConfig = computed(() => {
-//     if (width.value <= 640) {
-//         return { placement: 'top' }; // For small screens, place popper on top
-//     } else {
-//         return { placement: 'right-start' }; // For larger screens, place popper on the right
-//     }
-// });
-
 
 </script>
 
 <template>
-    <footer class="flex items-center px-4 py-4 ">
-        <nav class="flex justify-around sm:justify-start sm:gap-16 items-center w-full sm:flex-col sm:h-full">
+    <footer class="flex items-center sm:items-start px-4 py-4 relative">
+        <nav class="flex justify-around sm:justify-start sm:gap-16 items-center w-full sm:flex-col sm:sticky sm:top-4">
             <Logo class="max-sm:hidden max-w-full flex m-0 shrink" />
-            <!-- Avatar placeholder is the initials of the alt prop: must be the user name -->
             <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
                 <UIcon name="i-heroicons-home" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
@@ -87,8 +86,8 @@ const items = [
                 <UIcon name="i-heroicons-magnifying-glass-solid" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
 
-            <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }">
-                <UAvatar src="" :ui="{ background: 'dark:bg-gray-800', placeholder: 'dark:text-primary' }" alt="User Name"
+            <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }" class="z-40 relative">
+                <UAvatar src="" :ui="{ background: 'dark:bg-gray-800', placeholder: 'dark:text-primary' }"  :alt="`${user?.username}`"
                     class="avatar border hover:border-primary " />
 
                 <template #account="{ item }">
