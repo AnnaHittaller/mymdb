@@ -2,6 +2,7 @@
 const { currentUserPromise } = useFirebaseAuth()
 const { getUser, addMovie } = useFirestore()
 
+
 const route = useRoute()
 const userData = await currentUserPromise()
 const user = await getUser(userData.uid)

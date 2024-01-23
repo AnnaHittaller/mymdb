@@ -45,7 +45,7 @@ const breakpoints = {
   },
 }
 
-</script>
+</script> 
 
 <template>
   <div class=" relative px-4">

@@ -1,15 +1,25 @@
 <script setup lang="ts">
+import { useUserMoviesStore } from '~/stores/useUserMoviesStore';
+
 definePageMeta({
     middleware: "auth"
 })
 
-const { currentUserInfo } = useFirebaseAuth()
-
-const {getUsers} = useFirestore()
-await getUsers()
+const { getUser } = useFirestore()
+const { currentUserInfo, currentUserPromise } = useFirebaseAuth()
+const userData:any = await currentUserPromise()
+const user = await getUser(userData.uid)
+//const {getUsers} = useFirestore()
+//await getUsers()
 
 const colorStore = useUiColorStore()
 colorStore.initialize()
+
+const userMoviesStore = useUserMoviesStore()
+//console.log("AAAAAA",userMoviesStore.movies)
+userMoviesStore.fetchUserMovies()
+const usersMovies = toRaw(userMoviesStore?.movies)
+console.log(user?.movies)
 
 //this has to be changed to movie lists saved to the profile
 const { data: trending, pending, error } = await useFetch('/api/movies/trending')
@@ -30,7 +40,7 @@ const trendingMovies = toRaw(trending?.value.splice(0, 15))
             <Heading class="pl-4 pt-8">Watch next</Heading>
             <UButton to="/profile/watch-next" label="View All" />
         </div>
-        <MovieSlider v-if="trendingMovies" :movies="trendingMovies" />
+        <MovieSlider v-if="user?.movies" :movies="user.movies" />
     </div>
 </template> 
 

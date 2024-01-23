@@ -78,22 +78,6 @@ export const useFirestore = () => {
         }
     }
 
-    // const addMovie = async (uid: string, movie: object, id: string, seen: boolean, next: boolean) => {
-    //            try {
-    //         const updatedUser = doc($db, "users", uid)
-    //         await updateDoc(updatedUser, {
-    //             movie: {
-    //                 id: id,
-    //                 seen: seen,
-    //                 next: next
-    //             },
-    //         })
-    //         console.log("user updated:",updatedUser)
-    //     } catch (error){
-    //         console.log(error)
-    //     }
-    // }
-
     const addMovie = async (uid: string, movie: Movie) => {
         try {
             const userRef = doc($db, "users", uid);
