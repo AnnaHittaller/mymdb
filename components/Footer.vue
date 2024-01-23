@@ -1,41 +1,12 @@
 <script setup>
-// const glowColor = ref(config.ui.primary)
-// watchEffect(() => {
-//     glowColor.value = config.ui.primary;
-//     //console.log(glowColor.value)
-// })
+const { computedStyle } = useComputedStyle()
 const { logout, currentUserPromise } = useFirebaseAuth()
 const { getUser } = useFirestore()
+const colorStore = useUiColorStore()
 
 const userData = await currentUserPromise()
 const user = await getUser(userData.uid)
 console.log("User:", user)
-
-const colorStore = useUiColorStore()
-
-const hoverStyle = computed(() => {
-    if (colorStore.uiColor) {
-        let colorValue = '';
-        switch (colorStore.uiColor) {
-            case 'mandy':
-                colorValue = "#ea546c";
-                break;
-            case 'dusk':
-                colorValue = "#839dd1";
-                break;
-            case 'emerald':
-                colorValue = "#10b981";
-                break;
-            default:
-                colorValue = '';
-        }
-        return {
-            '--glow-color': colorValue,
-        };
-    }
-    return {}; // Return an empty object if the value is not yet available
-});
-
 
 const items = [
     [{
@@ -62,10 +33,17 @@ const items = [
         label: 'Sign out',
         icon: 'i-heroicons-arrow-left-on-rectangle',
         click: () => {
-            logout()
+            handleLogout()
         }
     }]
 ]
+
+const handleLogout = async () => {
+    await logout();
+    console.log('Before reset:', colorStore.uiColor);
+    colorStore.colorReset();
+    console.log('After reset:', colorStore.uiColor);
+};
 
 </script>
 
@@ -73,22 +51,23 @@ const items = [
     <footer class="flex items-center sm:items-start px-4 py-4 relative">
         <nav class="flex justify-around sm:justify-start sm:gap-16 items-center w-full sm:flex-col sm:sticky sm:top-4">
             <Logo class="max-sm:hidden max-w-full flex m-0 shrink" />
-            <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
+            <NuxtLink to="/" class="hover-filter flex item-center" :style="computedStyle">
                 <UIcon name="i-heroicons-home" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
-            <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
+            <NuxtLink to="/" class="hover-filter flex item-center" :style="computedStyle">
                 <UIcon name="i-heroicons-list-bullet-20-solid" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
-            <NuxtLink to="/" class="hover-filter flex item-center" :style="hoverStyle">
+            <NuxtLink to="/" class="hover-filter flex item-center" :style="computedStyle">
                 <UIcon name="i-heroicons-star-solid" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
-            <NuxtLink to="/search" class="hover-filter flex item-center" :style="hoverStyle">
+            <NuxtLink to="/search" class="hover-filter flex item-center" :style="computedStyle">
                 <UIcon name="i-heroicons-magnifying-glass-solid" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
 
             <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }" class="z-40 relative">
-                <UAvatar src="" :ui="{ background: 'dark:bg-gray-800', placeholder: 'dark:text-primary' }"  :alt="`${user?.username}`"
-                    class="avatar border hover:border-primary " />
+                <UAvatar src=""
+                    :ui="{ background: 'dark:bg-gray-800', placeholder: 'dark:text-primary', size: { sm: 'text-base' } }"
+                    :alt="`${user?.username}`" class="avatar border hover:border-primary" />
 
                 <template #account="{ item }">
                     <div class="text-left">
@@ -105,7 +84,7 @@ const items = [
                     <span class="truncate ">{{ item.label }}</span>
 
                     <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500 ms-auto"
-                        :style="hoverStyle" />
+                        :style="computedStyle" />
                 </template>
             </UDropdown>
         </nav>
@@ -128,7 +107,7 @@ footer {
 }
 
 *[role="menuitem"]:hover>span:nth-child(2) {
-    color: var(--glow-color);
+    color: var(--computed-style);
 }
 
 .hover-filter {
@@ -137,6 +116,6 @@ footer {
 }
 
 .hover-filter:hover {
-    filter: drop-shadow(0 0 3px var(--glow-color));
+    filter: drop-shadow(0 0 3px var(--computed-style));
 }
 </style>

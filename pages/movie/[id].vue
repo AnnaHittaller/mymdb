@@ -1,5 +1,10 @@
 <script setup>
+const { currentUserPromise } = useFirebaseAuth()
+const { getUser, addMovie } = useFirestore()
+
 const route = useRoute()
+const userData = await currentUserPromise()
+const user = await getUser(userData.uid)
 //const nuxt = useNuxtApp()
 //console.log(nuxt)
 const movieId = computed(() => route.params.id)
@@ -46,6 +51,16 @@ const toggleBadge = (color, rating) => {
 //     }
 // }
 
+const movieToAdd = {
+    id: route.params.id,
+    seen: false,
+    next: false
+}
+
+const addToMovieList = async () => {
+    await addMovie(userData.uid, movieToAdd);
+};
+
 </script>
 
 <template>
@@ -57,12 +72,12 @@ const toggleBadge = (color, rating) => {
                 <img :src="`${baseImageUrl}${movie.poster_path}`" :alt="`${movie.title}`"
                     class="w-full max-w-sm lg:max-w-xl">
                 <div class="icon-group flex gap-4">
-                    <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="My movies"
-                        class="flex flex-col gap-1 w-16" />
+                    <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="Add to my movies"
+                        class="flex flex-col gap-1 w-24" @click="addToMovieList"/>
                     <UButton icon="i-heroicons-star-solid" color="primary" variant="outline" label="Watch next"
-                        class="flex flex-col gap-1 w-16" />
+                        class="flex flex-col gap-1 w-24" />
                     <UButton icon="i-heroicons-check-circle" color="primary" variant="outline" label="Seen"
-                        class="flex flex-col gap-1 w-16" />
+                        class="flex flex-col gap-1 w-24" />
                 </div>
             </div>
             <div class="w-full flex flex-col gap-4">

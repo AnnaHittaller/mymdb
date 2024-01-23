@@ -1,4 +1,10 @@
-import { collection, getDocs, setDoc, doc, getDoc, deleteDoc} from "firebase/firestore"
+import { collection, getDocs, setDoc, doc, getDoc, deleteDoc, updateDoc, arrayRemove, arrayUnion} from "firebase/firestore"
+
+interface Movie {
+  id: string;
+  seen: boolean;
+  next: boolean;
+}
 
 export const useFirestore = () => {
 
@@ -43,9 +49,9 @@ export const useFirestore = () => {
         }
     }
 
-    const setUser = async (uid: string, username: string, email: string) => {
+    const setUser = async (uid: string, username: string, email: string, theme: string, movies?: [Movie] | []) => {
         try {
-            const newUser = await setDoc(doc($db, "users", uid), {username, email})
+            const newUser = await setDoc(doc($db, "users", uid), {username, email, theme, movies})
             console.log("setuser",newUser)
         } catch (error) {
             console.log(error)
@@ -60,11 +66,78 @@ export const useFirestore = () => {
         }
     }
 
+    const updateTheme = async (uid: string, theme: string) => {
+        try {
+            const updatedUser = doc($db, "users", uid)
+            await updateDoc(updatedUser, {
+                theme: theme,
+            })
+            console.log("user updated:",updatedUser)
+        } catch (error){
+            console.log(error)
+        }
+    }
+
+    // const addMovie = async (uid: string, movie: object, id: string, seen: boolean, next: boolean) => {
+    //            try {
+    //         const updatedUser = doc($db, "users", uid)
+    //         await updateDoc(updatedUser, {
+    //             movie: {
+    //                 id: id,
+    //                 seen: seen,
+    //                 next: next
+    //             },
+    //         })
+    //         console.log("user updated:",updatedUser)
+    //     } catch (error){
+    //         console.log(error)
+    //     }
+    // }
+
+    const addMovie = async (uid: string, movie: Movie) => {
+        try {
+            const userRef = doc($db, "users", uid);
+            const userSnapshot = await getDoc(userRef);
+
+            if (userSnapshot.exists()) {
+            await updateDoc(userRef, {
+                movies: arrayUnion(movie)
+            });
+            console.log("Movie added:", movie);
+            } else {
+            console.log("User not found.");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const removeMovie = async (uid: string, movieId: string) => {
+        try {
+            const userRef = doc($db, "users", uid);
+            const userSnapshot = await getDoc(userRef);
+
+            if (userSnapshot.exists()) {
+            await updateDoc(userRef, {
+                movies: arrayRemove({ id: movieId } as Movie)
+            });
+            console.log("Movie removed with ID:", movieId);
+            } else {
+            console.log("User not found.");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return {
         getUsers,
         setUser,
         getUser,
-        deleteUserDoc
+        deleteUserDoc,
+        updateTheme,
+        addMovie,
+        removeMovie
     }
    
 }

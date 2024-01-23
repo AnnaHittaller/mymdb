@@ -206,7 +206,7 @@ const selectMenuConfig = {
                 <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
                 <!-- <MovieCard :movie="movie" v-for="movie in moreMovies" :key="movie.id" /> -->
             </div>
-            <UButton label="Load more" @click="loadMoreMovies" class="my-8 self-center" size="xl" v-if="moviesWithPoster.length > 0"/>
+            <UButton label="Load more" @click="loadMoreMovies" class="mt-14 mb-8 self-center" size="xl" v-if="moviesWithPoster.length > 0"/>
         </div>
     </div>
 </template>
@@ -218,8 +218,9 @@ const selectMenuConfig = {
 
 .movie-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     row-gap: 2rem;
     column-gap: 1rem;
+
 }
 </style>

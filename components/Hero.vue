@@ -2,6 +2,7 @@
 import { register } from 'swiper/element/bundle';
 register();
 
+const { computedStyle } = useComputedStyle()
 const { data: trending, pending, error } = await useFetch('/api/movies/trending')
 
 const trendingMovies = toRaw(trending?.value)
@@ -34,30 +35,6 @@ const onSlideChange = (e) => {
     //https://www.youtube.com/watch?v= +key attribute from videos API
 }
 
-const colorStore = useUiColorStore()
-
-const hoverStyle = computed(() => {
-    if (colorStore.uiColor) {
-        let colorValue = '';
-        switch (colorStore.uiColor) {
-            case 'mandy':
-                colorValue = "#ea546c";
-                break;
-            case 'dusk':
-                colorValue = "#839dd1";
-                break;
-            case 'emerald':
-                colorValue = "#10b981";
-                break;
-            default:
-                colorValue = '';
-        }
-        return {
-            '--glow-color': colorValue,
-        };
-    }
-    return {}; // Return an empty object if the value is not yet available
-});
 
 </script>
 
@@ -67,7 +44,7 @@ const hoverStyle = computed(() => {
         <img v-if="trendingMovies" :src="`${baseImageUrl}${backdropImage}`" :alt="`${imageAlt}`"
             class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 ">
         <!-- <div v-if="trendingMovies" class="bg-gray-500 max-lg:hidden ">{{}}</div> -->
-        <!-- <USkeleton v-if="pending" class="max-h-[500px] 2xl:max-h-[600px] h-full max-lg:hidden lg:relative lg:-z-10 " /> -->
+        <USkeleton v-if="pending" class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10  " />
         <Heading class="pl-4 sm:pt-4 lg:absolute lg:top-0 z-20">Now trending</Heading>
         <div v-if="trendingMovies"
             class="max-w-[500px] sm:max-w-[700px] 3xl:max-w-[850px] w-full max-h-[500px] px-4 max-lg:mx-auto z-0  lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
@@ -75,7 +52,7 @@ const hoverStyle = computed(() => {
                 centered-slides="true" pagination="true" slides-per-view="auto" coverflow-effect-rotate="15"
                 coverflow-effect-stretch="0" coverflow-effect-depth="300" coverflow-effect-modifier="1"
                 coverflow-effect-slide-shadows="true" navigation="true" autoplay-delay="5000" pauseOnMouseEnter="true"
-                @swiperslidechange="onSlideChange" :style="hoverStyle" :pagination="{
+                @swiperslidechange="onSlideChange" :style="computedStyle" :pagination="{
                     clickable: true,
                 }">
                 <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
@@ -127,7 +104,7 @@ swiper-slide img {
 swiper-container::part(button-next),
 swiper-container::part(button-prev) {
     color: transparent;
-    background-color: var(--glow-color);
+    background-color: var(--computed-style);
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -161,7 +138,7 @@ swiper-container::part(button-next):hover {
 
 swiper-container::part(bullet-active),
 swiper-container::part(bullet) {
-    background-color: var(--glow-color);
+    background-color: var(--computed-style);
 }
 
 swiper-container::part(pagination) {

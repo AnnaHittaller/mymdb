@@ -42,7 +42,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         const user = await register(event.data.email, event.data.password)
         console.log(user)
 
-        const firestoreUser = await setUser(user.uid, event.data.username, event.data.email);
+        const firestoreUser = await setUser(user.uid, event.data.username, event.data.email, "emerald", []);
         console.log(firestoreUser);
 
 
@@ -86,8 +86,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             <UNotification id="error-notification-register" title="Error:" :description="state.error" v-if="state.error"
                 :timeout="0" @close="state.error = undefined" icon="i-heroicons-exclamation-circle" color="red" />
 
-            <UNotification id="success-notification-register" title="Registration successful, redirecting..." v-if="state.success"
-                :timeout="0" @close="state.success = false" icon="i-heroicons-check-circle" color="green" />
+            <UNotification id="success-notification-register" title="Registration successful, redirecting..."
+                v-if="state.success" :timeout="0" @close="state.success = false" icon="i-heroicons-check-circle"
+                color="green" />
 
             <div class="flex items-center justify-between pt-8 max-[470px]:flex-col max-[470px]:gap-8">
                 <UButton type="submit" class="text-xl" :loading="state.loading">

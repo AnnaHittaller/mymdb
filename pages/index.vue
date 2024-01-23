@@ -8,6 +8,9 @@ const { currentUserInfo } = useFirebaseAuth()
 const {getUsers} = useFirestore()
 await getUsers()
 
+const colorStore = useUiColorStore()
+colorStore.initialize()
+
 //this has to be changed to movie lists saved to the profile
 const { data: trending, pending, error } = await useFetch('/api/movies/trending')
 const trendingMovies = toRaw(trending?.value.splice(0, 15))
@@ -38,8 +41,8 @@ Komarnicki movie tut (movie genres, details from api)
 vuefire
 error page
 movie-grid class make unscoped
-create a composable from hoverstyle / glow-color return and also baseImageUrl
-make slider bulletpoints clickable
+create a composable from baseImageUrl
+meh - make slider bulletpoints clickable
 keep-alive - to not load trending movies every time
 create skeleton for swiper sliders and hero image
 adding toast for movie page: rating and list modifications

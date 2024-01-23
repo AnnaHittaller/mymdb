@@ -7,8 +7,9 @@ definePageMeta({
 })
 
 const { login } = useFirebaseAuth()
+const colorStore = useUiColorStore()
+colorStore.initialize()
 //const router = useRouter()
-
 //import { useCounterStore } from "~/stores/testStore"
 //const store = useCounterStore()
 //console.log(store)
@@ -46,12 +47,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     console.log("SUBMIT EVENT LOGIN", event.data)
     state.loading = true
     state.success = false
-      try {
+
+    try {
         await login(event.data.email, event.data.password)
         state.loading = false
         state.email = undefined
         state.password = undefined
-        if(!state.error) {
+        if (!state.error) {
             state.success = true
             await navigateTo('/')
         }
@@ -70,18 +72,20 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <Heading>Sign in</Heading>
         <UForm :schema="schema" :state="state" class="space-y-4 w-full pt-8 " @submit="onSubmit">
             <UFormGroup label="Email" name="email" required size="xl" class="mb-8">
-                <UInput v-model.trim="state.email" placeholder="Email" size="xl" :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
-                    class="mt-2" />
+                <UInput v-model.trim="state.email" placeholder="Email" size="xl"
+                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
             </UFormGroup>
 
             <UFormGroup label="Password " name="password" required size="xl">
-                <UInput v-model.trim="state.password" placeholder="Password" size="xl" :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
-                    class="mt-2" type="password" />
+                <UInput v-model.trim="state.password" placeholder="Password" size="xl"
+                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" type="password" />
             </UFormGroup>
 
-            <UNotification id="error-notification-login" title="Error:" :description="state.error" v-if="state.error" :timeout="0" @close="state.error = undefined" icon="i-heroicons-exclamation-circle" color="red"/>
+            <UNotification id="error-notification-login" title="Error:" :description="state.error" v-if="state.error"
+                :timeout="0" @close="state.error = undefined" icon="i-heroicons-exclamation-circle" color="red" />
 
-            <UNotification id="success-notification-login" title="Signed in, redirecting..." v-if="state.success" :timeout="0" @close="state.success = false" icon="i-heroicons-check-circle" color="green"/>
+            <UNotification id="success-notification-login" title="Signed in, redirecting..." v-if="state.success"
+                :timeout="0" @close="state.success = false" icon="i-heroicons-check-circle" color="green" />
 
             <div class="flex items-center justify-between pt-8 max-[470px]:flex-col max-[470px]:gap-8">
                 <UButton type="submit" class="text-xl" :loading="state.loading">

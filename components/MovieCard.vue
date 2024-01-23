@@ -17,7 +17,7 @@ const baseImageUrl = "https://image.tmdb.org/t/p/w500"
 <template>
     <NuxtLink :to="`/movie/${movie.id}`">
         <div class="flex flex-col gap-2 w-full justify-start items-start">
-            <div class="bg-gray-700 ">
+            <div class="bg-gray-700 max-w-[250px]">
                 <img :src="`${baseImageUrl}${movie.poster  || movie.poster_path}`" class="object-cover w-full h-full aspect-[2/3]" />
             </div>
             <div class="flex items-center gap-2">
