@@ -2,11 +2,7 @@
 import { register } from 'swiper/element/bundle';
 register();
 const { computedStyle } = useComputedStyle()
-// const spaceBetween = 10;
-// const onProgress = (e) => {
-//   const [swiper, progress] = e.detail;
-//   console.log(progress)
-// };
+
 const props = defineProps(
   { movies: Array }
 )
@@ -14,11 +10,12 @@ const { movies } = toRefs(props)
 
 const lastSlide = ref(false);
 const firstSlide = ref(true)
+const currentBreakpoint = ref(4)
 
 const onSlideChange = (e) => {
   lastSlide.value = e.detail[0].isEnd;
   firstSlide.value = e.detail[0].isBeginning;
-  //console.log(e.detail[0])
+  currentBreakpoint.value = e.detail[0].currentBreakpoint
 };
 
 const breakpoints = {
@@ -45,6 +42,12 @@ const breakpoints = {
   },
 }
 
+// const shouldDisplayNavigation = computed(() => {
+//   const slidesPerView = breakpoints[currentBreakpoint.value]?.slidesPerView;
+//   console.log(slidesPerView)
+//   return movies.value.length > slidesPerView;
+// });
+
 </script> 
 
 <template>
@@ -52,7 +55,7 @@ const breakpoints = {
     <!-- <div
       class="w-full h-full z-10 bg-gradient-to-l from-[#27272a] from-0% to-15%  absolute top-0 left-0 pointer-events-none"
       :class="{ 'hidden': lastSlide }"></div> -->
-    <swiper-container space-between="15" class="movieSlider z-0" centered-slides="false" navigation="true" :loop="false"
+    <swiper-container space-between="15" class="movieSlider z-0" centered-slides="false" :navigation="true" :loop="false"
       :style="computedStyle" @swiperslidechange="onSlideChange" :breakpoints="breakpoints">
       <swiper-slide v-for="  movie, index   in   movies  " :key="index" auto-scroll-offset="1" class="">
 

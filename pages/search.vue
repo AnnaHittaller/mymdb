@@ -51,13 +51,17 @@ const moviesWithPoster = computed(() => {
     // const rawMovies = toRaw(movies.value);
     // console.log("this",rawMovies);
     // return rawMovies.filter(movie => movie.poster !== null) 
-      return movies.value.filter(movie => movie.poster !== null);
+    // if (isInMyMoviesChecked) {
+
+    //     return movies.value.filter(movie => movie.poster !== null && movie);
+    // }
+    return movies.value.filter(movie => movie.poster !== null);
 });
 
 // Sort the remaining movies by popularity in descending order
-const sortedMovies = computed(() => {
-    return moviesWithPoster.value.slice().sort((a, b) => b.popularity - a.popularity);
-});
+// const sortedMovies = computed(() => {
+//     return moviesWithPoster.value.slice().sort((a, b) => b.popularity - a.popularity);
+// });
 
 //let moreMovies = ref("")
 const loadMoreMovies = async () => {
@@ -136,12 +140,12 @@ const toggleSeenCheckbox = () => {
 };
 
 // Rating and Genre filter options
-const ratings = ['1', '2', '3', '4', '5']; // Assuming ratings are from 1 to 5
-let genres = []; // Fetch genres from API and set here
+// const ratings = ['1', '2', '3', '4', '5']; // Assuming ratings are from 1 to 5
+// let genres = []; // Fetch genres from API and set here
 
 // Selected filters
-const selectedRatings = ref([]);
-const selectedGenres = ref([]);
+// const selectedRatings = ref([]);
+// const selectedGenres = ref([]);
 
 const selectMenuConfig = {
     option: {
@@ -188,21 +192,20 @@ const selectMenuConfig = {
                 </UButton>
 
                 <!-- Rating filter dropdown -->
-                <USelectMenu v-model="selectedRatings" size="sm" :options="ratings" multiple placeholder="My rating"
-                    color="primary" :uiMenu="selectMenuConfig" />
+                <!-- <USelectMenu v-model="selectedRatings" size="sm" :options="ratings" multiple placeholder="My rating"
+                    color="primary" :uiMenu="selectMenuConfig" /> -->
 
                 <!-- Genre filter dropdown -->
-                <USelectMenu v-model="selectedGenres" size="sm" :options="genres" multiple searchable placeholder="Genres"
-                    color="primary" :uiMenu="selectMenuConfig" />
+                <!-- <USelectMenu v-model="selectedGenres" size="sm" :options="genres" multiple searchable placeholder="Genres"
+                    color="primary" :uiMenu="selectMenuConfig" /> -->
             </div>
         </div>
         <div class="flex flex-col items-stretch">
             <Heading v-if="debouncedSearchTerm !== ''">Results</Heading>
-            <p>{{ movies.value }}</p>
+            <!-- <p>{{ movies}}</p> -->
             <p v-if="debouncedSearchTerm !== '' && data && data?.length === 0" class="text-xl">No matching
                 results can be found.</p>
             <div class="movie-grid " v-if="moviesWithPoster.length > 0">
-                <!-- moviecard component, movie passed down as prop, results sorted by popularity??? -->
                 <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
                 <!-- <MovieCard :movie="movie" v-for="movie in moreMovies" :key="movie.id" /> -->
             </div>
@@ -211,7 +214,7 @@ const selectMenuConfig = {
     </div>
 </template>
 
-<style scoped>
+<style >
 .search-btn {
     aspect-ratio: 1/1;
 }

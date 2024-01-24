@@ -1,4 +1,8 @@
 <script setup>
+definePageMeta({
+    middleware: "auth"
+})
+
 const { currentUserPromise, deleteUserAccount } = useFirebaseAuth()
 const { getUser, deleteUserDoc } = useFirestore()
 

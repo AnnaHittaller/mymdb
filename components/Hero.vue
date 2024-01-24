@@ -44,7 +44,7 @@ const onSlideChange = (e) => {
         <img v-if="trendingMovies" :src="`${baseImageUrl}${backdropImage}`" :alt="`${imageAlt}`"
             class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 ">
         <!-- <div v-if="trendingMovies" class="bg-gray-500 max-lg:hidden ">{{}}</div> -->
-        <USkeleton v-if="pending" class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10  " />
+        <USkeleton v-else class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10  " />
         <Heading class="pl-4 sm:pt-4 lg:absolute lg:top-0 z-20">Now trending</Heading>
         <div v-if="trendingMovies"
             class="max-w-[500px] sm:max-w-[700px] 3xl:max-w-[850px] w-full max-h-[500px] px-4 max-lg:mx-auto z-0  lg:absolute lg:top-[50%] lg:translate-y-[-50%]">

@@ -6,7 +6,7 @@ import { onSnapshot, doc, getDoc, updateDoc, arrayUnion } from 'firebase/firesto
 
 interface Movie {
   id: string;
-  seen: boolean;
+  seen: boolean; 
   next: boolean;
 }
 

@@ -5,8 +5,8 @@ definePageMeta({
     middleware: "auth"
 })
 
-const { getUser } = useFirestore()
 const { currentUserInfo, currentUserPromise } = useFirebaseAuth()
+const { getUser } = useFirestore()
 const userData:any = await currentUserPromise()
 const user = await getUser(userData.uid)
 //const {getUsers} = useFirestore()
@@ -33,14 +33,14 @@ const trendingMovies = toRaw(trending?.value.splice(0, 15))
             <Heading class="pl-4">My movies</Heading>
             <UButton to="/profile/my-movies" label="View All" />
         </div>
-        <p>{{ currentUserInfo?.uid }}</p>
-        <!-- <Slider v-if="trendingMovies" :movies="trendingMovies" class="overflow-hidden" /> -->
+        <!-- <p>{{ currentUserInfo?.uid }}</p> -->
+        <MovieSlider v-if="user?.movies" :movies="user.movies" />
+
         <div v-if="error">Error while retrieving your movie list.</div>
         <div class="flex justify-between items-center pr-4 pb-8 pt-4">
             <Heading class="pl-4 pt-8">Watch next</Heading>
             <UButton to="/profile/watch-next" label="View All" />
         </div>
-        <MovieSlider v-if="user?.movies" :movies="user.movies" />
     </div>
 </template> 
 

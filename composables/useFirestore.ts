@@ -2,6 +2,8 @@ import { collection, getDocs, setDoc, doc, getDoc, deleteDoc, updateDoc, arrayRe
 
 interface Movie {
   id: string;
+  title: string,
+  rating: number,
   seen: boolean;
   next: boolean;
 }
@@ -84,12 +86,12 @@ export const useFirestore = () => {
             const userSnapshot = await getDoc(userRef);
 
             if (userSnapshot.exists()) {
-            await updateDoc(userRef, {
-                movies: arrayUnion(movie)
-            });
-            console.log("Movie added:", movie);
+                await updateDoc(userRef, {
+                    movies: arrayUnion(movie)
+                });
+                console.log("Movie added:", movie);
             } else {
-            console.log("User not found.");
+                console.log("User not found.");
             }
         } catch (error) {
             console.log(error);
@@ -102,12 +104,12 @@ export const useFirestore = () => {
             const userSnapshot = await getDoc(userRef);
 
             if (userSnapshot.exists()) {
-            await updateDoc(userRef, {
-                movies: arrayRemove({ id: movieId } as Movie)
-            });
-            console.log("Movie removed with ID:", movieId);
+                await updateDoc(userRef, {
+                        movies: arrayRemove({ id: movieId })
+                    });
+                console.log("Movie removed with ID:", movieId);
             } else {
-            console.log("User not found.");
+                console.log("User not found.");
             }
         } catch (error) {
             console.log(error);

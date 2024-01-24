@@ -54,10 +54,10 @@ const handleLogout = async () => {
             <NuxtLink to="/" class="hover-filter flex item-center" :style="computedStyle">
                 <UIcon name="i-heroicons-home" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
-            <NuxtLink to="/" class="hover-filter flex item-center" :style="computedStyle">
+            <NuxtLink to="/my-movies" class="hover-filter flex item-center" :style="computedStyle">
                 <UIcon name="i-heroicons-list-bullet-20-solid" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
-            <NuxtLink to="/" class="hover-filter flex item-center" :style="computedStyle">
+            <NuxtLink to="/watch-next" class="hover-filter flex item-center" :style="computedStyle">
                 <UIcon name="i-heroicons-star-solid" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
             <NuxtLink to="/search" class="hover-filter flex item-center" :style="computedStyle">

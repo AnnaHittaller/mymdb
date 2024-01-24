@@ -1,6 +1,6 @@
 <script setup>
 const { currentUserPromise } = useFirebaseAuth()
-const { getUser, addMovie } = useFirestore()
+const { getUser, addMovie, removeMovie } = useFirestore()
 
 
 const route = useRoute()
@@ -21,7 +21,7 @@ const ratingBadge = reactive({
     amber: 'outline',
     lime: 'outline',
     green: 'outline'
-})
+}) 
 
 let selectedRating = null;
 
@@ -54,6 +54,8 @@ const toggleBadge = (color, rating) => {
 
 const movieToAdd = {
     id: route.params.id,
+    title: movie.title,
+    rating: movie.vote_average,
     seen: false,
     next: false
 }
@@ -61,6 +63,10 @@ const movieToAdd = {
 const addToMovieList = async () => {
     await addMovie(userData.uid, movieToAdd);
 };
+
+const removeFromMovieList = async () => {
+    await removeMovie(userData.uid, route.params.id)
+}
 
 </script>
 
@@ -75,6 +81,8 @@ const addToMovieList = async () => {
                 <div class="icon-group flex gap-4">
                     <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="Add to my movies"
                         class="flex flex-col gap-1 w-24" @click="addToMovieList"/>
+                        <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="Remove from my movies"
+                            class="flex flex-col gap-1 w-24" @click="removeFromMovieList"/>
                     <UButton icon="i-heroicons-star-solid" color="primary" variant="outline" label="Watch next"
                         class="flex flex-col gap-1 w-24" />
                     <UButton icon="i-heroicons-check-circle" color="primary" variant="outline" label="Seen"
@@ -99,7 +107,7 @@ const addToMovieList = async () => {
                     <span v-for="actor in movie.credits.cast.slice(0, 4)">{{ actor.name }}, </span>
                     <span>{{ movie.credits.cast[4].name }}</span>
                 </div>
-                <Heading class="pt-4">MyMDb rating</Heading>
+                <!-- <Heading class="pt-4">MyMDb rating</Heading>
                 <div class="flex gap-2">
                     <UBadge color="red" :variant="ratingBadge.red" @click="toggleBadge('red', 1)" label="1" size="md"
                         class="cursor-pointer" />
@@ -111,7 +119,7 @@ const addToMovieList = async () => {
                         class="cursor-pointer" />
                     <UBadge color="green" :variant="ratingBadge.green" @click="toggleBadge('green', 5)" label="5" size="md"
                         class="cursor-pointer" />
-                </div>
+                </div> -->
                 <!-- <div class="icon-group flex gap-4">
                     <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="My movies"
                         class="flex flex-col gap-1" />
