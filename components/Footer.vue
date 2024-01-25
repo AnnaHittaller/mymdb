@@ -63,7 +63,10 @@ const handleLogout = async () => {
             <NuxtLink to="/search" class="hover-filter flex item-center" :style="computedStyle">
                 <UIcon name="i-heroicons-magnifying-glass-solid" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
-
+            <NuxtLink to="/discover" class="hover-filter flex item-center" :style="computedStyle">
+                <UIcon name="i-heroicons-light-bulb" class="text-primary sm:text-3xl text-2xl" />
+            </NuxtLink>
+            <!-- profile context menu -->
             <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }" class="z-40 relative">
                 <UAvatar src=""
                     :ui="{ background: 'dark:bg-gray-800', placeholder: 'dark:text-primary', size: { sm: 'text-base' } }"

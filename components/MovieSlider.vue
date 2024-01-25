@@ -51,7 +51,7 @@ const breakpoints = {
 </script> 
 
 <template>
-  <div class=" relative px-4">
+  <div class="relative px-4">
     <!-- <div
       class="w-full h-full z-10 bg-gradient-to-l from-[#27272a] from-0% to-15%  absolute top-0 left-0 pointer-events-none"
       :class="{ 'hidden': lastSlide }"></div> -->

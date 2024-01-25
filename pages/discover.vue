@@ -1,5 +1,4 @@
 <script setup>
-
 // Search related data
 const searchTerm = ref("")
 const debouncedSearchTerm = refDebounced(searchTerm, 700)
@@ -18,7 +17,7 @@ const { data, pending, error } = await useFetch(url)
 watchEffect(() => {
     // Your logic here to handle movies change
     //movies.value = data.value
-       // Reset currentPage for a new search
+    // Reset currentPage for a new search
     currentPage = 1;
 
     // Fetch data based on the current search term and page
@@ -47,7 +46,7 @@ watchEffect(() => {
 
 const moviesWithPoster = computed(() => {
     //this is the problem
-   // movies.value.push(data.value)
+    // movies.value.push(data.value)
     // const rawMovies = toRaw(movies.value);
     // console.log("this",rawMovies);
     // return rawMovies.filter(movie => movie.poster !== null) 
@@ -69,15 +68,15 @@ const loadMoreMovies = async () => {
         currentPage++;
 
         const { data, pending, error } = await useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`);
-       
-       // moreMovies.value = toRaw(data.value)
+
+        // moreMovies.value = toRaw(data.value)
         //console.log(moreMovies)
         // Update the movies ref with the new data
         console.log("movies", movies)
         const newMovies = toRaw(data.value);
-             movies.value = [...movies.value, ...newMovies.filter(newMovie => !movies.value.some(existingMovie => existingMovie.id === newMovie.id))];
-       // movies.value = [...movies, ...moreMovies];
-       // console.log("movies after", movies)
+        movies.value = [...movies.value, ...newMovies.filter(newMovie => !movies.value.some(existingMovie => existingMovie.id === newMovie.id))];
+        // movies.value = [...movies, ...moreMovies];
+        // console.log("movies after", movies)
 
     } catch (error) {
         console.error('Error while loading more movies:', error);
@@ -87,30 +86,30 @@ const loadMoreMovies = async () => {
 
 //just for discover type search
 const loadMoreMoviesss = async () => {
-   try {
-       currentPage++;
+    try {
+        currentPage++;
         if (currentPage <= 20) {
-            
-                // Fetch more movies based on the original query and current page
-                const { data: moreMovies, pending, error }  = await useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`);
-            
-                // Append the new movies to the existing movie array
-                //movieArray.push(...moreMovies.value);
-            
-                // Apply filtering to the updated movie array
-                //filterMovies()
+
+            // Fetch more movies based on the original query and current page
+            const { data: moreMovies, pending, error } = await useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`);
+
+            // Append the new movies to the existing movie array
+            //movieArray.push(...moreMovies.value);
+
+            // Apply filtering to the updated movie array
+            //filterMovies()
 
         }
-   } catch(error) {
-     console.error('Error while loading more movies:', error);
-   }
-    
+    } catch (error) {
+        console.error('Error while loading more movies:', error);
+    }
+
 };
 
 //     //for discover type search
 // watchEffect(() => {
 //     // currentPage = 1;
-   
+
 //     // filterMovies()
 
 //     // console.log(toRaw(filteredMovies.value), filteredMovies.value.length);
@@ -163,67 +162,54 @@ const selectMenuConfig = {
 </script>
 
 <template>
-    <div>
-        <div class="flex flex-col gap-4 pb-8">
-            <Heading>Search</Heading>
-            <UInput size="xl" placeholder="Search..." v-model="searchTerm" name="search"
-                :ui="{ icon: { trailing: { pointer: '' } }, size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
-                class="relative">
-                <template #trailing>
+        <div>
+            <div class="flex flex-col gap-4 pb-8">
+                <Heading>Discover new movies</Heading>
+                <UInput size="xl" placeholder="Search..." v-model="searchTerm" name="search"
+                    :ui="{ icon: { trailing: { pointer: '' } }, size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
+                    class="relative">
+                    <template #trailing>
 
-                    <UButton v-show="searchTerm !== ''" color="white" variant="link" icon="i-heroicons-x-mark-20-solid"
-                        :padded="false" @click="searchTerm = ''" class="pr-10" />
-                    <div
-                        class="bg-primary absolute right-0 top-0 h-full search-btn rounded-r-md flex items-center justify-center">
-                        <UIcon name="i-heroicons-magnifying-glass-20-solid" class="text-zinc-900 text-xl " />
-                    </div>
-                </template>
-            </UInput>
-            <div class="flex gap-4 items-center">
-                <!-- My movies checkbox -->
-                <!-- <UButton :variant="isInMyMoviesChecked ? 'solid' : 'outline'" size="sm" @click="toggleInMyMoviesCheckbox"
+                        <UButton v-show="searchTerm !== ''" color="white" variant="link" icon="i-heroicons-x-mark-20-solid"
+                            :padded="false" @click="searchTerm = ''" class="pr-10" />
+                        <div
+                            class="bg-primary absolute right-0 top-0 h-full search-btn rounded-r-md flex items-center justify-center">
+                            <UIcon name="i-heroicons-magnifying-glass-20-solid" class="text-zinc-900 text-xl " />
+                        </div>
+                    </template>
+                </UInput>
+                <div class="flex gap-4 items-center">
+                    <!-- My movies checkbox -->
+                    <!-- <UButton :variant="isInMyMoviesChecked ? 'solid' : 'outline'" size="sm" @click="toggleInMyMoviesCheckbox"
                     :ui="{ font: 'font-medium' }">
                     In my movies
                 </UButton> -->
 
-                <!-- Seen checkbox -->
-                <!-- <UButton :variant="isSeenChecked ? 'solid' : 'outline'" size="sm" @click="toggleSeenCheckbox"
+                    <!-- Seen checkbox -->
+                    <!-- <UButton :variant="isSeenChecked ? 'solid' : 'outline'" size="sm" @click="toggleSeenCheckbox"
                     :ui="{ font: 'font-medium' }">
                     Seen
                 </UButton> -->
 
-                <!-- Rating filter dropdown -->
-                <!-- <USelectMenu v-model="selectedRatings" size="sm" :options="ratings" multiple placeholder="My rating"
+                    <!-- Rating filter dropdown -->
+                    <!-- <USelectMenu v-model="selectedRatings" size="sm" :options="ratings" multiple placeholder="My rating"
                     color="primary" :uiMenu="selectMenuConfig" /> -->
 
-                <!-- Genre filter dropdown -->
-                <!-- <USelectMenu v-model="selectedGenres" size="sm" :options="genres" multiple searchable placeholder="Genres"
+                    <!-- Genre filter dropdown -->
+                    <!-- <USelectMenu v-model="selectedGenres" size="sm" :options="genres" multiple searchable placeholder="Genres"
                     color="primary" :uiMenu="selectMenuConfig" /> -->
+                </div>
+            </div>
+            <div class="flex flex-col items-stretch">
+                <Heading v-if="debouncedSearchTerm !== ''">Results</Heading>
+                <!-- <p>{{ movies}}</p> -->
+                <p v-if="debouncedSearchTerm !== '' && data && data?.length === 0" class="text-xl">No matching
+                    results can be found.</p>
+                <div class="movie-grid " v-if="moviesWithPoster.length > 0">
+                    <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
+                    <!-- <MovieCard :movie="movie" v-for="movie in moreMovies" :key="movie.id" /> -->
+                </div>
+                <UButton label="Load more" @click="loadMoreMovies" class="mt-14 mb-8 self-center" size="xl" v-if="moviesWithPoster.length > 0"/>
             </div>
         </div>
-        <div class="flex flex-col items-stretch">
-            <Heading v-if="debouncedSearchTerm !== ''">Results</Heading>
-            <!-- <p>{{ movies}}</p> -->
-            <p v-if="debouncedSearchTerm !== '' && data && data?.length === 0" class="text-xl">No matching
-                results can be found.</p>
-            <div class="movie-grid " v-if="moviesWithPoster.length > 0">
-                <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
-            </div>
-            <UButton label="Load more" @click="loadMoreMovies" class="mt-14 mb-8 self-center" size="xl" v-if="moviesWithPoster.length > 0"/>
-        </div>
-    </div>
 </template>
-
-<style >
-/* .search-btn {
-    aspect-ratio: 1/1;
-}
-
-.movie-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    row-gap: 2rem;
-    column-gap: 1rem;
-
-} */
-</style>

@@ -31,7 +31,6 @@ const onSlideChange = (e) => {
 
     imageAlt.value = backdropMovie.title
 
-    //console.log('Href attribute:', hrefValue.value);
     //https://www.youtube.com/watch?v= +key attribute from videos API
 }
 
@@ -43,18 +42,15 @@ const onSlideChange = (e) => {
         class="lg:bg-gradient-to-r from-[#27272a] via-[#27272a] from-[400px] to-[600px] 2xl:to-[900px] 3xl:from-[600px] 3xl:to-[800px] w-full h-full pb-8 mb-8 bg-contain bg-no-repeat bg-right lg:relative">
         <img v-if="trendingMovies" :src="`${baseImageUrl}${backdropImage}`" :alt="`${imageAlt}`"
             class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 ">
-        <!-- <div v-if="trendingMovies" class="bg-gray-500 max-lg:hidden ">{{}}</div> -->
         <USkeleton v-else class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10  " />
         <Heading class="pl-4 sm:pt-4 lg:absolute lg:top-0 z-20">Now trending</Heading>
         <div v-if="trendingMovies"
             class="max-w-[500px] sm:max-w-[700px] 3xl:max-w-[850px] w-full max-h-[500px] px-4 max-lg:mx-auto z-0  lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
             <swiper-container class="mySwiper max-w-full h-full" loop="true" effect="coverflow" grab-cursor="false"
-                centered-slides="true" pagination="true" slides-per-view="auto" coverflow-effect-rotate="15"
+                centered-slides="true" pagination="false" slides-per-view="auto" coverflow-effect-rotate="15"
                 coverflow-effect-stretch="0" coverflow-effect-depth="300" coverflow-effect-modifier="1"
                 coverflow-effect-slide-shadows="true" navigation="true" autoplay-delay="5000" pauseOnMouseEnter="true"
-                @swiperslidechange="onSlideChange" :style="computedStyle" :pagination="{
-                    clickable: true,
-                }">
+                @swiperslidechange="onSlideChange" :style="computedStyle" >
                 <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
                     <NuxtLink :to="`/movie/${movie.id}`">
                         <img :src="`${baseImageUrl}${movie.poster}`" class="relative" />

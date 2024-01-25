@@ -4,6 +4,7 @@ interface Movie {
   id: string;
   title: string,
   rating: number,
+  poster: string,
   seen: boolean;
   next: boolean;
 }
@@ -102,12 +103,43 @@ export const useFirestore = () => {
         try {
             const userRef = doc($db, "users", uid);
             const userSnapshot = await getDoc(userRef);
+            console.log("two")
+
+            if (userSnapshot.exists()) {
+                const userData = userSnapshot.data() as { movies: Movie[] };
+                 const updatedMovies = userData.movies.filter(movie => movie.id !== movieId);
+
+                //console.log("Original Movies Array---:", userData.movies);
+                //console.log("Updated Movies Array:", updatedMovies);
+
+                await updateDoc(userRef, {
+                    movies: updatedMovies
+                });
+                // await updateDoc(userRef, {
+                //         movies: arrayRemove({ id: movieId })
+                //     });
+                console.log("Movie removed with ID:", movieId);
+            } else {
+                console.log("User not found.");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const updateMovie = async (uid: string, movieId: string, update: { seen?: boolean; next?: boolean }) => {
+        try {
+            const userRef = doc($db, "users", uid);
+            const userSnapshot = await getDoc(userRef);
 
             if (userSnapshot.exists()) {
                 await updateDoc(userRef, {
-                        movies: arrayRemove({ id: movieId })
-                    });
-                console.log("Movie removed with ID:", movieId);
+                    movies: userSnapshot.data()?.movies.map((movie: any) =>
+                        movie.id === movieId ? { ...movie, ...update } : movie
+                    ),
+                });
+
+                console.log(`Movie with ID ${movieId} updated:`, update);
             } else {
                 console.log("User not found.");
             }
@@ -123,7 +155,8 @@ export const useFirestore = () => {
         deleteUserDoc,
         updateTheme,
         addMovie,
-        removeMovie
+        removeMovie,
+        updateMovie
     }
    
 }

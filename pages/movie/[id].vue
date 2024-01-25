@@ -1,7 +1,6 @@
 <script setup>
 const { currentUserPromise } = useFirebaseAuth()
-const { getUser, addMovie, removeMovie } = useFirestore()
-
+const { getUser, addMovie, removeMovie, updateMovie } = useFirestore()
 
 const route = useRoute()
 const userData = await currentUserPromise()
@@ -11,44 +10,39 @@ const user = await getUser(userData.uid)
 const movieId = computed(() => route.params.id)
 const baseImageUrl = "https://image.tmdb.org/t/p/w500"
 
-const { data: movieData, pending, error } = await useFetch(`/api/movies/${movieId.value}`)
-const movie = toRaw(movieData?.value)
-//console.log(movie)
+const { data, pending, error } = await useFetch(`/api/movies/${movieId.value}`)
+const movie = toRaw(data?.value)
 
-const ratingBadge = reactive({
-    red: 'outline',
-    orange: 'outline',
-    amber: 'outline',
-    lime: 'outline',
-    green: 'outline'
-}) 
+const isInMovieList = computed(() => {
+    return user.movies.some(movie => movie.id === route.params.id)
+})
 
-let selectedRating = null;
+const showListButton = ref(true)
 
-const toggleBadge = (color, rating) => {
-    if (selectedRating && selectedRating.color === color) {
-        // If the same badge is clicked again, deselect it
-        for (const key in ratingBadge) {
-            ratingBadge[key] = 'outline';
-        }
-        selectedRating = null; // Reset selected rating
-    } else {
-        for (const key in ratingBadge) {
-            ratingBadge[key] = key === color ? 'solid' : 'outline';
-        }
-        selectedRating = { color, rating };
-    }
-}
+// code for rating badges - for later development
 
-// Function to update the database with the selected rating
-// const updateDatabase = () => {
-//     if (selectedRating) {
-//         const { color, rating } = selectedRating;
-//         // Perform database update using the selectedRating value
-//         console.log(`Updating database with color: ${color} and rating: ${rating}`);
-//         // You can make an API call or perform any necessary action to update the database here
+// const ratingBadge = reactive({
+//     red: 'outline',
+//     orange: 'outline',
+//     amber: 'outline',
+//     lime: 'outline',
+//     green: 'outline'
+// })
+
+// let selectedRating = null;
+
+// const toggleBadge = (color, rating) => {
+//     if (selectedRating && selectedRating.color === color) {
+//         // If the same badge is clicked again, deselect it
+//         for (const key in ratingBadge) {
+//             ratingBadge[key] = 'outline';
+//         }
+//         selectedRating = null; // Reset selected rating
 //     } else {
-//         console.log('No rating selected');
+//         for (const key in ratingBadge) {
+//             ratingBadge[key] = key === color ? 'solid' : 'outline';
+//         }
+//         selectedRating = { color, rating };
 //     }
 // }
 
@@ -56,17 +50,21 @@ const movieToAdd = {
     id: route.params.id,
     title: movie.title,
     rating: movie.vote_average,
+    poster: movie.poster_path,
     seen: false,
     next: false
 }
 
 const addToMovieList = async () => {
     await addMovie(userData.uid, movieToAdd);
+    //showListButton.value = false
 };
 
 const removeFromMovieList = async () => {
     await removeMovie(userData.uid, route.params.id)
+    //showListButton.value = true
 }
+
 
 </script>
 
@@ -78,15 +76,15 @@ const removeFromMovieList = async () => {
             <div class="flex flex-col gap-4 items-center">
                 <img :src="`${baseImageUrl}${movie.poster_path}`" :alt="`${movie.title}`"
                     class="w-full max-w-sm lg:max-w-xl">
-                <div class="icon-group flex gap-4">
-                    <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="Add to my movies"
-                        class="flex flex-col gap-1 w-24" @click="addToMovieList"/>
-                        <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="Remove from my movies"
-                            class="flex flex-col gap-1 w-24" @click="removeFromMovieList"/>
-                    <UButton icon="i-heroicons-star-solid" color="primary" variant="outline" label="Watch next"
-                        class="flex flex-col gap-1 w-24" />
-                    <UButton icon="i-heroicons-check-circle" color="primary" variant="outline" label="Seen"
-                        class="flex flex-col gap-1 w-24" />
+                <div class="icon-group flex gap-4 w-full">
+                    <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline"
+                        label="Add to my movies" class="flex gap-2 items-center justify-center text-lg" block @click="addToMovieList"
+                        v-if="!isInMovieList" />
+                    <UButton icon="i-heroicons-x-circle" color="primary" variant="outline"
+                        label="Remove from watchlist" class="flex gap-2 items-center justify-center text-lg" block @click="removeFromMovieList"
+                        v-if="isInMovieList" />
+                    <!-- <UButton icon="i-heroicons-check-circle" color="primary" variant="outline" label="Seen"
+                        class="flex flex-col gap-1 w-24" /> -->
                 </div>
             </div>
             <div class="w-full flex flex-col gap-4">
@@ -107,6 +105,8 @@ const removeFromMovieList = async () => {
                     <span v-for="actor in movie.credits.cast.slice(0, 4)">{{ actor.name }}, </span>
                     <span>{{ movie.credits.cast[4].name }}</span>
                 </div>
+                <!-- Badge group - for later development -->
+
                 <!-- <Heading class="pt-4">MyMDb rating</Heading>
                 <div class="flex gap-2">
                     <UBadge color="red" :variant="ratingBadge.red" @click="toggleBadge('red', 1)" label="1" size="md"
@@ -120,20 +120,12 @@ const removeFromMovieList = async () => {
                     <UBadge color="green" :variant="ratingBadge.green" @click="toggleBadge('green', 5)" label="5" size="md"
                         class="cursor-pointer" />
                 </div> -->
-                <!-- <div class="icon-group flex gap-4">
-                    <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline" label="My movies"
-                        class="flex flex-col gap-1" />
-                    <UButton icon="i-heroicons-star-solid" color="primary" variant="outline" label="Watch next"
-                        class="flex flex-col gap-1" />
-                    <UButton icon="i-heroicons-check-circle" color="primary" variant="outline" label="Seen"
-                        class="flex flex-col gap-1" />
-                </div> -->
             </div>
         </div>
         <Heading class="pt-4">More like this</Heading>
     </div>
     <div v-else>
-        <p> {{ error}}</p>
+        <p> {{ error }}</p>
     </div>
 </template> 
 
