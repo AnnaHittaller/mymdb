@@ -1,4 +1,4 @@
-        
+<!--         
 <script setup>
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
@@ -53,7 +53,7 @@ const baseImageUrl = "https://image.tmdb.org/t/p/original"
     <div class="left-0 right-0 pl-4 ">
         <!-- <div v-if="!isAtEnd"
             class="w-full h-full z-10 bg-gradient-to-l from-[#27272a] via--[#27272a] from-0% to-20% absolute top-0 left-0 pointer-events-none" /> -->
-        <Carousel ref="carousel" :breakpoints="breakpoints" :items-to-scroll="1" :wrap-around="false" :transition="500"
+        <!-- <Carousel ref="carousel" :breakpoints="breakpoints" :items-to-scroll="1" :wrap-around="false" :transition="500"
             snapAlign="start" class="bg-transparent movie-carousel max-w-full" @slide-end="handleSlideEnd">
             <Slide v-for="slide, index in movies" :key="slide" class=" bg-transparent self-start max-h-full max-w-full">
                 <div class="w-full mr-4">
@@ -65,15 +65,15 @@ const baseImageUrl = "https://image.tmdb.org/t/p/original"
                         :src="`${baseImageUrl}${slide.poster_path}`">
                 </NuxtLink> -->
                 <!-- </div> -->
-            </Slide>
+            <!-- </Slide>
             <template #addons>
                 <Navigation class="nav-arrow" />
             </template>
         </Carousel>
     </div>
-</template>
+</template> -->
 
-<style scoped>
+<!-- <style scoped>
 .nav-arrow .carousel__prev,
 .nav-arrow .carousel__next,
 .nav-arrow .carousel__prev:hover,
@@ -81,4 +81,4 @@ const baseImageUrl = "https://image.tmdb.org/t/p/original"
     color: white;
 
 }
-</style>
+</style> --> 

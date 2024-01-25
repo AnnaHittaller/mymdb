@@ -103,7 +103,7 @@ swiper-container.movieSlider::part(button-prev) {
   background-size: 100% auto;
   background-position: center;
   position: absolute;
-  top: 30%;
+  top: 40%;
 
 
   @media screen and (max-width: 640px) {

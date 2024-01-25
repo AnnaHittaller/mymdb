@@ -1,14 +1,11 @@
 export default defineEventHandler(async (event) => {
 	try {
-		const query = getQuery(event);
-		console.log(query);
 		const config = useRuntimeConfig();
-		const page = query.page || 1; // Default to page 1 if not provided in the query
-		const url = `${config.apiBaseUrl}/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc`;
-		console.log(url);
+		//const { id } = event.context.params;
+		const query = getQuery(event);
 
 		const response = await $fetch(
-			`${config.apiBaseUrl}/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc`,
+			`https://api.themoviedb.org/3/movie/${query.id}/similar?language=en-US&page=1`,
 			{
 				method: "GET",
 				headers: {
@@ -29,12 +26,12 @@ export default defineEventHandler(async (event) => {
 			};
 		});
 		console.log(shortResponse);
-		//return response;
+
 		return shortResponse;
 	} catch (error) {
 		throw createError({
 			statusCode: 404,
-			message: "Error while discovering movies.",
+			message: "Similar movies can't be found",
 		});
 	}
 });

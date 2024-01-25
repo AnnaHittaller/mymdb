@@ -23,12 +23,12 @@ const removeFromNextList = async () => {
 </script>
 
 <template>
-    <div class="relative pt-1">
+    <div class="relative pt-1 px-1">
         <UIcon name="i-heroicons-star"
-            class="z-20 text-2xl text-primary absolute top-2 right-1 transition hover:scale-150 origin-bottom-left cursor-pointer"
+            class="z-20 text-2xl text-primary absolute top-2 right-2 transition hover:scale-150 origin-bottom-left cursor-pointer"
             v-if="!movie.next" @click.stop="addToNextList" />
         <UIcon name="i-heroicons-star-20-solid"
-            class="z-20 text-2xl scale-150 text-primary absolute top-2 right-1 transition hover:scale-150 origin-bottom-left cursor-pointer"
+            class="z-20 text-2xl scale-150 text-primary absolute top-2 right-2 transition hover:scale-150 origin-bottom-left cursor-pointer"
             v-if="movie.next" @click.stop="removeFromNextList" />
         <NuxtLink :to="`/movie/${movie.id}`">
             <div class="flex flex-col gap-2 w-full justify-start items-start">

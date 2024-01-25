@@ -5,6 +5,8 @@ const { getUser, addMovie, removeMovie, updateMovie } = useFirestore()
 const route = useRoute()
 const userData = await currentUserPromise()
 const user = await getUser(userData.uid)
+const userMoviesStore = useUserMoviesStore();
+await userMoviesStore.fetchUserMovies();
 //const nuxt = useNuxtApp()
 //console.log(nuxt)
 const movieId = computed(() => route.params.id)
@@ -13,11 +15,28 @@ const baseImageUrl = "https://image.tmdb.org/t/p/w500"
 const { data, pending, error } = await useFetch(`/api/movies/${movieId.value}`)
 const movie = toRaw(data?.value)
 
-const isInMovieList = computed(() => {
-    return user.movies.some(movie => movie.id === route.params.id)
-})
+const { data: similar, pending: similarPending, error: similarError } = await useFetch(`/api/movies/similar?id=${movieId.value}`)
+//const similarMovies = toRaw(similar.value.results)
+//console.log("SIMILAR", toRaw(similar.value))
+//console.log(similar);
 
-const showListButton = ref(true)
+const moviesWithPoster = computed(() => {
+    //console.log(similarMovies)
+    const filtered = similar.value.filter(movie => movie.poster !== null);
+    //console.log(filtered)
+    return filtered
+});
+
+// const isInMovieList = computed(() => {
+//     return user.movies.some(movie => movie.id === route.params.id)
+// })
+
+// const isInNextList = computed(() => {
+//     return user.movies.some(movie => movie.id === route.params.id && movie.next)
+// })
+
+const isInMovieList = computed(() => userMoviesStore.movies.some(movie => movie.id === route.params.id));
+const isInNextList = computed(() => userMoviesStore.movies.some(movie => movie.id === route.params.id && movie.next));
 
 // code for rating badges - for later development
 
@@ -57,31 +76,43 @@ const movieToAdd = {
 
 const addToMovieList = async () => {
     await addMovie(userData.uid, movieToAdd);
-    //showListButton.value = false
 };
 
 const removeFromMovieList = async () => {
     await removeMovie(userData.uid, route.params.id)
-    //showListButton.value = true
 }
 
+const addToNextList = async () => {
+    await updateMovie(userData.uid, route.params.id, { next: true });
+}
+
+const removeFromNextList = async () => {
+    await updateMovie(userData.uid, route.params.id, { next: false });
+}
 
 </script>
 
 <template>
     <div v-if="movie">
-
         <Heading>{{ movie?.title }}</Heading>
         <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4">
             <div class="flex flex-col gap-4 items-center">
-                <img :src="`${baseImageUrl}${movie.poster_path}`" :alt="`${movie.title}`"
-                    class="w-full max-w-sm lg:max-w-xl">
+                <div class="relative">
+                    <UIcon name="i-heroicons-star"
+                        class="z-20 text-2xl text-primary absolute top-2 right-1 transition hover:scale-150 origin-bottom-left cursor-pointer"
+                        v-if="!isInNextList" @click.stop="addToNextList" />
+                    <UIcon name="i-heroicons-star-20-solid"
+                        class="z-20 text-2xl scale-150 text-primary absolute top-2 right-1 transition hover:scale-150 origin-bottom-left cursor-pointer"
+                        v-if="isInNextList" @click.stop="removeFromNextList" />
+                    <img :src="`${baseImageUrl}${movie.poster_path}`" :alt="`${movie.title}`"
+                        class="w-full max-w-sm lg:max-w-xl ">
+                </div>
                 <div class="icon-group flex gap-4 w-full">
                     <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline"
-                        label="Add to my movies" class="flex gap-2 items-center justify-center text-lg" block @click="addToMovieList"
-                        v-if="!isInMovieList" />
-                    <UButton icon="i-heroicons-x-circle" color="primary" variant="outline"
-                        label="Remove from watchlist" class="flex gap-2 items-center justify-center text-lg" block @click="removeFromMovieList"
+                        label="Add to my movies" class="flex gap-2 items-center justify-center text-lg" block
+                        @click="addToMovieList" v-if="!isInMovieList" />
+                    <UButton icon="i-heroicons-x-circle" color="primary" variant="outline" label="Remove from watchlist"
+                        class="flex gap-2 items-center justify-center text-lg" block @click="removeFromMovieList"
                         v-if="isInMovieList" />
                     <!-- <UButton icon="i-heroicons-check-circle" color="primary" variant="outline" label="Seen"
                         class="flex flex-col gap-1 w-24" /> -->
@@ -123,6 +154,10 @@ const removeFromMovieList = async () => {
             </div>
         </div>
         <Heading class="pt-4">More like this</Heading>
+        <!-- <MovieSlider v-if="moviesWithPoster" :movies="moviesWithPoster" /> -->
+        <div class="movie-grid " v-if="moviesWithPoster.length > 0">
+            <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
+        </div>
     </div>
     <div v-else>
         <p> {{ error }}</p>

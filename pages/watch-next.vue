@@ -7,14 +7,19 @@ const { getUser } = useFirestore()
 const userData = await currentUserPromise()
 const user = await getUser(userData.uid)
 
+const userMoviesStore = useUserMoviesStore();
+await userMoviesStore.fetchUserMovies();
+
 const searchTerm = ref("")
 const debouncedSearchTerm = refDebounced(searchTerm, 700)
 
-const watchNextMovies = user?.movies?.filter(movie => movie.next)
+const watchNextMovies = userMoviesStore.movies.filter(movie => movie.next)
 
 const filteredMovies = computed(() => {
-    return watchNextMovies.filter(movie => movie.title.toLowerCase().includes(debouncedSearchTerm.value.toLowerCase()))
-})
+    return userMoviesStore.movies.filter(movie => {
+        return movie.next && movie.title.toLowerCase().includes(debouncedSearchTerm.value.toLowerCase());
+    });
+});
 </script>
 
 <template>

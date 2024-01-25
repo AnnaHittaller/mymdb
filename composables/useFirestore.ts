@@ -1,4 +1,4 @@
-import { collection, getDocs, setDoc, doc, getDoc, deleteDoc, updateDoc, arrayRemove, arrayUnion} from "firebase/firestore"
+import { collection, getDocs, setDoc, doc, getDoc, deleteDoc, updateDoc, arrayRemove, arrayUnion, onSnapshot} from "firebase/firestore"
 
 interface Movie {
   id: string;
@@ -12,6 +12,26 @@ interface Movie {
 export const useFirestore = () => {
 
     const { $db } = useNuxtApp()
+
+    const movies = ref<Movie[]>([])
+
+//   // Listen for real-time updates to the "users" collection
+//     onSnapshot(collection($db, 'users'), (snapshot) => {
+//         snapshot.docChanges().forEach(change => {
+//             const userId = change.doc.id;
+//             const userData = change.doc.data();
+//             if (change.type === 'modified' && userData.movies) {
+//                 const userMovies = userData.movies;
+//                 // Update the "movies" array for the user with userId
+//                 const index = movies.value.findIndex(movie => movie.id === userId);
+//                 if (index !== -1) {
+//                     movies.value[index] = { userId, movies: userMovies };
+//                 } else {
+//                     movies.value.push({ userId, movies: userMovies });
+//                 }
+//             }
+//         });
+//     });
 
     const getUsers = async () => {
         try {
