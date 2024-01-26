@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     '@nuxt/ui', 
     '@vueuse/nuxt',
     '@pinia/nuxt',
+    '@formkit/auto-animate/nuxt'
    // 'nuxt-vuefire',
   ],
   colorMode: {

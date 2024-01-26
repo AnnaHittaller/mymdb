@@ -24,11 +24,6 @@ onMounted(async () => {
 // Watch for changes in the movies array
 const usersMovies = toRef(userMoviesStore, 'movies');
 
-// Log the movies when they are updated
-// watch(usersMovies, (newMovies) => {
-//     console.log("Movies updated:", newMovies);
-// });
-
 const watchNextMovies = computed(()=> {
 
     return userMoviesStore.movies.filter(movie => movie.next)
@@ -66,11 +61,12 @@ const watchNextMovies = computed(()=> {
 <!-- TODO
 
 error page
-create a composable from baseImageUrl
 keep-alive - to not load trending movies every time
 create skeleton for swiper sliders and hero image
-adding toast for movie page: rating and list modifications
+adding toast for movie page: list modifications
 
 filtering in watchlist by genre
+adding timestamps to changes on movie object and displaying movies in watchlist from newest
+search page and discover page: display icons for movieCards according to user's movies from pinia
 including series too
 -->

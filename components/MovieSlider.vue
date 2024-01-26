@@ -31,14 +31,17 @@ const breakpoints = {
   900: {
     slidesPerView: 5,
   },
-  1024: {
+  1100: {
     slidesPerView: 6,
   },
   1280: {
-    slidesPerView: 8,
+    slidesPerView: 7,
   },
   1536: {
-    slidesPerView: 10,
+    slidesPerView: 9,
+  },
+  1920: {
+    slidesPerView: 11,
   },
 }
 
@@ -55,9 +58,9 @@ const breakpoints = {
     <!-- <div
       class="w-full h-full z-10 bg-gradient-to-l from-[#27272a] from-0% to-15%  absolute top-0 left-0 pointer-events-none"
       :class="{ 'hidden': lastSlide }"></div> -->
-    <swiper-container space-between="15" class="movieSlider z-0" centered-slides="false" :navigation="true" :loop="false"
+    <swiper-container space-between="10" class="movieSlider z-0" centered-slides="false" :navigation="true" :loop="false"
       :style="computedStyle" @swiperslidechange="onSlideChange" :breakpoints="breakpoints">
-      <swiper-slide v-for="  movie, index   in   movies  " :key="index" auto-scroll-offset="1" class="">
+      <swiper-slide v-for="movie, index in movies" :key="movie.id" auto-scroll-offset="1" class="" v-auto-animate>
 
         <MovieCard :movie="movie" class="" />
 

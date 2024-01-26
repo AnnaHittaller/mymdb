@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
 	try {
 		const query = getQuery(event);
 		console.log(query);
-		const config = useRuntimeConfig();
+		const config = useRuntimeConfig(); 
 		const page = query.page || 1; // Default to page 1 if not provided in the query
 		const url = `${config.apiBaseUrl}/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc`;
 		console.log(url);

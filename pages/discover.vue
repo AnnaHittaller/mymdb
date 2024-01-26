@@ -3,12 +3,12 @@
 let movies = ref([])
 let currentPage = 1;
 
-// Rating and Genre filter options
-const ratings = ['All', '8.0', '6.0', '3.0', 'Below 3'];
+// Rating and Genre filter options 
+const ratings = ['All', '9.0', '8.0', '7.0', '6.0', '5.0', '4.0', '3.0', '2.0 and below'];
 
 const { data, pending, error } = await useFetch(`api/movies/discover?page=${currentPage}`)
 
-const { data: genreList, pending: genrePending, error: genreError} = await useFetch('/api/movies/genres')
+const { data: genreList, pending: genrePending, error: genreError } = await useFetch('/api/movies/genres')
 const genres = toRaw(genreList.value.genres).map(genre => genre.name);
 console.log(genres)
 
@@ -52,8 +52,8 @@ const loadMoreMovies = async () => {
 
 
 // Selected filters
- const selectedRatings = ref([]);
- const selectedGenres = ref([]);
+const selectedRatings = ref("");
+const selectedGenres = ref([]);
 
 const selectMenuConfig = {
     option: {
@@ -76,12 +76,13 @@ const selectMenuConfig = {
             <Heading>Discover new movies</Heading>
             <div class="flex gap-4 items-center">
                 <!-- Rating filter dropdown -->
-                <USelectMenu v-model="selectedRatings" size="sm" :options="ratings" multiple placeholder="Minimum rating"
-                    color="primary" :uiMenu="selectMenuConfig" class="z-50"/>
+                <USelectMenu v-model="selectedRatings" size="lg" :options="ratings" placeholder="Minimum rating"
+                    color="primary" :uiMenu="selectMenuConfig" class="z-50 min-w-[150px]" />
 
                 <!-- Genre filter dropdown -->
-                <USelectMenu v-model="selectedGenres" size="sm" :options="genres" multiple searchable placeholder="Filter by genres"
-                    color="primary" :uiMenu="selectMenuConfig" class="z-50"/>
+                <USelectMenu v-model="selectedGenres" size="lg" :options="genres" multiple searchable
+                    placeholder="Filter by genres" searchable-placeholder="Search by genre" color="primary"
+                    :uiMenu="selectMenuConfig" class="z-50 min-w-[150px]" />
             </div>
         </div>
         <div class="flex flex-col items-stretch">

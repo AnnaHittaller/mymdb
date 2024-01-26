@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@firebase/app-types": "^0.9.0",
+    "@formkit/auto-animate": "^0.8.1",
     "@iconify/json": "^2.2.150",
     "@nuxt/ui": "^2.11.0",
     "@pinia/nuxt": "^0.5.1",

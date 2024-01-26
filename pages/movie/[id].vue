@@ -97,13 +97,15 @@ const removeFromNextList = async () => {
         <Heading>{{ movie?.title }}</Heading>
         <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4">
             <div class="flex flex-col gap-4 items-center">
-                <div class="relative">
-                    <UIcon name="i-heroicons-star"
-                        class="z-20 text-2xl text-primary absolute top-2 right-1 transition hover:scale-150 origin-bottom-left cursor-pointer"
-                        v-if="!isInNextList" @click.stop="addToNextList" />
-                    <UIcon name="i-heroicons-star-20-solid"
-                        class="z-20 text-2xl scale-150 text-primary absolute top-2 right-1 transition hover:scale-150 origin-bottom-left cursor-pointer"
-                        v-if="isInNextList" @click.stop="removeFromNextList" />
+                <div class="relative" v-auto-animate>
+                    <div v-auto-animate="{duration: 150}" v-if="isInMovieList" >
+                        <UIcon name="i-heroicons-star"
+                            class="z-20 text-2xl text-primary absolute -top-1 -right-1 transition scale-150 origin-center cursor-pointer"
+                            v-if="!isInNextList" @click.stop="addToNextList" />
+                        <UIcon name="i-heroicons-star-20-solid"
+                            class="z-20 text-2xl scale-150 text-primary absolute -top-1 -right-1 transition origin-center cursor-pointer"
+                            v-if="isInNextList" @click.stop="removeFromNextList" />
+                    </div>
                     <img :src="`${baseImageUrl}${movie.poster_path}`" :alt="`${movie.title}`"
                         class="w-full max-w-sm lg:max-w-xl ">
                 </div>
@@ -154,7 +156,6 @@ const removeFromNextList = async () => {
             </div>
         </div>
         <Heading class="pt-4">More like this</Heading>
-        <!-- <MovieSlider v-if="moviesWithPoster" :movies="moviesWithPoster" /> -->
         <div class="movie-grid " v-if="moviesWithPoster.length > 0">
             <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
         </div>
