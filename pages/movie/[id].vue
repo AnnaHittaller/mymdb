@@ -136,7 +136,7 @@ const removeFromNextList = async () => {
                 <Heading class="pt-4">Actors</Heading>
                 <div>
                     <span v-for="actor in movie.credits.cast.slice(0, 4)">{{ actor.name }}, </span>
-                    <span>{{ movie.credits.cast[4].name }}</span>
+                    <span>{{ movie.credits.cast[4]?.name }}</span>
                 </div>
                 <!-- Badge group - for later development -->
 

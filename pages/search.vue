@@ -1,5 +1,9 @@
 <script setup>
 
+definePageMeta({
+    middleware: "auth"
+})
+
 // Search related data
 const searchTerm = ref("")
 const debouncedSearchTerm = refDebounced(searchTerm, 700)
@@ -17,10 +21,14 @@ watchEffect(() => {
     // Reset currentPage for a new search
     currentPage = 1;
 
-    // Fetch data based on the current search term and page
     useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`).then(({ data, pending, error }) => {
-        // Update the movies ref with the new data, replacing existing movies
-        movies.value = toRaw(data.value);
+
+        if (data && data.value.results) {
+            // Update the movies ref with the new data, replacing existing movies
+            movies.value = toRaw(data.value.results);
+        } else {
+            console.error('No results found in the response.');
+        }
     }).catch(error => {
         console.error('Error while searching for movies:', error);
     });
@@ -36,7 +44,7 @@ const loadMoreMovies = async () => {
 
         const { data, pending, error } = await useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`);
 
-        const newMovies = toRaw(data.value);
+        const newMovies = toRaw(data.value.results);
         movies.value = [...movies.value, ...newMovies.filter(newMovie => !movies.value.some(existingMovie => existingMovie.id === newMovie.id))];
 
     } catch (error) {
@@ -73,7 +81,7 @@ const loadMoreMovies = async () => {
                 <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
             </div>
             <UButton label="Load more" @click="loadMoreMovies" class="mt-14 mb-8 self-center" size="xl"
-                v-if="moviesWithPoster.length > 0" />
+                v-if="moviesWithPoster.length > 0 && data.total_pages > 1" />
         </div>
     </div>
 </template>

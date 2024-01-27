@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 		const config = useRuntimeConfig();
 		const page = query.page || 1; // Default to page 1 if not provided in the query
 		const url = `${config.apiBaseUrl}/search/movie?query=${query.query}&include_adult=false&language=en-US&page=${page}`;
-		console.log(url)
+		console.log(url);
 
 		const response = await $fetch(
 			`${config.apiBaseUrl}/search/movie?query=${query.query}&include_adult=false&language=en-US&page=${page}`,
@@ -25,12 +25,18 @@ export default defineEventHandler(async (event) => {
 				poster: item.poster_path,
 				backdrop: item.backdrop_path,
 				genres: item.genre_ids,
-				rating: item.vote_average
+				rating: item.vote_average,
 			};
 		});
-		console.log(shortResponse);
-		//console.log(`${config.apiBaseUrl}/search/movie?query=${query.query}&include_adult=false&language=en-US&page=${page}`)
-		return shortResponse;
+
+		//return shortResponse
+		const responseData = {
+			results: shortResponse,
+			total_pages: response.total_pages,
+		};
+		//console.log(responseData)
+
+		return responseData;
 	} catch (error) {
 		throw createError({
 			statusCode: 404,
@@ -38,5 +44,3 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 });
-
-

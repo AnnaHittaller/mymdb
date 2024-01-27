@@ -10,13 +10,7 @@ const { movies } = toRefs(props)
 
 const lastSlide = ref(false);
 const firstSlide = ref(true)
-const currentBreakpoint = ref(4)
-
-const onSlideChange = (e) => {
-  lastSlide.value = e.detail[0].isEnd;
-  firstSlide.value = e.detail[0].isBeginning;
-  currentBreakpoint.value = e.detail[0].currentBreakpoint
-};
+const currentBreakpoint = ref(900);
 
 const breakpoints = {
   0: {
@@ -45,11 +39,33 @@ const breakpoints = {
   },
 }
 
-// const shouldDisplayNavigation = computed(() => {
-//   const slidesPerView = breakpoints[currentBreakpoint.value]?.slidesPerView;
-//   console.log(slidesPerView)
-//   return movies.value.length > slidesPerView;
-// });
+const shouldDisplayNavigation = computed(() => {
+  const slidesPerView = breakpoints[currentBreakpoint.value]?.slidesPerView;
+  return movies.value.length > slidesPerView;
+});
+
+watch([movies, currentBreakpoint], () => {
+  shouldDisplayNavigation.value;
+});
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  currentBreakpoint.value = getInitialBreakpoint(); // Call getInitialBreakpoint after breakpoints is initialized
+  // Trigger the initial computation of shouldDisplayNavigation after the component is mounted
+  shouldDisplayNavigation.value;
+});
+
+const handleResize = () => {
+  currentBreakpoint.value = getInitialBreakpoint();
+};
+
+function getInitialBreakpoint() {
+  const windowWidth = window.innerWidth;
+  return Object.keys(breakpoints)
+    .sort((a, b) => b - a) // Sort breakpoints in descending order
+    .find(breakpoint => windowWidth >= parseInt(breakpoint)) || 900; // Default to 900 if no matching breakpoint found
+}
+
 
 </script> 
 
@@ -58,9 +74,10 @@ const breakpoints = {
     <!-- <div
       class="w-full h-full z-10 bg-gradient-to-l from-[#27272a] from-0% to-15%  absolute top-0 left-0 pointer-events-none"
       :class="{ 'hidden': lastSlide }"></div> -->
-    <swiper-container space-between="10" class="movieSlider z-0" centered-slides="false" :navigation="true" :loop="false"
-      :style="computedStyle" @swiperslidechange="onSlideChange" :breakpoints="breakpoints">
-      <swiper-slide v-for="movie, index in movies" :key="movie.id" auto-scroll-offset="1" class="" v-auto-animate>
+    <swiper-container space-between="10" class="movieSlider z-0" centered-slides="false"
+      :navigation="shouldDisplayNavigation" :loop="false" :style="computedStyle" @swiperslidechange="onSlideChange"
+      :breakpoints="breakpoints">
+      <swiper-slide v-for="movie in movies" :key="movie.id" auto-scroll-offset="1" class="" v-auto-animate>
 
         <MovieCard :movie="movie" class="" />
 
@@ -110,7 +127,7 @@ swiper-container.movieSlider::part(button-prev) {
 
 
   @media screen and (max-width: 640px) {
-    display: none;
+    /* display: none; */
   }
 }
 

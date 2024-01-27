@@ -1,8 +1,6 @@
 <script setup>
-import { useElementSize } from '@vueuse/core'
 
 const el = ref(null)
-const { width } = useElementSize(el)
 
 const isHomePage = computed(() => {
     const route = useRoute()

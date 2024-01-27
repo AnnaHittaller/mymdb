@@ -9,17 +9,6 @@ definePageMeta({
 const { login } = useFirebaseAuth()
 const colorStore = useUiColorStore()
 colorStore.initialize()
-//const router = useRouter()
-//import { useCounterStore } from "~/stores/testStore"
-//const store = useCounterStore()
-//console.log(store)
-
-//const response = await $fetch("/api/hello")
-//console.log(response)
-
-//const { data } = await useFetch('/api/hello')
-//console.log("data:", data) //both works but we need here data.value
-//console.log(toRaw(data.value))
 
 const schema = z.object({
     email: z.string().email('Invalid email'),

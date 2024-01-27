@@ -35,7 +35,7 @@ export const useUserMoviesStore = defineStore('userMoviesStore', () => {
                 onSnapshot(doc($db, `users/${userData.uid}`), (snapshot) => {
                     const userMovies = snapshot.data()?.movies || [];
                     movies.value = userMovies;
-                    console.log("Real-time updates received:", userMovies);
+                    //console.log("Real-time updates received:", userMovies);
                 });
             }
         } catch (error) {
@@ -54,7 +54,7 @@ export const useUserMoviesStore = defineStore('userMoviesStore', () => {
             if ( user && user.movies) {
                 // If the user has movies, set the initial movies array
                 movies.value = user.movies;
-                console.log("store fetching movies",toRaw(movies.value))
+                //console.log("store fetching movies",toRaw(movies.value))
                 return movies
             }
             
@@ -66,9 +66,9 @@ export const useUserMoviesStore = defineStore('userMoviesStore', () => {
     const addMovie = async (movie: Movie) => {
         try {
         // Update the movies array by adding the new movie
-        console.log("store adding movies before",toRaw(movies.value))
+        //console.log("store adding movies before",toRaw(movies.value))
         movies.value = [...movies.value, movie];
-        console.log("store adding movies after",toRaw(movies.value))
+        //console.log("store adding movies after",toRaw(movies.value))
 
         return movies
 
@@ -80,9 +80,9 @@ export const useUserMoviesStore = defineStore('userMoviesStore', () => {
   const removeMovie = async (movieId: string) => {
     try {
       // Update the movies array by removing the movie with the specified ID
-      console.log("store deleting movies before",toRaw(movies.value))
+      //console.log("store deleting movies before",toRaw(movies.value))
       movies.value = movies.value.filter((movie) => movie.id !== movieId);
-      console.log("store deleting movies after",toRaw(movies.value))
+      //console.log("store deleting movies after",toRaw(movies.value))
 
       return movies
     } catch (error) {

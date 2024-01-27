@@ -48,7 +48,7 @@ export const useFirestore = () => {
                return {id: doc.id, ...doc.data()}
             })
 
-            console.log(users)
+            //console.log(users)
 
         } catch (error) {
             console.log(error);
@@ -61,7 +61,7 @@ export const useFirestore = () => {
             const currentUser = await getDoc(docRef);
 
             if (currentUser.exists()) {
-            console.log("Document data:", currentUser.data());
+            //console.log("Document data:", currentUser.data());
             return currentUser.data()
             } else {
             // currentUser.data() will be undefined in this case
@@ -123,7 +123,6 @@ export const useFirestore = () => {
         try {
             const userRef = doc($db, "users", uid);
             const userSnapshot = await getDoc(userRef);
-            console.log("two")
 
             if (userSnapshot.exists()) {
                 const userData = userSnapshot.data() as { movies: Movie[] };
@@ -169,7 +168,6 @@ export const useFirestore = () => {
     }
 
     return {
-        getUsers,
         setUser,
         getUser,
         deleteUserDoc,

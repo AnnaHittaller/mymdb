@@ -1,30 +1,27 @@
-<script setup>
-const error = useError();
+<script setup lang="ts">
+const props = defineProps({
+    error: Object
+})
+
+const loading = ref(false)
 
 const handleError = () => {
-    clearError({
-        redirect: '/',
-    });
-};
+    loading.value = true
+    clearError({ redirect: '/' })
+        .finally(() => loading.value = false)
+}
 </script>
 
 <template>
-    <NuxtLayout>
-        <div class="flex flex-col items-center justify-center">
-            <template v-if="error.statusCode === 404">
-                <h1>404!</h1>
-                <p>Sorry, that page doesn't exist.</p>
-            </template>
-            <template v-else>
-                <h1>Ooops</h1>
-                <p><strong>{{ error.message }}</strong></p>
-                <p>It looks like something broke.</p>
-                <p>Sorry about that.</p>
-            </template>
-            <p>
-                Go back to the homepage.
-                <UButton @click="handleError" label="Back to homepage" />
-            </p>
+        <div class="flex flex-col items-center justify-center h-[100dvh]" v-if="error">
+
+                <h1 class="text-7xl mb-8" v-if="error.statusCode !== 404">Ooops</h1>
+                <p class="text-7xl mb-8" v-if="error.statusCode !== 404">{{ error.message }}</p>
+                <p class="text-7xl mb-8" v-if="error.statusCode === 404">{{ error.statusCode }} </p>
+                <p class="text-4xl">It looks like something broke.</p>
+                <p class="text-4xl mb-4">Sorry about that.</p>
+           
+            <UButton @click="handleError" label="Back to homepage" size="xl" class="text-2xl" :loading="loading" />
         </div>
-    </NuxtLayout>
+
 </template>
