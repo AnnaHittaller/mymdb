@@ -27,7 +27,7 @@ const reversedMovies = computed(() => {
     return usersMovies.value.slice().reverse()
 })
 
-const watchNextMovies = computed(()=> {
+const watchNextMovies = computed(() => {
     return userMoviesStore.movies.filter(movie => movie.next)
 })
 const reversedWatchNextMovies = computed(() => {
@@ -38,25 +38,26 @@ const reversedWatchNextMovies = computed(() => {
 
 <template>
     <div class="pb-4 max-w-full">
-        <Hero /> 
+        <Hero />
         <div class="flex justify-between items-center pr-4 pb-8">
             <Heading class="pl-4">My watchlist</Heading>
-            <UButton to="/my-movies" label="View All" v-if="usersMovies.length > 2" class="text-lg"/>
+            <UButton to="/my-movies" label="View All" v-if="usersMovies.length > 2" class="text-lg" />
         </div>
         <MovieSlider v-if="reversedMovies" :movies="reversedMovies" />
         <div v-if="reversedMovies.length === 0" class="flex gap-4 max-sm:flex-col items-center max-sm:text-lg ">
             <p class="px-4">Add some movies to your watch-list first.</p>
-            <UButton to="/search" label="Get movies" class="text-lg"/>
+            <UButton to="/search" label="Get movies" class="text-lg" />
         </div>
         <!-- <div v-if="error">Error while retrieving your movie list.</div> -->
         <div class="flex justify-between items-center pr-4 pb-8 pt-4">
             <Heading class="pl-4 pt-8">Watch next</Heading>
-            <UButton to="/watch-next" label="View All" v-if="watchNextMovies.length > 2" class="text-lg"/>
+            <UButton to="/watch-next" label="View All" v-if="watchNextMovies.length > 2" class="text-lg" />
         </div>
         <MovieSlider v-if="reversedWatchNextMovies" :movies="reversedWatchNextMovies" />
-        <div v-if="reversedWatchNextMovies.length === 0" class="flex gap-4 max-sm:flex-col max-sm:text-lg items-center pb-8">
+        <div v-if="reversedWatchNextMovies.length === 0"
+            class="flex gap-4 max-sm:flex-col max-sm:text-lg items-center pb-8">
             <p class="px-4">Add some movies to your watch next list first.</p>
-            <UButton to="/my-movies" label="Get movies" class="text-lg"/>
+            <UButton to="/my-movies" label="Get movies" class="text-lg" />
         </div>
     </div>
 </template> 
@@ -70,11 +71,11 @@ adding toast for movie page: list modifications
 make a store for the user instance - auth middleware
 add timestamp for the movie updates and display next list according to date of modification
 search results to id page then back: keep search results alive
-checking pagemeta on all pages
-LOADER
+Google authentication
 
 filtering in watchlist/next list by genre
 adding trailers and/or screenshots
 search page and discover page: display icons for movieCards according to user's movies from pinia
 including series too
+
 -->

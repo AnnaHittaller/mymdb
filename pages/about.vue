@@ -1,3 +1,9 @@
+<script setup>
+definePageMeta({
+    middleware: "auth"
+})
+</script>
+
 <template>
     <div class="text-xl">
         <Heading>About MyMDb</Heading>

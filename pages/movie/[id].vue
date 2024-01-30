@@ -1,4 +1,8 @@
 <script setup>
+definePageMeta({
+    middleware: "auth"
+})
+
 const { currentUserPromise } = useFirebaseAuth()
 const { getUser, addMovie, removeMovie, updateMovie } = useFirestore()
 

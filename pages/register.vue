@@ -4,7 +4,7 @@ import type { FormError, FormSubmitEvent } from '#ui/types'
 
 definePageMeta({
     layout: "not-logged-in",
-    middleware: "auth"
+    middleware: "already-logged-in"
 })
 
 const { register } = useFirebaseAuth()
@@ -52,7 +52,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         state.password = undefined
         if (!state.error) {
             state.success = true
-            await navigateTo("/")
+            return await navigateTo("/", { replace: true });
         }
     } catch (error: any) {
         console.error(error)

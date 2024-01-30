@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from '#ui/types'
 
+definePageMeta({
+    middleware: "auth"
+})
+
 const state = reactive({
     subject: undefined,
     message: undefined

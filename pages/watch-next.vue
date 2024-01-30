@@ -2,6 +2,7 @@
 definePageMeta({
     middleware: "auth"
 })
+
 const { currentUserPromise } = useFirebaseAuth()
 const { getUser } = useFirestore()
 const userData = await currentUserPromise()

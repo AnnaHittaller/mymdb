@@ -51,20 +51,34 @@ export const useFirebaseAuth = () => {
        console.log("logged out")
     }
 
-    const currentUserPromise = () => new Promise((resolve, reject) => {
-        // Start listening to changes in the authentication state
+    // const currentUserPromise = () => new Promise((resolve, reject) => {
+    //     // Start listening to changes in the authentication state
+    //     const unsubscribe = onAuthStateChanged($auth, (user) => {
+    //         // Stop listening to further changes after the initial state is determined
+    //         unsubscribe();
+
+    //         //console.log("user promise");
+
+    //         if (user) {
+    //             resolve(user); 
+    //         } else {
+    //             reject(new Error("No user found")); 
+    //         }
+    //     });
+    // });
+
+     const currentUserPromise = () => new Promise((resolve, reject) => {
         const unsubscribe = onAuthStateChanged($auth, (user) => {
-            // Stop listening to further changes after the initial state is determined
             unsubscribe();
-
-            //console.log("user promise");
-
             if (user) {
                 resolve(user); 
             } else {
                 reject(new Error("No user found")); 
             }
         });
+    }).catch(error => {
+        console.error("CURRENT USER PROMISE ERR", error.message);
+        throw error;
     });
 
     const currentUserInfo = $auth.currentUser

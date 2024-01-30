@@ -3,6 +3,7 @@ import { defineNuxtConfig } from 'nuxt/config'
 //import { resolve } from 'path'
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  spaLoadingTemplate: true,
   // alias: {
   //   '@': resolve(__dirname, "/")
   // },

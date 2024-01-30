@@ -10,6 +10,7 @@ module.exports = {
 		"./nuxt.config.{js,ts}",
 		"./app.vue",
 		"./error.vue",
+		"./app/spa-loading-template.html"
 	],
 	theme: {
 		extend: {
