@@ -48,9 +48,8 @@ const filteredMovies = computed(() => {
                 matching
                 results can be found.</p>
             <p v-if="watchNextMovies.length === 0">You have no movies on your watch next list.</p>
-            <div class="movie-grid " v-if="watchNextMovies.length > 0">
+            <div class="movie-grid " v-if="filteredMovies.length > 0">
                 <MovieCard :movie="movie" v-for="movie in filteredMovies" :key="movie.id" />
-
             </div>
         </div>
     </div>

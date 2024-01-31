@@ -75,7 +75,7 @@ const loadMoreMovies = async () => {
         </div>
         <div class="flex flex-col items-stretch">
             <Heading v-if="debouncedSearchTerm !== ''">Results</Heading>
-            <p v-if="debouncedSearchTerm !== '' && data && data?.length === 0" class="text-xl">No matching
+            <p v-if="debouncedSearchTerm !== '' && moviesWithPoster && moviesWithPoster.length === 0" class="text-xl">No matching
                 results can be found.</p>
             <div class="movie-grid " v-if="moviesWithPoster.length > 0">
                 <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />

@@ -37,7 +37,7 @@ const reversedWatchNextMovies = computed(() => {
     <div class="pb-4 max-w-full">
         <Hero />
         <div class="flex justify-between items-center pr-4 pb-8">
-            <Heading class="pl-4">My watchlist</Heading>
+            <Heading class="pl-4">My movies</Heading>
             <UButton to="/my-movies" label="View All" v-if="usersMovies.length > 2" class="text-lg" />
         </div>
         <MovieSlider v-if="reversedMovies" :movies="reversedMovies" />
@@ -68,6 +68,7 @@ make a store for the user instance - auth middleware
 add timestamp for the movie updates and display next list according to date of modification
 search results to id page then back: keep search results alive
 Google authentication
+add filtering options for directors / actors in the discovery page
 
 filtering in watchlist/next list by genre
 adding trailers and/or screenshots
