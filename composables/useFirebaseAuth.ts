@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, deleteUser } from 'firebase/auth';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, deleteUser, sendPasswordResetEmail, updateEmail } from 'firebase/auth';
 
 export const useFirebaseAuth = () => {
 
@@ -97,12 +97,44 @@ export const useFirebaseAuth = () => {
         }
     }
 
+    // const updateUserEmail = async (email: string ) => {
+    //     try {
+    //         if($auth.currentUser) {
+    //             await updateEmail($auth.currentUser, email )
+    //         }
+            
+    //     } catch (error: any) {
+    //         console.log("Error when updating the email", error.code, error.message);   
+    //         const errorMessage = extractErrorMessage(error.code);
+    //         throw new Error(errorMessage)
+
+    //     }
+    // }
+
+    const resetPassword = async (email: string) => {
+        try {
+            await sendPasswordResetEmail($auth, email, 
+                //Have to set the final url here to redurect users after resetting their passwords
+             //{
+               // url: "http://localhost:3000"
+           // }
+            )
+        } catch (error: any) {
+            console.log("LOGIN ERR", error.code, error.message);   
+            const errorMessage = extractErrorMessage(error.code);
+            throw new Error(errorMessage)
+
+        }
+    }
+
     return {
         register,
         login,
         logout,
         currentUserInfo,
         currentUserPromise,
-        deleteUserAccount
+        deleteUserAccount,
+        resetPassword,
+        //updateUserEmail
     }
 }

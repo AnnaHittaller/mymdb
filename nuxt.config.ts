@@ -1,18 +1,13 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 import { defineNuxtConfig } from 'nuxt/config'
-//import { resolve } from 'path'
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   spaLoadingTemplate: true,
-  // alias: {
-  //   '@': resolve(__dirname, "/")
-  // },
   modules: [
     '@nuxt/ui', 
     '@vueuse/nuxt',
     '@pinia/nuxt',
     '@formkit/auto-animate/nuxt'
-   // 'nuxt-vuefire',
   ],
   colorMode: {
     preference: 'system',
@@ -35,18 +30,6 @@ export default defineNuxtConfig({
     }
   },
   ssr: false,
-  // vuefire: {
-  //    auth: {
-  //     enabled: true
-  //   },
-  //   config: {
-  //     apiKey: '...',
-  //     authDomain: '...',
-  //     projectId: '...',
-  //     appId: '...',
-      // there could be other properties depending on the project
-  //  },
-  //},
    vue: {  
     compilerOptions: {
       isCustomElement: (tag: string) => tag.startsWith('swiper-'),

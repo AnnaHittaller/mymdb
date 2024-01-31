@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { z } from 'zod'
-import type { FormError, FormSubmitEvent } from '#ui/types'
+import type { FormSubmitEvent } from '#ui/types'
 
 definePageMeta({
     layout: "not-logged-in",
     middleware: "already-logged-in"
 })
 
-const { login } = useFirebaseAuth()
-//const colorStore = useUiColorStore()
-//colorStore.initialize()
+const { resetPassword } = useFirebaseAuth()
+const router = useRouter()
 
 const schema = z.object({
     email: z.string().email('Invalid email'),
@@ -30,18 +29,19 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     state.success = false
 
     try {
-        //await login(event.data.email)
+        await resetPassword(event.data.email)
         console.log("recover code comes here")
         state.loading = false
         state.email = undefined
-        state.success = true
-        // if (!state.error) {
-        //     state.success = true
-        //     return await navigateTo("/", { replace: true });
-        //      //with TIMEOUT
-        // }
+        if (!state.error) {
+            state.success = true
+            setTimeout(() => {
+                router.replace({ path: '/' })
+            }, 4000)
+
+        }
     } catch (error: any) {
-        console.error("Frontend error:", error.message);
+        console.error("Password reset error:", error.message);
         state.error = error.message;
         state.loading = false
         state.success = false
@@ -62,15 +62,15 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             <UNotification id="error-notification-login" title="Error:" :description="state.error" v-if="state.error"
                 :timeout="0" @close="state.error = undefined" icon="i-heroicons-exclamation-circle" color="red" />
 
-            <UNotification id="success-notification-login" title="We have sent you an email" v-if="state.success"
-                :timeout="3000" @close="state.success = false" icon="i-heroicons-check-circle" color="green" />
+            <UNotification id="success-notification-login" title="We have sent you an email with the instructions"
+                v-if="state.success" :timeout="0" @close="state.success = false" icon="i-heroicons-check-circle"
+                color="green" />
 
             <div class="flex items-center justify-between pt-8 max-[470px]:flex-col max-[470px]:gap-8">
                 <UButton type="submit" class="text-xl" :loading="state.loading">
                     Reset password
                 </UButton>
                 <div class="flex items-center gap-3 max-[250px]:flex-col max-[250px]:gap-4">
-                    <!-- <p class="text-lg">Don't have an account yet?</p> -->
                     <NuxtLink to="/login" class="text-lg text-primary font-semibold flex items-center gap-1">
                         <UIcon name="i-heroicons-chevron-double-right-20-solid" class="text-xl" />
                         Back to sign in

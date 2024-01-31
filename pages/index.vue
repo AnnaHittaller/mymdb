@@ -6,10 +6,7 @@ definePageMeta({
 })
 
 const { currentUserPromise } = useFirebaseAuth()
-const { getUser } = useFirestore()
 const userData: any = await currentUserPromise()
-//const user = await getUser(userData.uid)
-
 
 const colorStore = useUiColorStore()
 colorStore.initialize()
@@ -45,10 +42,9 @@ const reversedWatchNextMovies = computed(() => {
         </div>
         <MovieSlider v-if="reversedMovies" :movies="reversedMovies" />
         <div v-if="reversedMovies.length === 0" class="flex gap-4 max-sm:flex-col items-center max-sm:text-lg ">
-            <p class="px-4">Add some movies to your watch-list first.</p>
+            <p class="px-4">Add some movies to your watchlist first.</p>
             <UButton to="/search" label="Get movies" class="text-lg" />
         </div>
-        <!-- <div v-if="error">Error while retrieving your movie list.</div> -->
         <div class="flex justify-between items-center pr-4 pb-8 pt-4">
             <Heading class="pl-4 pt-8">Watch next</Heading>
             <UButton to="/watch-next" label="View All" v-if="watchNextMovies.length > 2" class="text-lg" />
@@ -56,8 +52,8 @@ const reversedWatchNextMovies = computed(() => {
         <MovieSlider v-if="reversedWatchNextMovies" :movies="reversedWatchNextMovies" />
         <div v-if="reversedWatchNextMovies.length === 0"
             class="flex gap-4 max-sm:flex-col max-sm:text-lg items-center pb-8">
-            <p class="px-4">Add some movies to your watch next list first.</p>
-            <UButton to="/my-movies" label="Get movies" class="text-lg" />
+            <p class="px-4">Add some movies to your watchlist first.</p>
+            <UButton to="/search" label="Get movies" class="text-lg" />
         </div>
     </div>
 </template> 
