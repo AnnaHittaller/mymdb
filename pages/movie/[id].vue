@@ -86,7 +86,7 @@ const removeFromNextList = async () => {
 <template>
     <div v-if="movie">
         <Heading>{{ movie?.title }}</Heading>
-        <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4">
+        <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4 text-lg">
             <div class="flex flex-col gap-4 items-center">
                 <div class="relative" v-auto-animate>
                     <div v-auto-animate="{duration: 150}" v-if="isInMovieList" >

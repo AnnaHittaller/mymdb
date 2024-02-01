@@ -10,8 +10,7 @@ export default defineNuxtConfig({
     '@formkit/auto-animate/nuxt'
   ],
   colorMode: {
-    preference: 'system',
-    //fallback: 'dark'
+    preference: 'dark',
   },
   ui: {
     icons: "all",

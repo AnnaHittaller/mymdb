@@ -67,18 +67,18 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 <template>
     <div class="max-w-[700px] w-full mx-auto">
         <Heading>Register</Heading>
-        <UForm :schema="schema" :state="state" class="space-y-4 w-full pt-8 " @submit="onSubmit">
-            <UFormGroup label="Email" name="email" required size="xl" class="mb-8">
+        <UForm :schema="schema" :state="state" class="space-y-4 w-full pt-8 text-xl" @submit="onSubmit">
+            <UFormGroup label="Email" name="email" required size="xl" class="mb-8" :ui="{ size: { xl: 'text-xl' } }">
                 <UInput v-model.trim="state.email" placeholder="Email" size="xl"
                     :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
             </UFormGroup>
 
-            <UFormGroup label="Username " name="username" required size="xl" class="pb-4">
+            <UFormGroup label="Username " name="username" required size="xl" class="pb-4" :ui="{ size: { xl: 'text-xl' } }">
                 <UInput v-model.trim="state.username" placeholder="Username" size="xl"
                     :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" type="text" />
             </UFormGroup>
 
-            <UFormGroup label="Password " name="password" required size="xl">
+            <UFormGroup label="Password " name="password" required size="xl" :ui="{ size: { xl: 'text-xl' } }">
                 <UInput v-model.trim="state.password" placeholder="Password" size="xl"
                     :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" type="password" />
             </UFormGroup>

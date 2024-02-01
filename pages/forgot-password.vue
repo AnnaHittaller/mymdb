@@ -54,7 +54,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     <div class="max-w-[700px] w-full mx-auto">
         <Heading>Recover your password</Heading>
         <UForm :schema="schema" :state="state" class="space-y-4 w-full pt-8 " @submit="onSubmit">
-            <UFormGroup label="Email" name="email" required size="xl" class="mb-8">
+            <UFormGroup label="Email" name="email" required size="xl" class="mb-8" :ui="{ size: { xl: 'text-xl' } }">
                 <UInput v-model.trim="state.email" placeholder="Email" size="xl"
                     :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
             </UFormGroup>

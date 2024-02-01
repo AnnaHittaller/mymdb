@@ -54,7 +54,7 @@ const isInMovieList = computed(() => userMoviesStore.movies.some(item => item.id
                     <img v-if="movie" :src="`${baseImageUrl}${movie.poster}`"
                         class="object-cover w-full h-full aspect-[2/3]" />
                 </div>
-                <p class="text-left">{{ movie.title }}</p>
+                <p class="text-left text-lg">{{ movie.title }}</p>
             </div>
         </NuxtLink>
     </div>

@@ -47,26 +47,26 @@ const handleLogout = async () => {
 
 <template>
     <footer class="flex items-center sm:items-start px-4 py-4 relative">
-        <nav class="flex justify-around sm:justify-start sm:gap-16 items-center w-full sm:flex-col sm:sticky sm:top-4">
+        <nav class="flex justify-around sm:justify-start sm:gap-16 items-center w-full sm:flex-col sm:sticky sm:top-4 ">
             <Logo class="max-sm:hidden max-w-full flex m-0 shrink" />
             <NuxtLink to="/" class="hover-filter flex item-center" :style="computedStyle">
-                <UIcon name="i-heroicons-home" class="text-primary sm:text-3xl text-2xl" />
+                <UIcon name="i-heroicons-home" class="text-primary text-3xl" />
             </NuxtLink>
             <NuxtLink to="/my-movies" class="hover-filter flex item-center" :style="computedStyle">
-                <UIcon name="i-heroicons-list-bullet-20-solid" class="text-primary sm:text-3xl text-2xl" />
+                <UIcon name="i-heroicons-list-bullet-20-solid" class="text-primary text-3xl" />
             </NuxtLink>
             <NuxtLink to="/watch-next" class="hover-filter flex item-center" :style="computedStyle">
-                <UIcon name="i-heroicons-star-solid" class="text-primary sm:text-3xl text-2xl" />
+                <UIcon name="i-heroicons-star-solid" class="text-primary text-3xl" />
             </NuxtLink>
             <NuxtLink to="/search" class="hover-filter flex item-center" :style="computedStyle">
-                <UIcon name="i-heroicons-magnifying-glass-solid" class="text-primary sm:text-3xl text-2xl" />
+                <UIcon name="i-heroicons-magnifying-glass-solid" class="text-primary text-3xl" />
             </NuxtLink>
             <NuxtLink to="/discover" class="hover-filter flex item-center" :style="computedStyle">
-                <UIcon name="i-heroicons-light-bulb" class="text-primary sm:text-3xl text-2xl" />
+                <UIcon name="i-heroicons-light-bulb" class="text-primary text-3xl" />
             </NuxtLink>
 
             <!-- profile context menu -->
-            <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }" class="z-40 relative">
+            <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text', size: 'text-lg' } }" class="z-40 relative" :popper="{ offsetDistance: 12 }">
                 <UAvatar src=""
                     :ui="{ background: 'dark:bg-gray-800', placeholder: 'dark:text-primary', size: { sm: 'text-base' } }"
                     :alt="`${user?.username}`" class="avatar border hover:border-primary" />

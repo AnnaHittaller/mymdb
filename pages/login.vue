@@ -54,17 +54,17 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 <template>
     <div class="max-w-[700px] w-full mx-auto">
         <Heading>Sign in</Heading>
-        <UForm :schema="schema" :state="state" class="space-y-4 w-full pt-8 " @submit="onSubmit">
-            <UFormGroup label="Email" name="email" required size="xl" class="mb-8">
+        <UForm :schema="schema" :state="state" class="space-y-4 w-full pt-8" @submit="onSubmit">
+            <UFormGroup label="Email" name="email" required size="xl" class="mb-8 text-lg" :ui="{ size: { xl: 'text-xl' } }">
                 <UInput v-model.trim="state.email" placeholder="Email" size="xl"
                     :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
             </UFormGroup>
 
-            <UFormGroup label="Password " name="password" required size="xl">
+            <UFormGroup label="Password " name="password" required size="xl" :ui="{ size: { xl: 'text-xl' }}">
                 <UInput v-model.trim="state.password" placeholder="Password" size="xl"
                     :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" type="password" />
             </UFormGroup>
-            <div class="w-max">
+            <div class="w-max text-lg">
                 <NuxtLink to="./forgot-password" class="cursor-pointer text-primary">
                     <p>Forgot your password?</p>
                 </NuxtLink>
