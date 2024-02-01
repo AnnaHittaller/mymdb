@@ -35,37 +35,20 @@ export const useFirebaseAuth = () => {
         try {
             const userCredential = await signInWithEmailAndPassword($auth, email, password)
             const user = userCredential.user
-            console.log(user)
+            //console.log(user)
             
         } catch (error: any) {
-            console.log("LOGIN ERR", error.code, error.message);   
+            console.log("LOGIN ERROR", error.code, error.message);   
             const errorMessage = extractErrorMessage(error.code);
             throw new Error(errorMessage)
-
         }
     }
 
     const logout = async () => {
        await signOut($auth)
        await navigateTo('/login')
-       console.log("logged out")
+       //console.log("logged out")
     }
-
-    // const currentUserPromise = () => new Promise((resolve, reject) => {
-    //     // Start listening to changes in the authentication state
-    //     const unsubscribe = onAuthStateChanged($auth, (user) => {
-    //         // Stop listening to further changes after the initial state is determined
-    //         unsubscribe();
-
-    //         //console.log("user promise");
-
-    //         if (user) {
-    //             resolve(user); 
-    //         } else {
-    //             reject(new Error("No user found")); 
-    //         }
-    //     });
-    // });
 
      const currentUserPromise = () => new Promise((resolve, reject) => {
         const unsubscribe = onAuthStateChanged($auth, (user) => {
@@ -77,7 +60,7 @@ export const useFirebaseAuth = () => {
             }
         });
     }).catch(error => {
-        console.error("CURRENT USER PROMISE ERR", error.message);
+        //console.error("CURRENT USER PROMISE ERROR", error.message);
         throw error;
     });
 
@@ -114,10 +97,10 @@ export const useFirebaseAuth = () => {
     const resetPassword = async (email: string) => {
         try {
             await sendPasswordResetEmail($auth, email, 
-                //Have to set the final url here to redurect users after resetting their passwords
-             //{
+            //Have to set the final url here to redurect users after resetting their passwords
+            //{
                // url: "http://localhost:3000"
-           // }
+            // }
             )
         } catch (error: any) {
             console.log("LOGIN ERR", error.code, error.message);   

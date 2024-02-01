@@ -23,11 +23,8 @@ const validate = (state: any): FormError[] => {
 }
 
 async function onSubmit(event: FormSubmitEvent<any>) {
-    // Do something with data
-    console.log("CONTACT FORM SUBMIT EVENT", event.data, userData.email)
-    //event.preventDefault() // Prevent default form submission behavior
+    //console.log("CONTACT FORM SUBMIT EVENT", event.data, userData.email)
     state.loading = true
-    //state.success = false
 
     try {
         const userData: any = await currentUserPromise()
@@ -42,7 +39,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
             })
         })
 
-        console.log('Form submitted successfully')
+        //console.log('Form submitted successfully')
         state.loading = false
         if (!state.error) {
             state.success = true

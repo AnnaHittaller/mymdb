@@ -30,12 +30,12 @@ export default defineNuxtPlugin((nuxtApp) => {
 		if (user) {
 			// User is signed in
 			const uid = user.uid;
-			console.log("there is a user");
-			console.log(user);
+			//console.log("there is a user");
+			//console.log(user);
 			
 		} else {
 			// User is signed out
-			console.log("no user");
+			console.log("user signed out");
 			
 		}
 	});

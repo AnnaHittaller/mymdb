@@ -6,7 +6,7 @@ const colorStore = useUiColorStore()
 
 const userData = await currentUserPromise()
 const user = await getUser(userData.uid)
-console.log("User:", user)
+//console.log("User:", user)
 
 const items = [
     [{
@@ -40,9 +40,7 @@ const items = [
 
 const handleLogout = async () => {
     await logout();
-    console.log('Before reset:', colorStore.uiColor);
     colorStore.colorReset();
-    console.log('After reset:', colorStore.uiColor);
 };
 
 </script>
@@ -66,6 +64,7 @@ const handleLogout = async () => {
             <NuxtLink to="/discover" class="hover-filter flex item-center" :style="computedStyle">
                 <UIcon name="i-heroicons-light-bulb" class="text-primary sm:text-3xl text-2xl" />
             </NuxtLink>
+
             <!-- profile context menu -->
             <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }" class="z-40 relative">
                 <UAvatar src=""
@@ -82,16 +81,14 @@ const handleLogout = async () => {
                         </p>
                     </div>
                 </template>
-
                 <template #item="{ item }">
                     <span class="truncate ">{{ item.label }}</span>
-
                     <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500 ms-auto"
                         :style="computedStyle" />
                 </template>
             </UDropdown>
+            
         </nav>
-
     </footer>
 </template>
 

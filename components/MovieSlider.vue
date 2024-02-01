@@ -8,8 +8,6 @@ const props = defineProps(
 )
 const { movies } = toRefs(props)
 
-const lastSlide = ref(false);
-const firstSlide = ref(true)
 const currentBreakpoint = ref(900);
 
 const breakpoints = {
@@ -50,8 +48,7 @@ watch([movies, currentBreakpoint], () => {
 
 onMounted(() => {
   window.addEventListener('resize', handleResize);
-  currentBreakpoint.value = getInitialBreakpoint(); // Call getInitialBreakpoint after breakpoints is initialized
-  // Trigger the initial computation of shouldDisplayNavigation after the component is mounted
+  currentBreakpoint.value = getInitialBreakpoint(); 
   shouldDisplayNavigation.value;
 });
 
@@ -62,7 +59,7 @@ const handleResize = () => {
 function getInitialBreakpoint() {
   const windowWidth = window.innerWidth;
   return Object.keys(breakpoints)
-    .sort((a, b) => b - a) // Sort breakpoints in descending order
+    .sort((a, b) => b - a) 
     .find(breakpoint => windowWidth >= parseInt(breakpoint)) || 900; // Default to 900 if no matching breakpoint found
 }
 
@@ -100,8 +97,6 @@ swiper-slide {
   font-size: 18px;
   max-width: max-content;
 
-
-  /* Center slide text vertically */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -124,11 +119,6 @@ swiper-container.movieSlider::part(button-prev) {
   background-position: center;
   position: absolute;
   top: 40%;
-
-
-  @media screen and (max-width: 640px) {
-    /* display: none; */
-  }
 }
 
 swiper-container::part(button-next) {

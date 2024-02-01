@@ -1,4 +1,4 @@
-import { collection, getDocs, setDoc, doc, getDoc, deleteDoc, updateDoc, arrayRemove, arrayUnion, onSnapshot} from "firebase/firestore"
+import { setDoc, doc, getDoc, deleteDoc, updateDoc, arrayRemove, arrayUnion, onSnapshot} from "firebase/firestore"
 
 interface Movie {
   id: string;
@@ -13,23 +13,6 @@ export const useFirestore = () => {
 
     const { $db } = useNuxtApp()
 
-    //const movies = ref<Movie[]>([])
-
-    // const getUsers = async () => {
-    //     try {
-    //         const querySnapshot = await getDocs(collection($db, "users"));
-
-    //         const users = querySnapshot.docs.map((doc) => {
-    //            return {id: doc.id, ...doc.data()}
-    //         })
-
-    //         //console.log(users)
-
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // }
-
     const getUser = async (uid: string) => {
         try {
             const docRef = doc($db, "users", uid);
@@ -37,9 +20,9 @@ export const useFirestore = () => {
 
             if (currentUser.exists()) {
             //console.log("Document data:", currentUser.data());
-            return currentUser.data()
+                return currentUser.data()
             } else {
-            console.log("No such document!");
+                console.log("No such document!");
             }
         } catch (error) {
             console.log(error)
@@ -49,7 +32,7 @@ export const useFirestore = () => {
     const setUser = async (uid: string, username: string, email: string, theme: string, movies?: [Movie] | []) => {
         try {
             const newUser = await setDoc(doc($db, "users", uid), {username, email, theme, movies})
-            console.log("setuser",newUser)
+            //console.log("setuser",newUser)
         } catch (error) {
             console.log(error)
         }
@@ -61,7 +44,7 @@ export const useFirestore = () => {
             await updateDoc(updatedUser, {
                 username: username,
             })
-            console.log("user updated:",updatedUser)
+            //console.log("username updated:",updatedUser)
         } catch (error) {
             console.log(error)
         }
@@ -81,7 +64,7 @@ export const useFirestore = () => {
             await updateDoc(updatedUser, {
                 theme: theme,
             })
-            console.log("user updated:",updatedUser)
+            //console.log("user updated:",updatedUser)
         } catch (error){
             console.log(error)
         }
@@ -96,7 +79,7 @@ export const useFirestore = () => {
                 await updateDoc(userRef, {
                     movies: arrayUnion(movie)
                 });
-                console.log("Movie added:", movie);
+                //console.log("Movie added:", movie);
             } else {
                 console.log("User not found.");
             }
@@ -112,13 +95,13 @@ export const useFirestore = () => {
 
             if (userSnapshot.exists()) {
                 const userData = userSnapshot.data() as { movies: Movie[] };
-                 const updatedMovies = userData.movies.filter(movie => movie.id !== movieId);
+                const updatedMovies = userData.movies.filter(movie => movie.id !== movieId);
 
                 await updateDoc(userRef, {
                     movies: updatedMovies
                 });
 
-                console.log("Movie removed with ID:", movieId);
+                //console.log("Movie removed with ID:", movieId);
             } else {
                 console.log("User not found.");
             }
@@ -138,8 +121,7 @@ export const useFirestore = () => {
                         movie.id === movieId ? { ...movie, ...update } : movie
                     ),
                 });
-
-                console.log(`Movie with ID ${movieId} updated:`, update);
+                //console.log(`Movie with ID ${movieId} updated:`, update);
             } else {
                 console.log("User not found.");
             }

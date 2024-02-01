@@ -1,13 +1,13 @@
 export default defineEventHandler(async (event) => {
 	try {
 		const query = getQuery(event);
-		console.log(query);
+		//console.log(query);
 		const config = useRuntimeConfig();
 		const page = query.page || 1; // Default to page 1 if not provided in the query
 		const rating = query.rating || 0; // Default to 0 if not provided in the query
 		const genres = query.genres || ""
-		const url = `${config.apiBaseUrl}/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc&vote_average.gte=${rating}&with_genres=${genres}`;
-		console.log(url);
+		// const url = `${config.apiBaseUrl}/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc&vote_average.gte=${rating}&with_genres=${genres}`;
+		//console.log(url);
 
 		const response = await $fetch(
 			`${config.apiBaseUrl}/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc&vote_average.gte=${rating}&with_genres=${genres}`,
@@ -31,7 +31,6 @@ export default defineEventHandler(async (event) => {
 			};
 		});
 		//console.log(shortResponse);
-		//return response;
 		return shortResponse;
 	} catch (error) {
 		throw createError({

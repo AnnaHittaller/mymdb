@@ -67,8 +67,10 @@ adding toast for movie page: list modifications
 make a store for the user instance - auth middleware
 add timestamp for the movie updates and display next list according to date of modification
 search results to id page then back: keep search results alive
-Google authentication
+add Google authentication
 add filtering options for directors / actors in the discovery page
+search and discovery load more button: don't display if all movies are loaded
+search and discovery load more button: don't reshuffle the already loaded movies
 
 filtering in watchlist/next list by genre
 adding trailers and/or screenshots

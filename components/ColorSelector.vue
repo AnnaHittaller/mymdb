@@ -5,9 +5,9 @@ const { currentUserPromise } = useFirebaseAuth()
 const { getUser, updateTheme } = useFirestore()
 
 const userData = await currentUserPromise()
-//const user = await getUser(userData.uid)
 
-let selectedColor = ref('') // Selected color value
+let selectedColor = ref('') 
+
 const colors = [
     { value: 'emerald', label: 'Emerald' },
     { value: 'mandy', label: 'Mandy' },
@@ -17,11 +17,9 @@ const colors = [
 
 const updateColor = async (color) => {
     selectedColor.value = color; // Update the selectedColor value
-    // colorStore.handlePrimaryColorChange({ target: { value: color } }); // Call the store method with the color value
     await updateTheme(userData.uid, color)
     colorStore.initialize()
 }
-
 
 </script>
         

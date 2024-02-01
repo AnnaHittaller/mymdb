@@ -25,7 +25,7 @@ export const useUserMoviesStore = defineStore('userMoviesStore', () => {
 
     const movies = ref([] as Movie[] || []);
 
-        // Set up real-time listener for user movies
+    // Set up real-time listener for user movies
     const setupRealTimeListener = async () => {
         try {
             const userData: any = await currentUserPromise();
@@ -43,7 +43,7 @@ export const useUserMoviesStore = defineStore('userMoviesStore', () => {
         }
     };
 
-    setupRealTimeListener(); // Call setupRealTimeListener when the store is initialized
+    setupRealTimeListener(); 
 
 
     const fetchUserMovies = async () => {
@@ -54,7 +54,6 @@ export const useUserMoviesStore = defineStore('userMoviesStore', () => {
             if ( user && user.movies) {
                 // If the user has movies, set the initial movies array
                 movies.value = user.movies;
-                //console.log("store fetching movies",toRaw(movies.value))
                 return movies
             }
             
@@ -65,11 +64,7 @@ export const useUserMoviesStore = defineStore('userMoviesStore', () => {
 
     const addMovie = async (movie: Movie) => {
         try {
-        // Update the movies array by adding the new movie
-        //console.log("store adding movies before",toRaw(movies.value))
         movies.value = [...movies.value, movie];
-        //console.log("store adding movies after",toRaw(movies.value))
-
         return movies
 
         } catch (error) {
@@ -79,11 +74,7 @@ export const useUserMoviesStore = defineStore('userMoviesStore', () => {
 
   const removeMovie = async (movieId: string) => {
     try {
-      // Update the movies array by removing the movie with the specified ID
-      //console.log("store deleting movies before",toRaw(movies.value))
       movies.value = movies.value.filter((movie) => movie.id !== movieId);
-      //console.log("store deleting movies after",toRaw(movies.value))
-
       return movies
     } catch (error) {
       console.log(error);
@@ -101,12 +92,10 @@ export const useUserMoviesStore = defineStore('userMoviesStore', () => {
             // Update the movie with the specified ID
             movies.value[index] = { ...movies.value[index], ...updateFields }; // Merge updateFields into the movie object
 
-            // Update the movie in Firestore here if needed
-
-            return movies.value; // Return the updated movies array
+            return movies.value; 
         } catch (error) {
             console.error(error);
-            throw error; // Re-throw the error to handle it in the component
+            throw error; 
         }
     };
 

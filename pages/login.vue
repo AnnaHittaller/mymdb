@@ -26,15 +26,9 @@ const state = reactive({
     success: false
 })
 
-// const validate = (state: any): FormError[] => {
-//     const errors = []
-//     if (!state.email) errors.push({ path: 'email', message: 'Required' })
-//     if (!state.password) errors.push({ path: 'password', message: 'Required' })
-//     return errors
-// }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-    console.log("SUBMIT EVENT LOGIN", event.data)
+    //console.log("SUBMIT EVENT LOGIN", event.data)
     state.loading = true
     state.success = false
 

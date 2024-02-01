@@ -72,5 +72,3 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         </UForm>
     </div>
 </template>
-
-//update has to be done in firestore too

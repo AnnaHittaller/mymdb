@@ -8,11 +8,10 @@ const { getUser, addMovie, removeMovie, updateMovie } = useFirestore()
 
 const route = useRoute()
 const userData = await currentUserPromise()
-const user = await getUser(userData.uid)
+//const user = await getUser(userData.uid)
 const userMoviesStore = useUserMoviesStore();
 await userMoviesStore.fetchUserMovies();
-//const nuxt = useNuxtApp()
-//console.log(nuxt)
+
 const movieId = computed(() => route.params.id)
 const baseImageUrl = "https://image.tmdb.org/t/p/w500"
 
@@ -20,24 +19,12 @@ const { data, pending, error } = await useFetch(`/api/movies/${movieId.value}`)
 const movie = toRaw(data?.value)
 
 const { data: similar, pending: similarPending, error: similarError } = await useFetch(`/api/movies/similar?id=${movieId.value}`)
-//const similarMovies = toRaw(similar.value.results)
-//console.log("SIMILAR", toRaw(similar.value))
-//console.log(similar);
 
 const moviesWithPoster = computed(() => {
-    //console.log(similarMovies)
     const filtered = similar.value.filter(movie => movie.poster !== null);
     //console.log(filtered)
     return filtered
 });
-
-// const isInMovieList = computed(() => {
-//     return user.movies.some(movie => movie.id === route.params.id)
-// })
-
-// const isInNextList = computed(() => {
-//     return user.movies.some(movie => movie.id === route.params.id && movie.next)
-// })
 
 const isInMovieList = computed(() => userMoviesStore.movies.some(movie => movie.id === route.params.id));
 const isInNextList = computed(() => userMoviesStore.movies.some(movie => movie.id === route.params.id && movie.next));
@@ -120,8 +107,6 @@ const removeFromNextList = async () => {
                     <UButton icon="i-heroicons-x-circle" color="primary" variant="outline" label="Remove from watchlist"
                         class="flex gap-2 items-center justify-center text-lg" block @click="removeFromMovieList"
                         v-if="isInMovieList" />
-                    <!-- <UButton icon="i-heroicons-check-circle" color="primary" variant="outline" label="Seen"
-                        class="flex flex-col gap-1 w-24" /> -->
                 </div>
             </div>
             <div class="w-full flex flex-col gap-4">

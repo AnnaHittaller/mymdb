@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
 				rating: item.vote_average,
 			};
 		});
-		console.log(shortResponse);
+		//console.log(shortResponse);
 
 		return shortResponse;
 	} catch (error) {

@@ -24,7 +24,7 @@ const state = reactive({
 })
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-    console.log("SUBMIT EVENT LOGIN", event.data)
+    //console.log("SUBMIT EVENT LOGIN", event.data)
     state.loading = true
     state.success = false
 

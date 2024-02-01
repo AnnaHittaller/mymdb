@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 				backdrop: item.backdrop_path,
 			};
 		});
-		console.log(trendingResponse)
+		//console.log(trendingResponse)
 		return trendingResponse;
 	} catch (error) {
 		throw createError({

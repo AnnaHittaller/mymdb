@@ -7,7 +7,6 @@ const isHomePage = computed(() => {
     return route.path === '/'
 })
 
-
 </script>
 
 <template>

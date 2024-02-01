@@ -1,75 +1,35 @@
-# Nuxt 3 Minimal Starter
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+# MyMDb - Your Personal Movie Database
 
-## Setup
+MyMDb is an application designed to help you keep track of your **movie must-watch list** by providing a platform to discover, track, and explore a vast collection of movies. With a user-friendly interface and a range of features, MyMDb offers a seamless way to manage your watchlist and stay updated with the latest trending movies.
 
-Make sure to install the dependencies:
+Enjoy exploring and managing your movie collection with MyMDb! If you have any questions or feedback, feel free to reach out.
+## Demo
 
-```bash
-# npm
-npm install
+##############
 
-# pnpm
-pnpm install
 
-# yarn
-yarn install
+## Features
 
-# bun
-bun install
-```
+- **User Registration and Authentication:** Users can easily register and sign in to their accounts to access personalized features.
 
-## Development Server
+- **Movie Discovery:** Utilizing the TMDB API, users can search for movies, discover new releases, and explore a comprehensive database of films.
 
-Start the development server on `http://localhost:3000`:
+- **Watchlist Management:** Users can add movies to their watchlist to keep track of movies they intend to watch.
 
-```bash
-# npm
-npm run dev
+- **Watch Next Selection:** Allows users to prioritize movies by selecting them to watch next.
 
-# pnpm
-pnpm run dev
+- **Movie Details:** Users can view detailed information about movies, including plot summaries, cast, ratings, and more.
 
-# yarn
-yarn dev
+- **Trending Now Carousel:** Stay updated with the latest trends through a dynamic carousel showcasing trending movies.
 
-# bun
-bun run dev
-```
+- **Customizable Theme Colors:** Personalize your experience by selecting preferred theme colors.
 
-## Production
 
-Build the application for production:
 
-```bash
-# npm
-npm run build
+## Tech Stack
 
-# pnpm
-pnpm run build
+**To make things work:** Nuxt 3 with Nitro server, Firebase Auth/ Firestore, Pinia, Zod
 
-# yarn
-yarn build
+**To make things look nice:** Nuxt UI, Tailwind CSS, Swiper JS, Formkit Auto-Animate
 
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

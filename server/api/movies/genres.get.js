@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
 				},
 			}
 		);
-
 		return genres;
 	} catch (error) {
 		throw createError({

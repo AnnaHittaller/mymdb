@@ -8,11 +8,10 @@ export const useTrendingMoviesStore = defineStore("trendingMovies", () => {
         try { 
 
             const {data } = await useFetch('/api/movies/trending')
-			console.log("PINIA trending",data)
             trendingMovies.value = data
 			isLoaded.value = true
-			console.log(trendingMovies.value)
-			console.log(isLoaded.value)
+			//console.log(trendingMovies.value)
+			//console.log(isLoaded.value)
             return data
             
         } catch (error) {
