@@ -1,7 +1,5 @@
 <script setup>
 
-const el = ref(null)
-
 const isHomePage = computed(() => {
     const route = useRoute()
     return route.path === '/'
@@ -15,7 +13,7 @@ const isHomePage = computed(() => {
         <main class="flex-grow max-h-full relative" :class="{ 'p-0': isHomePage, 'p-4': !isHomePage }">
             <slot />
         </main>
-        <Footer class="" ref="el" />
+        <Footer/>
     </div>
 </template>
 
@@ -27,11 +25,11 @@ main {
     }
 
     @media screen and (min-width: 640px) {
-        max-width: calc(100% - 85px - 2rem);
-    }
-
-    @media screen and (min-width: 768px) {
         max-width: calc(100% - 96px - 2rem);
     }
+
+    /* @media screen and (min-width: 768px) {
+        max-width: calc(100% - 96px - 2rem);
+    } */
 }
 </style>

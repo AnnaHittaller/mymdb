@@ -115,16 +115,16 @@ const selectMenuConfig = {
     <div>
         <div class="flex flex-col gap-4 pb-8">
             <Heading>Discover new movies</Heading>
-            <div class="flex-col sm:flex-row gap-4 items-center justify-center">
+            <div class="flex gap-4 items-center max-[500px]:flex-col">
 
                 <!-- Rating filter dropdown -->
                 <USelectMenu v-model="selectedRatings" size="lg" :options="ratings" placeholder="Minimum rating"
-                    color="primary" :uiMenu="selectMenuConfig" class="z-50 min-w-[150px]" />
+                    color="primary" :uiMenu="selectMenuConfig" class="z-55 min-w-[150px] w-max" />
 
                 <!-- Genre filter dropdown -->
                 <USelectMenu v-model="selectedGenres" size="lg" :options="genres" multiple searchable
                     placeholder="Filter by genres" searchable-placeholder="Search by genre" color="primary"
-                    :uiMenu="selectMenuConfig" class="z-50 min-w-[150px]" />
+                    :uiMenu="selectMenuConfig" class="z-50 min-w-[150px] w-max" />
 
                 <UButton label="Clear filters" size="lg" @click="clearFilters"/>
             </div>

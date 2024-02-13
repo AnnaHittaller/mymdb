@@ -34,7 +34,18 @@ You can try out and use the app on the following link:
 **To make things look nice:** Nuxt UI, Tailwind CSS, Swiper JS, Formkit Auto-Animate
 
 ## Screenshots
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+
+<div  style="display: flex; flex-wrap: wrap; justify-content: start; align-items: center;">
+
+ <img src="https://res.cloudinary.com/dgum1eu6e/image/upload/v1707829252/MyMDb_screenshot_2_aldiy3.png" height="500" alt="App Screenshot">
+
+<img src="https://res.cloudinary.com/dgum1eu6e/image/upload/v1707829252/MyMDb_screenshot_pqi31c.jpg" height="500" alt="App Screenshot">
+
+<img src="https://res.cloudinary.com/dgum1eu6e/image/upload/v1707829252/MyMDb_screenshot_3_ngibjg.jpg" height="500" alt="App Screenshot">
+
+<img src="https://res.cloudinary.com/dgum1eu6e/image/upload/v1707829251/MyMDb_screenshot_4_qgcnze.jpg" height="500" alt="App Screenshot">
+
+</div>
 
 ## Acknowledgements
 
