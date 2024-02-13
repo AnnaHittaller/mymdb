@@ -115,7 +115,7 @@ const selectMenuConfig = {
     <div>
         <div class="flex flex-col gap-4 pb-8">
             <Heading>Discover new movies</Heading>
-            <div class="flex gap-4 items-center">
+            <div class="flex-col sm:flex-row gap-4 items-center justify-center">
 
                 <!-- Rating filter dropdown -->
                 <USelectMenu v-model="selectedRatings" size="lg" :options="ratings" placeholder="Minimum rating"

@@ -99,7 +99,7 @@ export const useFirebaseAuth = () => {
             await sendPasswordResetEmail($auth, email, 
             //Have to set the final url here to redurect users after resetting their passwords
             //{
-               // url: "http://localhost:3000"
+               // url: "https://mymdb-my-movie-watchlist.netlify.app"
             // }
             )
         } catch (error: any) {

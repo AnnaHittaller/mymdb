@@ -37,6 +37,10 @@ definePageMeta({
             <UIcon name="i-fe-github" class="text-primary text-2xl" />
             <span class="text-xl leading-6">Anna Hittaller @ 2024</span>
         </div>
+        <div class="text-sm mt-24">
+            <h4>Acknowledgement:</h4>
+            <p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+        </div>
     </div>
 </template>
 
