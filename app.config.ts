@@ -3,7 +3,7 @@ export default defineAppConfig({
     
     primary: 'emerald',
     gray: 'zinc',
-    colors: ['mandy', 'dusk'],
+    colors: ['mandy', 'dusk', 'pumpkin', 'mauve', 'periwinkle'],
     button: {
 
         font: 'font-extrabold'

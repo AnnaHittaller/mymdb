@@ -18,6 +18,15 @@ export const useComputedStyle = () => {
                 case 'emerald':
                     colorValue = "#10b981";
                     break;
+                case 'pumpkin':
+                    colorValue = "#ff8c0a";
+                    break;
+                case 'mauve':
+                    colorValue = "#bf6ddf";
+                    break;
+                case 'periwinkle':
+                    colorValue = "#7976de";
+                    break;
                 default:
                     colorValue = '';
             }

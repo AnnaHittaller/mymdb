@@ -6,12 +6,15 @@ const { getUser, updateTheme } = useFirestore()
 
 const userData = await currentUserPromise()
 
-let selectedColor = ref('') 
+let selectedColor = ref('')
 
 const colors = [
     { value: 'emerald', label: 'Emerald' },
     { value: 'mandy', label: 'Mandy' },
     { value: 'dusk', label: 'Dusk' },
+    { value: 'pumpkin', label: 'Pumpkin' },
+    { value: 'mauve', label: 'Mauve' },
+    { value: 'periwinkle', label: 'Periwinkle' },
     // Add more colors as needed
 ]
 
