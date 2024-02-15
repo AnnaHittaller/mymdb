@@ -66,7 +66,7 @@ const handleLogout = async () => {
             </NuxtLink>
 
             <!-- profile context menu -->
-            <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text', size: 'text-lg' } }" class="z-40 relative" :popper="{ offsetDistance: 12 }">
+            <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text', size: 'text-lg' }, width: 'w-max' }" class="z-40 relative " :popper="{ offsetDistance: 12 }">
                 <UAvatar src=""
                     :ui="{ background: 'dark:bg-gray-800', placeholder: 'dark:text-primary', size: { sm: 'text-base' } }"
                     :alt="`${user?.username}`" class="avatar border hover:border-primary" />

@@ -1,7 +1,7 @@
 <script setup>
 import { register } from 'swiper/element/bundle';
 register();
- 
+
 const trendingMoviesStore = useTrendingMoviesStore();
 const { computedStyle } = useComputedStyle()
 
@@ -24,7 +24,7 @@ const onSlideChange = (e) => {
 
     const movieIdFromHref = hrefValue.value.match(/\d+$/)[0];
 
-     // Access trendingMovies directly from the store
+    // Access trendingMovies directly from the store
     const trendingMovies = useTrendingMoviesStore().trendingMovies;
     const movieArray = Array.from(trendingMovies.value); // Convert proxy-wrapped array to a regular array
     const backdropMovie = movieArray.find(movie => movie.id === Number(movieIdFromHref));
@@ -44,14 +44,14 @@ const onSlideChange = (e) => {
 <template>
     <div>
         <USkeleton v-if="isLoading"
-                    class="h-full w-full max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 " />
+            class="h-full w-full max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 " />
         <div v-if="!isLoading"
-            class="lg:bg-gradient-to-r from-[#27272a] via-[#27272a] from-[400px] to-[600px] 2xl:to-[900px] 3xl:from-[600px] 3xl:to-[800px] w-full h-full pb-8 mb-8 bg-contain bg-no-repeat bg-right lg:relative">
+            class="lg:bg-gradient-to-r from-[#27272a] via-[#27272a] from-[400px] to-[600px] 2xl:to-[900px] 3xl:from-[40%] 3xl:to-[60%] w-full h-full pb-8 mb-8 bg-contain bg-no-repeat bg-right lg:relative">
             <img v-if="movies && movies.value.length" :src="`${baseImageUrl}${backdropImage}`" :alt="`${imageAlt}`"
-                class="max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 ">
+                class="max-h-[500px] 2xl:max-h-[600px] 3xl:max-h-[700px] ml-auto max-lg:hidden lg:relative lg:-z-10 ">
             <Heading class="pl-4 sm:pt-4 lg:absolute lg:top-0 z-20">Now trending</Heading>
             <div v-if="movies && movies.value.length > 0"
-                class="max-w-[500px] sm:max-w-[700px] 3xl:max-w-[850px] w-full max-h-[500px] px-4 max-lg:mx-auto z-0  lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
+                class="max-w-[500px] sm:max-w-[700px] 2xl:max-w-[60%] w-full max-h-[500px] 3xl:max-h-[600px] px-4 max-lg:mx-auto z-0 lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
                 <swiper-container class="mySwiper max-w-full h-full" loop="true" effect="coverflow" grab-cursor="false"
                     centered-slides="true" pagination="false" slides-per-view="auto" coverflow-effect-rotate="15"
                     coverflow-effect-stretch="0" coverflow-effect-depth="300" coverflow-effect-modifier="1"
@@ -89,6 +89,14 @@ swiper-slide {
 
     @media screen and (max-width: 460px) {
         max-width: 150px;
+    }
+
+    @media screen and (min-width: 1536px) {
+        max-width: 250px;
+    }
+
+    @media screen and (min-width: 1800px) {
+        max-width: 300px;
     }
 }
 
