@@ -11,7 +11,7 @@ definePageMeta({
 
 const userData: any = await currentUserPromise()
 const user = await getUser(userData.uid)
-console.log("User:", userData)
+//console.log("User:", userData)
 
 const schema = z.object({
     username: z.string().min(3, 'Must be at least 3 characters').max(30, "Too long - must be under 30 characters")

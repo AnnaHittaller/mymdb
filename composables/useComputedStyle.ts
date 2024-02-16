@@ -27,6 +27,9 @@ export const useComputedStyle = () => {
                 case 'periwinkle':
                     colorValue = "#7976de";
                     break;
+                case 'saffron':
+                    colorValue = "#f5c518";
+                    break;
                 default:
                     colorValue = '';
             }

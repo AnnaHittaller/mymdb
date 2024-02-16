@@ -11,15 +11,31 @@ const debouncedSearchTerm = refDebounced(searchTerm, 700)
 let movies = ref([])
 let currentPage = 1;
 
+
 const url = computed(() => {
+    console.log("currentpage from computed url", currentPage)
     return `api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`;
 })
 
 const { data, pending, error } = await useFetch(url)
 
+
+// Store search term in history state
+const updateHistoryState = () => {
+    const state = {
+        searchTerm: searchTerm.value,
+        movies: JSON.stringify(movies.value), // Serialize the movies array
+        currentPage: currentPage,
+    };
+    window.history.replaceState(state, '', ''); // Update history state
+    console.log("state update", window.history.state)
+};
+
 watchEffect(() => {
     // Reset currentPage for a new search
-    currentPage = 1;
+    //currentPage = window.history.state && window.history.state.currentPage ? window.history.state.currentPage : 1;
+    
+    currentPage = 1
 
     useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`).then(({ data, pending, error }) => {
 
@@ -34,10 +50,13 @@ watchEffect(() => {
     });
 });
 
+
+// displaying only movies that have a poster image available
 const moviesWithPoster = computed(() => {
     return movies.value.filter(movie => movie.poster !== null);
 });
 
+// function for the Load More button
 const loadMoreMovies = async () => {
     try {
         currentPage++;
@@ -51,6 +70,38 @@ const loadMoreMovies = async () => {
         console.error('Error while loading more movies:', error);
     }
 };
+
+// Check if there is a saved search term in history state and use it as default input value
+if (window.history.state && window.history.state.searchTerm) {
+    searchTerm.value = window.history.state.searchTerm;
+    console.log("YES2")
+    if (window.history.state.movies) {
+        movies.value = JSON.parse(window.history.state.movies); // Parse the serialized movies array
+        console.log("movies value", movies.value)
+    }
+    if (window.history.state.currentPage) {
+        currentPage = window.history.state.currentPage;
+        console.log("currentpage", currentPage)
+    }
+}
+
+// Listen to popstate event to update search term when user navigates back
+window.addEventListener('popstate', () => {
+    if (window.history.state && window.history.state.searchTerm) {
+        searchTerm.value = window.history.state.searchTerm;
+        if (window.history.state.movies) {
+            movies.value = JSON.parse(window.history.state.movies);
+        }
+        if (window.history.state.currentPage) {
+            currentPage = window.history.state.currentPage;
+        }
+    }
+});
+
+// Update history state when search term changes
+watchEffect(() => {
+    updateHistoryState();
+});
 
 </script>
 
@@ -75,7 +126,8 @@ const loadMoreMovies = async () => {
         </div>
         <div class="flex flex-col items-stretch">
             <Heading v-if="debouncedSearchTerm !== ''">Results</Heading>
-            <p v-if="debouncedSearchTerm !== '' && moviesWithPoster && moviesWithPoster.length === 0" class="text-xl">No matching
+            <p v-if="debouncedSearchTerm !== '' && moviesWithPoster && moviesWithPoster.length === 0" class="text-xl">No
+                matching
                 results can be found.</p>
             <div class="movie-grid " v-if="moviesWithPoster.length > 0">
                 <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />

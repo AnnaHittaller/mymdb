@@ -8,7 +8,7 @@ const { getUser, deleteUserDoc } = useFirestore()
 
 const userData = await currentUserPromise()
 const user = await getUser(userData.uid)
-console.log("User:", user)
+//console.log("User:", user)
 
 const isOpen = ref(false)
 
@@ -40,7 +40,7 @@ const deleteCurrentUser = async () => {
             </NuxtLink> -->
             <UButton icon="" variant="outline" label="Delete profile" size="xl" class="text-2xl mt-8"
                 @click="isOpen = true" />
-            <UModal v-model="isOpen">
+            <UModal v-model="isOpen" :ui="{ margin: 'sm:my-8', wrapper: 'relative top-[100px] border-2 border-red-500'}" class="top-0">
                 <div class="p-4 ">
                     <h4 class="text-red-500 text-center text-lg mb-8">Are you sure you want to delete your profile? This
                         action is irreversible and all
