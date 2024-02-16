@@ -15,6 +15,8 @@ const colors = [
     { value: 'pumpkin', label: 'Pumpkin' },
     { value: 'mauve', label: 'Mauve' },
     { value: 'periwinkle', label: 'Periwinkle' },
+    { value: 'saffron', label: 'Saffron' },
+
     // Add more colors as needed
 ]
 
