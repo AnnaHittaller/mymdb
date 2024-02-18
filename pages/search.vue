@@ -10,15 +10,26 @@ const debouncedSearchTerm = refDebounced(searchTerm, 700)
 
 let movies = ref([])
 let currentPage = 1;
+let originalSearchTerm = ref("")
 
+// Function to fetch movies for a given page
+const fetchMoviesForPage = async (page) => {
+    try {
+        const { data, pending, error } = await useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${page}`);
+        return toRaw(data.value.results);
+    } catch (error) {
+        console.error('Error while fetching movies:', error);
+        return [];
+    }
+};
 
+// Computed property to generate URL for fetching movies
 const url = computed(() => {
-    console.log("currentpage from computed url", currentPage)
     return `api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`;
-})
+});
 
-const { data, pending, error } = await useFetch(url)
-
+// Fetch movies when URL changes
+const { data, pending, error } = await useFetch(url);
 
 // Store search term in history state
 const updateHistoryState = () => {
@@ -27,65 +38,76 @@ const updateHistoryState = () => {
         movies: JSON.stringify(movies.value), // Serialize the movies array
         currentPage: currentPage,
     };
-    window.history.replaceState(state, '', ''); // Update history state
-    console.log("state update", window.history.state)
+    window.history.replaceState(state, '', '');
 };
 
+// clear movies array when there is no search term
 watchEffect(() => {
-    // Reset currentPage for a new search
-    //currentPage = window.history.state && window.history.state.currentPage ? window.history.state.currentPage : 1;
-    
-    currentPage = 1
+    if (searchTerm.value === '') {
+        movies.value = [];
+    }
+})
 
-    useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`).then(({ data, pending, error }) => {
+// Watch for changes in searchTerm
+watchEffect(() => {
+    //console.log("o",originalSearchTerm.value, "d", debouncedSearchTerm.value)
+    //console.log(currentPage)
 
-        if (data && data.value.results) {
-            // Update the movies ref with the new data, replacing existing movies
-            movies.value = toRaw(data.value.results);
-        } else {
-            console.error('No results found in the response.');
+    const fetchData = async () => {
+
+        if (debouncedSearchTerm.value && originalSearchTerm.value !== debouncedSearchTerm.value) {
+            currentPage = 1;
+            movies.value = []; // Reset movies when search term changes
+            originalSearchTerm.value = debouncedSearchTerm.value; // Update originalSearchTerm
         }
-    }).catch(error => {
-        console.error('Error while searching for movies:', error);
-    });
+
+        // Check if searchTerm is empty before fetching movies
+        if (debouncedSearchTerm.value.trim() !== '') {
+            const fetchedMovies = [];
+            for (let i = 1; i <= currentPage; i++) {
+                const moviesData = await fetchMoviesForPage(i);
+                fetchedMovies.push(...moviesData);
+            }
+            
+            if (debouncedSearchTerm.value && originalSearchTerm.value !== debouncedSearchTerm.value) {
+                movies.value = fetchedMovies;
+            } else {
+                const existingMovieIds = movies.value.map(movie => movie.id);
+                const uniqueFetchedMovies = fetchedMovies.filter(movie => !existingMovieIds.includes(movie.id));
+                movies.value.push(...uniqueFetchedMovies);
+            }
+        }
+
+    };
+
+    fetchData();
 });
 
+// Function to load more movies
+const loadMoreMovies = async () => {
+    currentPage++; // Increment currentPage when loading more movies
+    const newMovies = await fetchMoviesForPage(currentPage);
+    movies.value = [...movies.value, ...newMovies];
+};
 
-// displaying only movies that have a poster image available
+// Filter movies with poster
 const moviesWithPoster = computed(() => {
     return movies.value.filter(movie => movie.poster !== null);
 });
 
-// function for the Load More button
-const loadMoreMovies = async () => {
-    try {
-        currentPage++;
-
-        const { data, pending, error } = await useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`);
-
-        const newMovies = toRaw(data.value.results);
-        movies.value = [...movies.value, ...newMovies.filter(newMovie => !movies.value.some(existingMovie => existingMovie.id === newMovie.id))];
-
-    } catch (error) {
-        console.error('Error while loading more movies:', error);
-    }
-};
-
-// Check if there is a saved search term in history state and use it as default input value
+// Initialize search term and movies from history state
 if (window.history.state && window.history.state.searchTerm) {
     searchTerm.value = window.history.state.searchTerm;
-    console.log("YES2")
+    originalSearchTerm.value = searchTerm.value;
     if (window.history.state.movies) {
-        movies.value = JSON.parse(window.history.state.movies); // Parse the serialized movies array
-        console.log("movies value", movies.value)
+        movies.value = JSON.parse(window.history.state.movies);
     }
     if (window.history.state.currentPage) {
         currentPage = window.history.state.currentPage;
-        console.log("currentpage", currentPage)
     }
 }
 
-// Listen to popstate event to update search term when user navigates back
+// Listen to popstate event to update search term and movies when user navigates back
 window.addEventListener('popstate', () => {
     if (window.history.state && window.history.state.searchTerm) {
         searchTerm.value = window.history.state.searchTerm;
@@ -98,7 +120,7 @@ window.addEventListener('popstate', () => {
     }
 });
 
-// Update history state when search term changes
+// Update history state when search term or page changes
 watchEffect(() => {
     updateHistoryState();
 });
@@ -125,8 +147,9 @@ watchEffect(() => {
             </div>
         </div>
         <div class="flex flex-col items-stretch">
-            <Heading v-if="debouncedSearchTerm !== ''">Results</Heading>
-            <p v-if="debouncedSearchTerm !== '' && moviesWithPoster && moviesWithPoster.length === 0" class="text-xl">No
+            <Heading v-if="debouncedSearchTerm !== '' ">Results</Heading>
+            <p v-if="searchTerm !== '' && debouncedSearchTerm !== '' && moviesWithPoster && moviesWithPoster.length === 0"
+                class="text-xl">No
                 matching
                 results can be found.</p>
             <div class="movie-grid " v-if="moviesWithPoster.length > 0">

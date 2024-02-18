@@ -30,10 +30,10 @@ const isInMovieList = computed(() => userMoviesStore.movies.some(item => item.id
 </script>
 
 <template>
-    <div class="relative pt-2 px-2 ">
+    <div class="relative pt-2 px-2 group">
         <div v-auto-animate v-if="isInMovieList">
             <UIcon name="i-heroicons-star"
-                class="z-20 text-2xl text-primary absolute -top-1 -right-1 transition scale-150 origin-center cursor-pointer"
+                class="z-20 text-2xl text-primary absolute -top-1 -right-1 transition scale-150 origin-center cursor-pointer opacity-50 hover:opacity-100"
                 v-if="!movie.next" @click.stop="addToNextList" />
             <UIcon name="i-heroicons-star-20-solid"
                 class="z-20 text-2xl scale-150 text-primary absolute -top-1 -right-1 transition origin-center cursor-pointer"
@@ -41,7 +41,7 @@ const isInMovieList = computed(() => userMoviesStore.movies.some(item => item.id
         </div>
         <div v-auto-animate v-if="isInMovieList">
             <UIcon name="i-heroicons-x-circle"
-                class="z-20 text-2xl scale-150 text-primary opacity-70 absolute top-8 -right-1 transition origin-center cursor-pointer hover:opacity-100"
+                class="z-20 text-2xl scale-150 text-primary opacity-0 absolute top-8 -right-1 transition origin-center cursor-pointer group-hover:opacity-100"
                 @click.stop="removeFromMovieList" />
         </div>
         <NuxtLink :to="`/movie/${movie.id}`" class="relative">
