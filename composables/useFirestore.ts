@@ -1,3 +1,4 @@
+
 import { setDoc, doc, getDoc, deleteDoc, updateDoc, arrayRemove, arrayUnion, onSnapshot} from "firebase/firestore"
 
 interface Movie {
@@ -7,6 +8,7 @@ interface Movie {
   poster: string,
   seen: boolean;
   next: boolean;
+  timestamp: Date;
 }
 
 export const useFirestore = () => {
@@ -118,7 +120,7 @@ export const useFirestore = () => {
             if (userSnapshot.exists()) {
                 await updateDoc(userRef, {
                     movies: userSnapshot.data()?.movies.map((movie: any) =>
-                        movie.id === movieId ? { ...movie, ...update } : movie
+                        movie.id === movieId ? { ...movie, ...update, timestamp: new Date() } : movie
                     ),
                 });
                 //console.log(`Movie with ID ${movieId} updated:`, update);

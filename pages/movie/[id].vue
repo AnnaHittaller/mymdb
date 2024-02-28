@@ -62,7 +62,8 @@ const movieToAdd = {
     rating: movie.vote_average,
     poster: movie.poster_path,
     seen: false,
-    next: false
+    next: false,
+    timestamp: new Date()
 }
 
 const addToMovieList = async () => {

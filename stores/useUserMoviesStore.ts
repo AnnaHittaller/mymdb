@@ -11,6 +11,7 @@ interface Movie {
   poster: string,
   seen: boolean;
   next: boolean;
+  timestamp: Date;
 }
 
 interface UpdateFields {
