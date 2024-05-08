@@ -2,7 +2,7 @@
 const { computedStyle } = useComputedStyle()
 const { logout, currentUserPromise } = useFirebaseAuth()
 const { getUser } = useFirestore()
-const colorStore = useUiColorStore()
+const colorStore = useUiColorStore() 
 
 const userData = await currentUserPromise()
 const user = await getUser(userData.uid)
@@ -46,7 +46,7 @@ const handleLogout = async () => {
 </script>
 
 <template>
-    <footer class="flex items-center sm:items-start px-4 py-4 relative">
+    <footer class="flex items-center sm:items-start px-4 py-4">
         <nav class="flex justify-around sm:justify-start sm:gap-16 items-center w-full sm:flex-col sm:sticky sm:top-4 ">
             <Logo class="max-sm:hidden max-w-full flex m-0 shrink" />
             <NuxtLink to="/" class="hover-filter flex item-center" :style="computedStyle">

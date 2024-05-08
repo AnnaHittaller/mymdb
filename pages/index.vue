@@ -71,6 +71,7 @@ const watchNextMovies = computed(() => {
 
 <!-- TODO
 
+checking footer profile menu z-index problems between 640 and 1024px
 create skeleton for swiper sliders and hero image / or loaders
 adding toast for movie page: list modifications
 add Google authentication
@@ -82,5 +83,7 @@ filtering in watchlist/next list by genre
 adding trailers and/or screenshots
 search page and discover page: display icons for movieCards according to user's movies from pinia
 including series too
+
+possible simplification of footer slide and hide animation?
 
 -->
