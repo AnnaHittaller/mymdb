@@ -23,7 +23,7 @@ if (width.value >= 640) {
 }
 
 const handleScroll = () => {
-    clearTimeout(scrollTimeout);
+    clearScrollTimeout();
     const st = window.scrollY || document.documentElement.scrollTop;
     scrollingDown.value = st > lastScrollTop.value;
     lastScrollTop.value = st <= 0 ? 0 : st;
@@ -41,17 +41,27 @@ const handleScroll = () => {
     }
 
     // Set timeout to hide footer on mobile after 3 seconds of no scrolling and when not at the bottom of the page
-    const scrollBottom = height.value + window.scrollY >= document.body.offsetHeight;
+    // const scrollBottom = height.value + window.scrollY >= document.body.offsetHeight;
+    // if (!scrollBottom) {
+    //     startScrollTimeout()
+    // }
+
+    const scrollBottom = height.value + window.scrollY + 35 >= document.body.scrollHeight;
     if (!scrollBottom) {
         startScrollTimeout()
     }
-};
 
+    // const footerHeight = document.querySelector('.footer-sticky-sm')?.offsetHeight || 0;
+    // const contentBottom = document.documentElement.scrollHeight - footerHeight;
+    // const isFooterVisible = st < contentBottom - window.innerHeight + 56; // Adjusted calculation
+    // if (isFooterVisible) {
+    //     startScrollTimeout();
+    // }
+};
 
 onMounted(() => {
     window.addEventListener('scroll', handleScroll);
 });
-
 
 watch([width, height, routePath, footerHidden], () => {
     if (width.value >= 640 || height.value >= document.body.offsetHeight) {
@@ -64,11 +74,14 @@ onUnmounted(() => {
 });
 
 const clearScrollTimeout = () => {
+    console.log("cleartimeout")
     clearTimeout(scrollTimeout);
 };
 
 const startScrollTimeout = () => {
+    console.log("clear in start");
     clearTimeout(scrollTimeout);
+    console.log("starttimeout in start");
     scrollTimeout = setTimeout(() => {
         if (width.value <= 639) {
             footerHidden.value = true;
@@ -94,7 +107,7 @@ main {
 
     @media screen and (max-width: 639px) {
         max-width: 100%;
-        padding-bottom: 56px;
+        padding-bottom: 75px;
     }
 
     @media screen and (min-width: 640px) {
