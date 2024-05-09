@@ -72,18 +72,17 @@ const watchNextMovies = computed(() => {
 <!-- TODO
 
 checking footer profile menu z-index problems between 640 and 1024px
+refresh movies and movie store (ratings and poster) when loading the app first
+search page and discover page: display icons for movieCards according to user's movies from pinia
+add Google authentication
 create skeleton for swiper sliders and hero image / or loaders
 adding toast for movie page: list modifications
-add Google authentication
 add filtering options for directors / actors in the discovery page 
 search and discovery load more button: don't display if all movies are loaded
 search and discovery load more button: don't reshuffle the already loaded movies
 
 filtering in watchlist/next list by genre
 adding trailers and/or screenshots
-search page and discover page: display icons for movieCards according to user's movies from pinia
 including series too
-
-possible simplification of footer slide and hide animation?
 
 -->

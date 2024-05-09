@@ -43,6 +43,7 @@ const handleLogout = async () => {
     colorStore.colorReset();
 };
 
+
 </script>
 
 <template>
