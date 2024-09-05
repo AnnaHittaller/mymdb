@@ -55,8 +55,8 @@ const onSlideChange = (e) => {
                 <swiper-container class="mySwiper max-w-full h-full" loop="true" effect="coverflow" grab-cursor="false"
                     centered-slides="true" pagination="false" slides-per-view="auto" coverflow-effect-rotate="15"
                     coverflow-effect-stretch="0" coverflow-effect-depth="300" coverflow-effect-modifier="1"
-                    coverflow-effect-slide-shadows="true" navigation="true" autoplay-delay="5000" pauseOnMouseEnter="true"
-                    @swiperslidechange="onSlideChange" :style="computedStyle">
+                    coverflow-effect-slide-shadows="true" navigation="true" autoplay-delay="5000"
+                    pause-on-mouse-enter="true" @swiperslidechange="onSlideChange" :style="computedStyle">
                     <swiper-slide v-for="movie in movies.value" :key="movie.id">
                         <NuxtLink :to="`/movie/${movie.id}`">
                             <img :src="`${baseImageUrl}${movie.poster}`" class="relative" />

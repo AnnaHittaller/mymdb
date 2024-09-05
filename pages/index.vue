@@ -78,8 +78,7 @@ add Google authentication
 create skeleton for swiper sliders and hero image / or loaders
 adding toast for movie page: list modifications
 add filtering options for directors / actors in the discovery page 
-search and discovery load more button: don't display if all movies are loaded
-search and discovery load more button: don't reshuffle the already loaded movies
+refactir for infinite scroll: search and discovery
 
 filtering in watchlist/next list by genre
 adding trailers and/or screenshots
