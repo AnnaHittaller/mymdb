@@ -1,27 +1,27 @@
 import { defineStore } from "pinia";
 
-export const useTrendingMoviesStore = defineStore("trendingMovies", () => {
-	const trendingMovies = ref([])
-	const isLoaded = ref(false)
+// export const useTrendingMoviesStore = defineStore("trendingMovies", () => {
+// 	const trendingMovies = ref([])
+// 	const isLoaded = ref(false)
 	
-    const fetchTrendingMovies = async () => {
-        try { 
+//     const fetchTrendingMovies = async () => {
+//         try { 
 
-            const {data } = await useFetch('/api/movies/trending')
-            trendingMovies.value = data
-			isLoaded.value = true
-			//console.log(trendingMovies.value)
-			//console.log(isLoaded.value)
-            return data
+//             const {data } = await useFetch('/api/movies/trending')
+//             trendingMovies.value = data
+// 			isLoaded.value = true
+// 			//console.log(trendingMovies.value)
+// 			//console.log(isLoaded.value)
+//             return data
             
-        } catch (error) {
-        console.log(error);
-        }
-    };
+//         } catch (error) {
+//         console.log(error);
+//         }
+//     };
 
-	fetchTrendingMovies()
+// 	fetchTrendingMovies()
 
-	return {
-		fetchTrendingMovies, trendingMovies, isLoaded
-	}
-});
+// 	return {
+// 		fetchTrendingMovies, trendingMovies, isLoaded
+// 	}
+// });

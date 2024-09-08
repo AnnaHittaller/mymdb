@@ -2,14 +2,14 @@
 import { z } from 'zod'
 import type { FormError, FormSubmitEvent } from '#ui/types'
 
-definePageMeta({
-    layout: "not-logged-in",
-    middleware: "already-logged-in"
-})
+// definePageMeta({
+//     layout: "not-logged-in",
+//     middleware: "already-logged-in"
+// })
 
-const { login } = useFirebaseAuth()
-const colorStore = useUiColorStore()
-colorStore.initialize()
+// const { login } = useFirebaseAuth()
+// const colorStore = useUiColorStore()
+// colorStore.initialize()
 
 const schema = z.object({
     email: z.string().email('Invalid email'),
@@ -28,25 +28,25 @@ const state = reactive({
 
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-    //console.log("SUBMIT EVENT LOGIN", event.data)
-    state.loading = true
-    state.success = false
+    console.log("SUBMIT EVENT LOGIN", event.data)
+    //state.loading = true
+    //state.success = false
 
-    try {
-        await login(event.data.email, event.data.password)
-        state.loading = false
-        state.email = undefined
-        state.password = undefined
-        if (!state.error) {
-            state.success = true
-            return await navigateTo("/", { replace: true });
-        }
-    } catch (error: any) {
-        console.error("Frontend error:", error.message);
-        state.error = error.message;
-        state.loading = false
-        state.success = false
-    }
+    // try {
+    //     await login(event.data.email, event.data.password)
+    //     state.loading = false
+    //     state.email = undefined
+    //     state.password = undefined
+    //     if (!state.error) {
+    //         state.success = true
+    //         return await navigateTo("/", { replace: true });
+    //     }
+    // } catch (error: any) {
+    //     console.error("Frontend error:", error.message);
+    //     state.error = error.message;
+    //     state.loading = false
+    //     state.success = false
+    // }
 
 }
 </script>

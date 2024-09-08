@@ -1,10 +1,10 @@
         
 <script setup>
-const colorStore = useUiColorStore()
-const { currentUserPromise } = useFirebaseAuth()
-const { getUser, updateTheme } = useFirestore()
+// const colorStore = useUiColorStore()
+// const { currentUserPromise } = useFirebaseAuth()
+// const { updateTheme } = useFirestore()
 
-const userData = await currentUserPromise()
+// const userData = await currentUserPromise()
 
 let selectedColor = ref('')
 
@@ -20,11 +20,11 @@ const colors = [
     // Add more colors as needed
 ]
 
-const updateColor = async (color) => {
-    selectedColor.value = color; // Update the selectedColor value
-    await updateTheme(userData.uid, color)
-    colorStore.initialize()
-}
+// const updateColor = async (color) => {
+//     selectedColor.value = color; // Update the selectedColor value
+//     await updateTheme(userData.uid, color)
+//     colorStore.initialize()
+// }
 
 </script>
         

@@ -1,7 +1,7 @@
 <script setup>
 import { register } from 'swiper/element/bundle';
 register();
-const { computedStyle } = useComputedStyle()
+//const { computedStyle } = useComputedStyle()
 
 const props = defineProps(
   { movies: Array }
@@ -43,13 +43,13 @@ const shouldDisplayNavigation = computed(() => {
 });
 
 watch([movies, currentBreakpoint], () => {
-  shouldDisplayNavigation.value;
+  //shouldDisplayNavigation.value;
 });
 
 onMounted(() => {
   window.addEventListener('resize', handleResize);
   currentBreakpoint.value = getInitialBreakpoint(); 
-  shouldDisplayNavigation.value;
+  //shouldDisplayNavigation.value;
 });
 
 const handleResize = () => {
@@ -68,10 +68,8 @@ function getInitialBreakpoint() {
 
 <template>
   <div class="relative px-4">
-    <!-- <div
-      class="w-full h-full z-10 bg-gradient-to-l from-[#27272a] from-0% to-15%  absolute top-0 left-0 pointer-events-none"
-      :class="{ 'hidden': lastSlide }"></div> -->
-    <swiper-container space-between="10" class="movieSlider z-0" centered-slides="false"
+    <p>THIS IS MOVIESLIDER</p>
+    <!-- <swiper-container space-between="10" class="movieSlider z-0" centered-slides="false"
       :navigation="shouldDisplayNavigation" :loop="false" :style="computedStyle" @swiperslidechange="onSlideChange"
       :breakpoints="breakpoints">
       <swiper-slide v-for="movie in movies" :key="movie.id" auto-scroll-offset="1" class="" v-auto-animate>
@@ -79,10 +77,7 @@ function getInitialBreakpoint() {
         <MovieCard :movie="movie" class="" />
 
       </swiper-slide>
-    </swiper-container>
-    <!-- <div
-      class="w-full h-full z-10 bg-gradient-to-r from-[#27272a] from-0% to-15%  absolute top-0 left-0 pointer-events-none"
-      :class="{ 'hidden': firstSlide }"></div> -->
+    </swiper-container> -->
   </div>
 </template>
 

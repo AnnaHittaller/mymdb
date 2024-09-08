@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from '#ui/types'
-const { currentUserPromise } = useFirebaseAuth()
-const userData: any = await currentUserPromise()
+// const { currentUserPromise } = useFirebaseAuth()
+// const userData: any = await currentUserPromise()
 
-definePageMeta({
-    middleware: "auth"
-})
+// definePageMeta({
+//     middleware: "auth"
+// })
 
 const state = reactive({
     subject: undefined,
@@ -23,37 +23,37 @@ const validate = (state: any): FormError[] => {
 }
 
 async function onSubmit(event: FormSubmitEvent<any>) {
-    //console.log("CONTACT FORM SUBMIT EVENT", event.data, userData.email)
-    state.loading = true
+    console.log("CONTACT FORM SUBMIT EVENT", event.data)
+    // state.loading = true
 
-    try {
-        const userData: any = await currentUserPromise()
+    // try {
+    //     const userData: any = await currentUserPromise()
 
-        await $fetch('https://formspree.io/f/myyrkroy', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                subject: state.subject,
-                message: state.message,
-                email: userData.email
-            })
-        })
+    //     await $fetch('https://formspree.io/f/myyrkroy', {
+    //         method: 'POST',
+    //         headers: { 'Content-Type': 'application/json' },
+    //         body: JSON.stringify({
+    //             subject: state.subject,
+    //             message: state.message,
+    //             email: userData.email
+    //         })
+    //     })
 
-        //console.log('Form submitted successfully')
-        state.loading = false
-        if (!state.error) {
-            state.success = true
-            state.subject = undefined
-            state.message = undefined
+    //     //console.log('Form submitted successfully')
+    //     state.loading = false
+    //     if (!state.error) {
+    //         state.success = true
+    //         state.subject = undefined
+    //         state.message = undefined
 
-        }
+    //     }
 
-    } catch (error: any) {
-        console.error('Error submitting form:', error)
-        state.error = error.message;
-        state.loading = false
-        state.success = false
-    }
+    // } catch (error: any) {
+    //     console.error('Error submitting form:', error)
+    //     state.error = error.message;
+    //     state.loading = false
+    //     state.success = false
+    // }
 }
 </script>
 

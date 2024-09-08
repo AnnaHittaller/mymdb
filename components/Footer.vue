@@ -1,16 +1,17 @@
 <script setup>
-const { computedStyle } = useComputedStyle()
-const { logout, currentUserPromise } = useFirebaseAuth()
-const { getUser } = useFirestore()
-const colorStore = useUiColorStore() 
+//const { computedStyle } = useComputedStyle()
+// const { logout, currentUserPromise } = useFirebaseAuth()
+// const { getUser } = useFirestore()
+// const colorStore = useUiColorStore() 
 
-const userData = await currentUserPromise()
-const user = await getUser(userData.uid)
+// const userData = await currentUserPromise()
+// const user = await getUser(userData.uid)
 //console.log("User:", user)
 
 const items = [
     [{
-        label: user?.email,
+       // label: user?.email,
+       label: 'label',
         slot: 'account',
         disabled: true
     }], [{
@@ -32,16 +33,16 @@ const items = [
     }], [{
         label: 'Sign out',
         icon: 'i-heroicons-arrow-left-on-rectangle',
-        click: () => {
-            handleLogout()
-        }
+        // click: () => {
+        //     handleLogout()
+        // }
     }]
 ]
 
-const handleLogout = async () => {
-    await logout();
-    colorStore.colorReset();
-};
+// const handleLogout = async () => {
+//     await logout();
+//     colorStore.colorReset();
+// };
 
 
 </script>

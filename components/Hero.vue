@@ -2,48 +2,49 @@
 import { register } from 'swiper/element/bundle';
 register();
 
-const trendingMoviesStore = useTrendingMoviesStore();
-const { computedStyle } = useComputedStyle()
+// const trendingMoviesStore = useTrendingMoviesStore();
+// const { computedStyle } = useComputedStyle()
 
-const isLoading = computed(() => !trendingMoviesStore.isLoaded);
-const movies = computed(() => trendingMoviesStore.trendingMovies);
+// const isLoading = computed(() => !trendingMoviesStore.isLoaded);
+// const movies = computed(() => trendingMoviesStore.trendingMovies);
 
-const baseImageUrl = "https://image.tmdb.org/t/p/original"
+// const baseImageUrl = "https://image.tmdb.org/t/p/original"
 
-let hrefValue = ref(null)
-let backdropImage = ref(null)
-let imageAlt = ref(null)
+// let hrefValue = ref(null)
+// let backdropImage = ref(null)
+// let imageAlt = ref(null)
 
-const onSlideChange = (e) => {
-    const [swiper, progress] = e.detail;
-    //console.log(e.detail)
-    const activeSlide = swiper.slides[swiper.activeIndex];
+// const onSlideChange = (e) => {
+//     const [swiper, progress] = e.detail;
+//     //console.log(e.detail)
+//     const activeSlide = swiper.slides[swiper.activeIndex];
 
-    const href = activeSlide.querySelector('a').getAttribute('href');
-    hrefValue.value = href;
+//     const href = activeSlide.querySelector('a').getAttribute('href');
+//     hrefValue.value = href;
 
-    const movieIdFromHref = hrefValue.value.match(/\d+$/)[0];
+//     const movieIdFromHref = hrefValue.value.match(/\d+$/)[0];
 
-    // Access trendingMovies directly from the store
-    const trendingMovies = useTrendingMoviesStore().trendingMovies;
-    const movieArray = Array.from(trendingMovies.value); // Convert proxy-wrapped array to a regular array
-    const backdropMovie = movieArray.find(movie => movie.id === Number(movieIdFromHref));
+//     // Access trendingMovies directly from the store
+//     const trendingMovies = useTrendingMoviesStore().trendingMovies;
+//     const movieArray = Array.from(trendingMovies.value); // Convert proxy-wrapped array to a regular array
+//     const backdropMovie = movieArray.find(movie => movie.id === Number(movieIdFromHref));
 
-    if (backdropMovie) {
-        backdropImage.value = backdropMovie.backdrop;
-        imageAlt.value = backdropMovie.title;
-    } else {
-        console.error('Movie not found with ID:', movieIdFromHref);
-    }
+//     if (backdropMovie) {
+//         backdropImage.value = backdropMovie.backdrop;
+//         imageAlt.value = backdropMovie.title;
+//     } else {
+//         console.error('Movie not found with ID:', movieIdFromHref);
+//     }
 
-    //https://www.youtube.com/watch?v= +key attribute from videos API
-}
+//     //https://www.youtube.com/watch?v= +key attribute from videos API
+// }
 
 </script>
 
 <template>
     <div>
-        <USkeleton v-if="isLoading"
+        <p>THIS IS HERO</p>
+        <!-- <USkeleton v-if="isLoading"
             class="h-full w-full max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 " />
         <div v-if="!isLoading"
             class="lg:bg-gradient-to-r from-[#27272a] via-[#27272a] from-[400px] to-[600px] 2xl:to-[900px] 3xl:from-[40%] 3xl:to-[60%] w-full h-full pb-8 mb-8 bg-contain bg-no-repeat bg-right lg:relative">
@@ -67,7 +68,7 @@ const onSlideChange = (e) => {
                     </swiper-slide>
                 </swiper-container>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 

@@ -1,29 +1,29 @@
 <script setup>
-definePageMeta({
-    middleware: "auth"
-})
+// definePageMeta({
+//     middleware: "auth"
+// })
 
-const { currentUserPromise } = useFirebaseAuth()
-const { getUser } = useFirestore()
-const userData = await currentUserPromise()
-const user = await getUser(userData.uid)
+// const { currentUserPromise } = useFirebaseAuth()
+// const { getUser } = useFirestore()
+// const userData = await currentUserPromise()
+// const user = await getUser(userData.uid)
 
-const userMoviesStore = useUserMoviesStore();
-await userMoviesStore.fetchUserMovies();
+// const userMoviesStore = useUserMoviesStore();
+// await userMoviesStore.fetchUserMovies();
 
-const searchTerm = ref("")
-const debouncedSearchTerm = refDebounced(searchTerm, 700)
+// const searchTerm = ref("")
+// const debouncedSearchTerm = refDebounced(searchTerm, 700)
 
-const filteredMovies = computed(() => {
-    return userMoviesStore.movies.filter(movie => movie.title.toLowerCase().includes(debouncedSearchTerm.value.toLowerCase()))
-})
+// const filteredMovies = computed(() => {
+//     return userMoviesStore.movies.filter(movie => movie.title.toLowerCase().includes(debouncedSearchTerm.value.toLowerCase()))
+// })
 </script> 
 
 <template>
     <div>
         <div class="flex gap-4 items-center justify-start">
             <Heading>My movies</Heading>
-            <UBadge variant="outline" class="mb-4">{{ userMoviesStore.movies.length }}</UBadge>
+            <!-- <UBadge variant="outline" class="mb-4">{{ userMoviesStore.movies.length }}</UBadge> -->
         </div>
         <UInput size="xl" placeholder="Filter for title..." v-model="searchTerm" name="search"
             :ui="{ icon: { trailing: { pointer: '' } }, size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
@@ -40,13 +40,13 @@ const filteredMovies = computed(() => {
         </UInput>
         <div class="flex flex-col items-stretch">
             <Heading v-if="debouncedSearchTerm !== ''">Results</Heading>
-            <p v-if="debouncedSearchTerm !== '' && userMoviesStore.movies && filteredMovies.length === 0" class="text-xl">No
+            <!-- <p v-if="debouncedSearchTerm !== '' && userMoviesStore.movies && filteredMovies.length === 0" class="text-xl">No
                 matching
                 results can be found.</p>
             <p v-if="userMoviesStore.movies.length === 0">You have no movies on your watchlist.</p>
             <div class="movie-grid " v-if="filteredMovies.length > 0">
                 <MovieCard :movie="movie" v-for="movie in filteredMovies" :key="movie.id" />
-            </div>
+            </div> -->
         </div>
     </div>
 </template>

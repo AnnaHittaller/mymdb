@@ -2,12 +2,12 @@
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
-definePageMeta({
-    layout: "not-logged-in",
-    middleware: "already-logged-in"
-})
+// definePageMeta({
+//     layout: "not-logged-in",
+//     middleware: "already-logged-in"
+// })
 
-const { resetPassword } = useFirebaseAuth()
+// const { resetPassword } = useFirebaseAuth()
 const router = useRouter()
 
 const schema = z.object({
@@ -24,28 +24,28 @@ const state = reactive({
 })
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-    //console.log("SUBMIT EVENT LOGIN", event.data)
-    state.loading = true
-    state.success = false
+    console.log("SUBMIT EVENT LOGIN", event.data)
+    // state.loading = true
+    // state.success = false
 
-    try {
-        await resetPassword(event.data.email)
-        console.log("recover code comes here")
-        state.loading = false
-        state.email = undefined
-        if (!state.error) {
-            state.success = true
-            setTimeout(() => {
-                router.replace({ path: '/' })
-            }, 4000)
+    // try {
+    //     await resetPassword(event.data.email)
+    //     console.log("recover code comes here")
+    //     state.loading = false
+    //     state.email = undefined
+    //     if (!state.error) {
+    //         state.success = true
+    //         setTimeout(() => {
+    //             router.replace({ path: '/' })
+    //         }, 4000)
 
-        }
-    } catch (error: any) {
-        console.error("Password reset error:", error.message);
-        state.error = error.message;
-        state.loading = false
-        state.success = false
-    }
+    //     }
+    // } catch (error: any) {
+    //     console.error("Password reset error:", error.message);
+    //     state.error = error.message;
+    //     state.loading = false
+    //     state.success = false
+    // }
 
 }
 </script>

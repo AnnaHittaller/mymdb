@@ -2,13 +2,13 @@
 import { z } from 'zod'
 import type { FormError, FormSubmitEvent } from '#ui/types'
 
-definePageMeta({
-    layout: "not-logged-in",
-    middleware: "already-logged-in"
-})
+// definePageMeta({
+//     layout: "not-logged-in",
+//     middleware: "already-logged-in"
+// })
 
-const { register } = useFirebaseAuth()
-const { setUser } = useFirestore()
+// const { register } = useFirebaseAuth()
+// const { setUser } = useFirestore()
 
 const schema = z.object({
     email: z.string().email('Invalid email'),
@@ -36,30 +36,30 @@ const state = reactive({
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
     console.log("SUBMIT EVENT REGISTER", event.data)
-    state.loading = true
-    state.success = false
-    try {
-        const user = await register(event.data.email, event.data.password)
-        console.log(user)
+    // state.loading = true
+    // state.success = false
+    // try {
+    //     const user = await register(event.data.email, event.data.password)
+    //     console.log(user)
 
-        const firestoreUser = await setUser(user.uid, event.data.username, event.data.email, "emerald", []);
-        console.log(firestoreUser);
+    //     const firestoreUser = await setUser(user.uid, event.data.username, event.data.email, "emerald", []);
+    //     console.log(firestoreUser);
 
 
-        state.loading = false
-        state.email = undefined
-        state.username = undefined
-        state.password = undefined
-        if (!state.error) {
-            state.success = true
-            return await navigateTo("/", { replace: true });
-        }
-    } catch (error: any) {
-        console.error(error)
-        state.error = error.message;
-        state.loading = false
-        state.success = false
-    }
+    //     state.loading = false
+    //     state.email = undefined
+    //     state.username = undefined
+    //     state.password = undefined
+    //     if (!state.error) {
+    //         state.success = true
+    //         return await navigateTo("/", { replace: true });
+    //     }
+    // } catch (error: any) {
+    //     console.error(error)
+    //     state.error = error.message;
+    //     state.loading = false
+    //     state.success = false
+    // }
 }
 
 </script>

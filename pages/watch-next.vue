@@ -1,34 +1,34 @@
 <script setup>
-definePageMeta({
-    middleware: "auth"
-})
+// definePageMeta({
+//     middleware: "auth"
+// })
 
-const { currentUserPromise } = useFirebaseAuth()
-const { getUser } = useFirestore()
-const userData = await currentUserPromise()
-const user = await getUser(userData.uid)
+// const { currentUserPromise } = useFirebaseAuth()
+// const { getUser } = useFirestore()
+// const userData = await currentUserPromise()
+// const user = await getUser(userData.uid)
 
-const userMoviesStore = useUserMoviesStore();
-await userMoviesStore.fetchUserMovies();
+// const userMoviesStore = useUserMoviesStore();
+// await userMoviesStore.fetchUserMovies();
 
-const searchTerm = ref("")
-const debouncedSearchTerm = refDebounced(searchTerm, 700)
+// const searchTerm = ref("")
+// const debouncedSearchTerm = refDebounced(searchTerm, 700)
 
-const watchNextMovies = userMoviesStore.movies.filter(movie => movie.next)
+// const watchNextMovies = userMoviesStore.movies.filter(movie => movie.next)
 
-const filteredMovies = computed(() => {
-    return userMoviesStore.movies.filter(movie => {
-        return movie.next && movie.title.toLowerCase().includes(debouncedSearchTerm.value.toLowerCase());
-    });
-});
+// const filteredMovies = computed(() => {
+//     return userMoviesStore.movies.filter(movie => {
+//         return movie.next && movie.title.toLowerCase().includes(debouncedSearchTerm.value.toLowerCase());
+//     });
+// });
 </script>
 
 <template>
     <div>
         <div class="flex gap-4 items-center justify-start">
             <Heading>Watch next</Heading>
-            <UBadge variant="outline" class="mb-4">{{ watchNextMovies.length }}</UBadge>
-        </div>
+            <!-- <UBadge variant="outline" class="mb-4">{{ watchNextMovies.length }}</UBadge> -->
+        <!-- </div>
         <UInput size="xl" placeholder="Filter for title..." v-model="searchTerm" name="search"
             :ui="{ icon: { trailing: { pointer: '' } }, size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
             class="relative mb-8">
@@ -50,7 +50,7 @@ const filteredMovies = computed(() => {
             <p v-if="watchNextMovies.length === 0">You have no movies on your watch next list.</p>
             <div class="movie-grid " v-if="filteredMovies.length > 0">
                 <MovieCard :movie="movie" v-for="movie in filteredMovies" :key="movie.id" />
-            </div>
+            </div> -->
         </div>
     </div>
 </template>

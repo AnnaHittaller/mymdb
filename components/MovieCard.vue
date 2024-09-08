@@ -1,37 +1,38 @@
 <script setup>
-const { currentUserPromise } = useFirebaseAuth()
-const { updateMovie, removeMovie } = useFirestore()
+// const { currentUserPromise } = useFirebaseAuth()
+// const { updateMovie, removeMovie } = useFirestore()
 
-const userData = await currentUserPromise()
-const userMoviesStore = useUserMoviesStore();
-await userMoviesStore.fetchUserMovies();
+// const userData = await currentUserPromise()
+// const userMoviesStore = useUserMoviesStore();
+// await userMoviesStore.fetchUserMovies();
 
-const props = defineProps({
-    movie: Object,
-})
+// const props = defineProps({
+//     movie: Object,
+// })
 
-const { movie } = toRefs(props)
-const baseImageUrl = "https://image.tmdb.org/t/p/w500"
+// const { movie } = toRefs(props)
+// const baseImageUrl = "https://image.tmdb.org/t/p/w500"
 
-const addToNextList = async () => {
-    await updateMovie(userData.uid, movie.value.id, { next: true });
-}
+// const addToNextList = async () => {
+//     await updateMovie(userData.uid, movie.value.id, { next: true });
+// }
 
-const removeFromNextList = async () => {
-    await updateMovie(userData.uid, movie.value.id, { next: false });
-}
+// const removeFromNextList = async () => {
+//     await updateMovie(userData.uid, movie.value.id, { next: false });
+// }
 
-const removeFromMovieList = async () => {
-    await removeMovie(userData.uid, movie.value.id)
-}
+// const removeFromMovieList = async () => {
+//     await removeMovie(userData.uid, movie.value.id)
+// }
 
-const isInMovieList = computed(() => userMoviesStore.movies.some(item => item.id === movie.value.id));
+// const isInMovieList = computed(() => userMoviesStore.movies.some(item => item.id === movie.value.id));
 
 </script>
 
 <template>
     <div class="relative pt-2 px-2 group">
-        <div v-auto-animate v-if="isInMovieList">
+        <p>THIS IS MOVIE CARD</p>
+        <!-- <div v-auto-animate v-if="isInMovieList">
             <UIcon name="i-heroicons-star"
                 class="z-20 text-2xl text-primary absolute -top-1 -right-1 transition scale-150 origin-center cursor-pointer sm:opacity-50 sm:hover:opacity-100"
                 v-if="!movie.next" @click.stop="addToNextList" />
@@ -56,7 +57,7 @@ const isInMovieList = computed(() => userMoviesStore.movies.some(item => item.id
                 </div>
                 <p class="text-left text-lg">{{ movie.title }}</p>
             </div>
-        </NuxtLink>
+        </NuxtLink> -->
     </div>
 </template>
 
