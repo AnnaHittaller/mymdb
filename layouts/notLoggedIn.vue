@@ -1,5 +1,5 @@
 <template>
-    <div class="p-4 flex flex-col ">
+    <div class="px-8 pb-8 pt-16 flex flex-col">
         <Header />
         <slot />
     </div>

@@ -1,22 +1,17 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import type { FormError, FormSubmitEvent } from '#ui/types'
+import { loginSchema, type LoginSchema } from '../utils/schemas';
 
-// definePageMeta({
-//     layout: "not-logged-in",
-//     middleware: "already-logged-in"
-// })
+definePageMeta({
+    layout: "not-logged-in",
+    // middleware: "already-logged-in"
+})
 
 // const { login } = useFirebaseAuth()
 // const colorStore = useUiColorStore()
 // colorStore.initialize()
 
-const schema = z.object({
-    email: z.string().email('Invalid email'),
-    password: z.string().min(6, 'Must be at least 6 characters')
-})
-
-type Schema = z.output<typeof schema>
 
 const state = reactive({
     email: undefined,
@@ -27,7 +22,7 @@ const state = reactive({
 })
 
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
+async function onSubmit(event: FormSubmitEvent<LoginSchema>) {
     console.log("SUBMIT EVENT LOGIN", event.data)
     //state.loading = true
     //state.success = false
@@ -54,13 +49,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 <template>
     <div class="max-w-[700px] w-full mx-auto">
         <Heading>Sign in</Heading>
-        <UForm :schema="schema" :state="state" class="space-y-4 w-full pt-8" @submit="onSubmit">
-            <UFormGroup label="Email" name="email" required size="xl" class="mb-8 text-lg" :ui="{ size: { xl: 'text-xl' } }">
+        <UForm :schema="loginSchema" :state="state" class="space-y-4 w-full pt-8" @submit="onSubmit">
+            <UFormGroup label="Email" name="email" required size="xl" class="mb-8 text-lg"
+                :ui="{ size: { xl: 'text-xl' } }">
                 <UInput v-model.trim="state.email" placeholder="Email" size="xl"
                     :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
             </UFormGroup>
 
-            <UFormGroup label="Password " name="password" required size="xl" :ui="{ size: { xl: 'text-xl' }}">
+            <UFormGroup label="Password " name="password" required size="xl" :ui="{ size: { xl: 'text-xl' } }">
                 <UInput v-model.trim="state.password" placeholder="Password" size="xl"
                     :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" type="password" />
             </UFormGroup>
@@ -77,12 +73,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 :timeout="0" @close="state.success = false" icon="i-heroicons-check-circle" color="green" />
 
             <div class="flex items-center justify-between pt-8 max-[470px]:flex-col max-[470px]:gap-8">
-                <UButton type="submit" class="text-xl" :loading="state.loading">
+                <UButton type="submit" class="text-xl max-[470px]:w-full justify-center" :loading="state.loading">
                     Sign in
                 </UButton>
                 <div class="flex items-center gap-3 max-[250px]:flex-col max-[250px]:gap-4">
                     <p class="text-lg">Don't have an account yet?</p>
-                    <NuxtLink to="/register" class="text-lg text-primary font-semibold flex items-center gap-1">
+                    <NuxtLink to="/register" class="text-lg text-primary font-semibold flex items-center gap-0.5">
                         <UIcon name="i-heroicons-chevron-double-right-20-solid" class="text-xl" />
                         Register
                     </NuxtLink>

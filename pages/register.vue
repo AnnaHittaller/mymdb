@@ -1,11 +1,54 @@
+<template>
+    <div class="max-w-[700px] w-full mx-auto">
+        <Heading>Register</Heading>
+        <UForm :schema="schema" :state="state" class="space-y-4 w-full pt-8 text-xl" @submit="onSubmit">
+            <UFormGroup label="Email" name="email" required size="xl" class="mb-8" :ui="{ size: { xl: 'text-xl' } }">
+                <UInput v-model.trim="state.email" placeholder="Email" size="xl"
+                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
+            </UFormGroup>
+
+            <UFormGroup label="Username " name="username" required size="xl" class="pb-4"
+                :ui="{ size: { xl: 'text-xl' } }">
+                <UInput v-model.trim="state.username" placeholder="Username" size="xl"
+                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" type="text" />
+            </UFormGroup>
+
+            <UFormGroup label="Password " name="password" required size="xl" :ui="{ size: { xl: 'text-xl' } }">
+                <UInput v-model.trim="state.password" placeholder="Password" size="xl"
+                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" type="password" />
+            </UFormGroup>
+
+            <UNotification id="error-notification-register" title="Error:" :description="state.error" v-if="state.error"
+                :timeout="0" @close="state.error = undefined" icon="i-heroicons-exclamation-circle" color="red" />
+
+            <UNotification id="success-notification-register" title="Registration successful, redirecting..."
+                v-if="state.success" :timeout="0" @close="state.success = false" icon="i-heroicons-check-circle"
+                color="green" />
+
+            <div class="flex items-center justify-between pt-8 max-[470px]:flex-col max-[470px]:gap-8">
+                <UButton type="submit" class="text-xl max-[470px]:w-full justify-center" :loading="state.loading">
+                    Register
+                </UButton>
+                <div class="flex items-center gap-3 max-[250px]:flex-col max-[250px]:gap-4">
+                    <p class="text-lg">Already have an account?</p>
+                    <NuxtLink to="/login" class="text-lg text-primary font-semibold flex items-center gap-0.5">
+                        <UIcon name="i-heroicons-chevron-double-right-20-solid" class="text-xl" />
+                        Sign in
+                    </NuxtLink>
+                </div>
+            </div>
+        </UForm>
+    </div>
+</template>
+
 <script setup lang="ts">
 import { z } from 'zod'
 import type { FormError, FormSubmitEvent } from '#ui/types'
 
-// definePageMeta({
-//     layout: "not-logged-in",
-//     middleware: "already-logged-in"
-// })
+definePageMeta({
+    layout: "not-logged-in",
+    // middleware: "already-logged-in"
+})
 
 // const { register } = useFirebaseAuth()
 // const { setUser } = useFirestore()
@@ -63,45 +106,3 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 }
 
 </script>
-
-<template>
-    <div class="max-w-[700px] w-full mx-auto">
-        <Heading>Register</Heading>
-        <UForm :schema="schema" :state="state" class="space-y-4 w-full pt-8 text-xl" @submit="onSubmit">
-            <UFormGroup label="Email" name="email" required size="xl" class="mb-8" :ui="{ size: { xl: 'text-xl' } }">
-                <UInput v-model.trim="state.email" placeholder="Email" size="xl"
-                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
-            </UFormGroup>
-
-            <UFormGroup label="Username " name="username" required size="xl" class="pb-4" :ui="{ size: { xl: 'text-xl' } }">
-                <UInput v-model.trim="state.username" placeholder="Username" size="xl"
-                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" type="text" />
-            </UFormGroup>
-
-            <UFormGroup label="Password " name="password" required size="xl" :ui="{ size: { xl: 'text-xl' } }">
-                <UInput v-model.trim="state.password" placeholder="Password" size="xl"
-                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" type="password" />
-            </UFormGroup>
-
-            <UNotification id="error-notification-register" title="Error:" :description="state.error" v-if="state.error"
-                :timeout="0" @close="state.error = undefined" icon="i-heroicons-exclamation-circle" color="red" />
-
-            <UNotification id="success-notification-register" title="Registration successful, redirecting..."
-                v-if="state.success" :timeout="0" @close="state.success = false" icon="i-heroicons-check-circle"
-                color="green" />
-
-            <div class="flex items-center justify-between pt-8 max-[470px]:flex-col max-[470px]:gap-8">
-                <UButton type="submit" class="text-xl" :loading="state.loading">
-                    Register
-                </UButton>
-                <div class="flex items-center gap-3 max-[250px]:flex-col max-[250px]:gap-4">
-                    <p class="text-lg">Already have an account?</p>
-                    <NuxtLink to="/login" class="text-lg text-primary font-semibold flex items-center gap-1">
-                        <UIcon name="i-heroicons-chevron-double-right-20-solid" class="text-xl" />
-                        Sign in
-                    </NuxtLink>
-                </div>
-            </div>
-        </UForm>
-    </div>
-</template>
