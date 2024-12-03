@@ -26,10 +26,11 @@ const colors = [
 //     colorStore.initialize()
 // }
 
+//TODO: add special class for current color button
 </script>
         
 <template>
-    <div class="flex flex-wrap gap-4">
+    <div class="flex flex-wrap gap-4 pt-4">
         <div v-for="color in colors" :key="color.value" class="inline-block">
             <label :for="color.value">
                 <input type="radio" :id="color.value" :value="color.value" v-model="selectedColor"

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from '#ui/types'
+import { contactSchema, type ContactSchema } from '../utils/schemas';
+
 // const { currentUserPromise } = useFirebaseAuth()
 // const userData: any = await currentUserPromise()
 
@@ -22,7 +24,7 @@ const validate = (state: any): FormError[] => {
     return errors
 }
 
-async function onSubmit(event: FormSubmitEvent<any>) {
+async function onSubmit(event: FormSubmitEvent<ContactSchema>) {
     console.log("CONTACT FORM SUBMIT EVENT", event.data)
     // state.loading = true
 
@@ -60,7 +62,8 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 <template>
     <div class="max-w-[700px]">
         <Heading>Contact</Heading>
-        <UForm :validate="validate" :state="state" class="space-y-4 w-full pt-8 " @submit="onSubmit">
+        <UForm :validate="validate" :schema="contactSchema" :state="state" class="space-y-4 w-full pt-8 "
+            @submit="onSubmit">
             <UFormGroup label="Subject " name="subject" required size="xl">
                 <UInput v-model="state.subject" placeholder="Subject" size="xl"
                     :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
@@ -72,11 +75,12 @@ async function onSubmit(event: FormSubmitEvent<any>) {
             </UFormGroup>
 
             <UNotification id="error-notification-login" title="Error:" :description="state.error" v-if="state.error"
-                :timeout="0" @close="state.error = undefined" icon="i-heroicons-exclamation-circle" color="red" class="mb-2"/>
+                :timeout="0" @close="state.error = undefined" icon="i-heroicons-exclamation-circle" color="red"
+                class="mb-2" />
 
-            <UNotification id="success-notification-login" title="Thank you for your message!"
-                v-if="state.success" :timeout="5000" @close="state.success = false" icon="i-heroicons-check-circle"
-                color="green" class="mb-8"/>
+            <UNotification id="success-notification-login" title="Thank you for your message!" v-if="state.success"
+                :timeout="5000" @close="state.success = false" icon="i-heroicons-check-circle" color="green"
+                class="mb-8" />
 
             <UButton type="submit" class="text-xl">
                 Send message
@@ -84,4 +88,3 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         </UForm>
     </div>
 </template>
-

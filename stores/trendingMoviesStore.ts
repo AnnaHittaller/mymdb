@@ -1,4 +1,4 @@
-import { defineStore } from "pinia";
+// import { defineStore } from "pinia";
 
 // export const useTrendingMoviesStore = defineStore("trendingMovies", () => {
 // 	const trendingMovies = ref([])
@@ -10,7 +10,7 @@ import { defineStore } from "pinia";
 //             const {data } = await useFetch('/api/movies/trending')
 //             trendingMovies.value = data
 // 			isLoaded.value = true
-// 			//console.log(trendingMovies.value)
+// 			console.log(trendingMovies.value)
 // 			//console.log(isLoaded.value)
 //             return data
             

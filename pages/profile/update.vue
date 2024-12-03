@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
-const { getUser, updateUserName } = useFirestore()
-const { currentUserPromise } = useFirebaseAuth()
+// const { getUser, updateUserName } = useFirestore()
+// const { currentUserPromise } = useFirebaseAuth()
 const router = useRouter()
 
 definePageMeta({
     middleware: "auth"
 })
 
-const userData: any = await currentUserPromise()
-const user = await getUser(userData.uid)
+// const userData: any = await currentUserPromise()
+// const user = await getUser(userData.uid)
 //console.log("User:", userData)
+const user = useCurrentUser()
 
 const schema = z.object({
     username: z.string().min(3, 'Must be at least 3 characters').max(30, "Too long - must be under 30 characters")
@@ -20,7 +21,7 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 const state = reactive({
-    username: user?.username,
+    username: user.value?.displayName,
     error: undefined,
     loading: false,
     success: false,
@@ -30,7 +31,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     console.log("UPDATE EVENT REGISTER", event.data)
     state.loading = true
     try {
-        await updateUserName(userData.uid, event.data.username)
+        // await updateUserName(userData.uid, event.data.username)
 
         state.loading = false
         state.success = true

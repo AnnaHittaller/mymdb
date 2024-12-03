@@ -1,9 +1,11 @@
 <script setup lang="ts">
+definePageMeta({
+    middleware: "auth"
+})
+
+const user = useCurrentUser()
 // import { useUserMoviesStore } from '~/stores/useUserMoviesStore';
 
-// definePageMeta({
-//     middleware: "auth"
-// })
 
 // const { currentUserPromise } = useFirebaseAuth()
 // const userData: any = await currentUserPromise()
@@ -42,10 +44,10 @@
 </script>
 
 <template>
-    <div class="pb-4 max-w-full">
+    <div class="p-8 max-w-full">
         <Hero />
-        <div class="flex justify-between items-center pr-4 pb-8">
-            <Heading class="pl-4">My movies</Heading>
+        <div class="flex justify-between items-center">
+            <Heading class="pl-4">My movies {{ user?.displayName }}</Heading>
             <!-- <UButton to="/my-movies" label="View All" v-if="usersMovies.length > 2" class="text-lg" /> -->
         </div>
         <!-- <MovieSlider v-if="reversedMovies" :movies="reversedMovies" />
@@ -64,16 +66,16 @@
             <UButton to="/search" label="Get movies" class="text-lg" />
         </div> -->
     </div>
-</template> 
+</template>
 
 <style scoped></style>
 
 <!-- TODO
 
-checking footer profile menu z-index problems between 640 and 1024px
+delete sonner
+checking navbar profile menu z-index problems between 640 and 1024px
 refresh movies and movie store (ratings and poster) when loading the app first
 search page and discover page: display icons for movieCards according to user's movies from pinia
-add Google authentication
 create skeleton for swiper sliders and hero image / or loaders
 adding toast for movie page: list modifications
 add filtering options for directors / actors in the discovery page 

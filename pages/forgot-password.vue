@@ -1,10 +1,10 @@
 <template>
-    <div class="max-w-[700px] w-full mx-auto">
+    <div class="max-w-[450px] w-full mx-auto">
         <Heading>Reset your password</Heading>
-        <UForm :schema="schema" :state="state" class="space-y-4 w-full pt-8 " @submit="onSubmit">
-            <UFormGroup label="Email" name="email" required size="xl" class="mb-8" :ui="{ size: { xl: 'text-xl' } }">
-                <UInput v-model.trim="state.email" placeholder="Email" size="xl"
-                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
+        <UForm :schema="forgotPasswordSchema" :state="state" class="space-y-6 w-full pt-8 " @submit="onSubmit">
+            <UFormGroup label="Email " name="email" required size="lg" :ui="{ size: { lg: 'text-lg' } }">
+                <UInput v-model.trim="state.email" placeholder="Email" size="lg"
+                    :ui="{ size: { lg: 'text-lg' }, placeholder: 'placeholder:italic' }" />
             </UFormGroup>
 
             <UNotification id="error-notification-login" title="Error:" :description="state.error" v-if="state.error"
@@ -14,13 +14,13 @@
                 v-if="state.success" :timeout="0" @close="state.success = false" icon="i-heroicons-check-circle"
                 color="green" />
 
-            <div class="flex items-center justify-between pt-8 max-[470px]:flex-col max-[470px]:gap-8">
-                <UButton type="submit" class="text-xl max-[470px]:w-full justify-center" :loading="state.loading">
+            <div class="flex items-center justify-between pt-8 flex-col">
+                <UButton type="submit" class="text-lg" :loading="state.loading" block>
                     Reset password
                 </UButton>
-                <div class="flex items-center gap-3 max-[250px]:flex-col max-[250px]:gap-4">
+                <div class="flex items-center gap-2 flex-col pt-4">
                     <NuxtLink to="/login" class="text-lg text-primary font-semibold flex items-center gap-0.5">
-                        <UIcon name="i-heroicons-chevron-double-right-20-solid" class="text-xl" />
+                        <UIcon name="i-heroicons-chevron-double-right-20-solid" class="text-lg" />
                         Back to sign in
                     </NuxtLink>
                 </div>
@@ -30,22 +30,18 @@
 </template>
 
 <script setup lang="ts">
-import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
+import { forgotPasswordSchema, type ForgotPasswordSchema } from '../utils/schemas';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
-// definePageMeta({
-//     layout: "not-logged-in",
-//     middleware: "already-logged-in"
-// })
+definePageMeta({
+    layout: "not-logged-in",
+    middleware: "already-logged-in"
+})
 
 // const { resetPassword } = useFirebaseAuth()
 const router = useRouter()
-
-const schema = z.object({
-    email: z.string().email('Invalid email'),
-})
-
-type Schema = z.output<typeof schema>
+const auth = useFirebaseAuth()
 
 const state = reactive({
     email: undefined,
@@ -54,29 +50,40 @@ const state = reactive({
     success: false
 })
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
+async function onSubmit(event: FormSubmitEvent<ForgotPasswordSchema>) {
     console.log("SUBMIT EVENT LOGIN", event.data)
-    // state.loading = true
-    // state.success = false
+    state.loading = true
+    state.success = false
 
-    // try {
-    //     await resetPassword(event.data.email)
-    //     console.log("recover code comes here")
-    //     state.loading = false
-    //     state.email = undefined
-    //     if (!state.error) {
-    //         state.success = true
-    //         setTimeout(() => {
-    //             router.replace({ path: '/' })
-    //         }, 4000)
+    try {
+        // await resetPassword(event.data.email)
+        await sendPasswordResetEmail(auth!, event.data.email,
+            //Have to set the final url here to redurect users after resetting their passwords
+            {
+                // url: "https://mymdb-my-movie-watchlist.netlify.app"
+                url: "https://localhost:3000/login"
+            }
+        )
+        console.log("recover code comes here")
+        state.loading = false
+        state.email = undefined
+        if (!state.error) {
+            // TODO: add check for existing user email - if found in database, show success, if not, show error
+            state.success = true
+            setTimeout(() => {
+                router.replace({ path: '/login' })
+            }, 4000)
 
-    //     }
-    // } catch (error: any) {
-    //     console.error("Password reset error:", error.message);
-    //     state.error = error.message;
-    //     state.loading = false
-    //     state.success = false
-    // }
+        }
+    } catch (error: any) {
+        console.error("Password reset error:", error.message);
+        state.error = error.message;
+        state.loading = false
+        state.success = false
+    }
 
 }
+//TODO: test password reset for users who registered with google
+//TODO: put URL in env
+//TODO: customise email templates and domain in Firebase
 </script>

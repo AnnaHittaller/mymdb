@@ -8,10 +8,12 @@
 // const user = await getUser(userData.uid)
 //console.log("User:", user)
 
+const user = useCurrentUser()
+
 const items = [
     [{
-       // label: user?.email,
-       label: 'label',
+        // label: user?.email,
+        label: 'label',
         slot: 'account',
         disabled: true
     }], [{
@@ -48,27 +50,44 @@ const items = [
 </script>
 
 <template>
-    <footer class="flex items-center sm:items-start px-4 py-4">
-        <nav class="flex justify-around sm:justify-start sm:gap-16 items-center w-full sm:flex-col sm:sticky sm:top-4 ">
+    <aside class="flex items-center sm:items-start px-4 py-4">
+        <nav class="flex justify-around sm:justify-start sm:gap-12 items-center w-full sm:flex-col sm:sticky sm:top-4 ">
             <Logo class="max-sm:hidden max-w-full flex m-0 shrink" />
-            <NuxtLink to="/" class="hover-filter flex item-center" :style="computedStyle">
+            <NuxtLink to="/"
+                class="hover-filter flex items-center rounded-full size-12 justify-center hover:bg-gray-800 "
+                :style="computedStyle">
                 <UIcon name="i-heroicons-home" class="text-primary text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/my-movies" class="hover-filter flex item-center" :style="computedStyle">
+            <NuxtLink to="/my-movies"
+                class="hover-filter flex items-center rounded-full size-12 justify-center hover:bg-gray-800 "
+                :style="computedStyle">
                 <UIcon name="i-heroicons-list-bullet-20-solid" class="text-primary text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/watch-next" class="hover-filter flex item-center" :style="computedStyle">
+            <NuxtLink to="/watch-next"
+                class="hover-filter flex  items-center rounded-full size-12 justify-center hover:bg-gray-800 "
+                :style="computedStyle">
                 <UIcon name="i-heroicons-star-solid" class="text-primary text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/search" class="hover-filter flex item-center" :style="computedStyle">
+            <NuxtLink to="/search"
+                class="hover-filter flex items-center rounded-full size-12 justify-center hover:bg-gray-800 "
+                :style="computedStyle">
                 <UIcon name="i-heroicons-magnifying-glass-solid" class="text-primary text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/discover" class="hover-filter flex item-center" :style="computedStyle">
+            <NuxtLink to="/discover"
+                class="hover-filter flex  items-center rounded-full size-12 justify-center hover:bg-gray-800 "
+                :style="computedStyle">
                 <UIcon name="i-heroicons-light-bulb" class="text-primary text-3xl" />
+            </NuxtLink>
+            <NuxtLink to="/profile"
+                class="hover-filter flex  items-center rounded-full size-12 justify-center hover:bg-gray-800 "
+                :style="computedStyle">
+                <UIcon name="i-heroicons-user-circle" class="text-primary text-3xl" />
             </NuxtLink>
 
             <!-- profile context menu -->
-            <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text', size: 'text-lg' }, width: 'w-max' }" class="z-40 relative " :popper="{ offsetDistance: 12 }">
+            <UDropdown :items="items"
+                :ui="{ item: { disabled: 'cursor-text select-text', size: 'text-lg' }, width: 'w-max' }"
+                class="z-40 relative " :popper="{ offsetDistance: 12 }">
                 <UAvatar src=""
                     :ui="{ background: 'dark:bg-gray-800', placeholder: 'dark:text-primary', size: { sm: 'text-base' } }"
                     :alt="`${user?.username}`" class="avatar border hover:border-primary" />
@@ -89,13 +108,13 @@ const items = [
                         :style="computedStyle" />
                 </template>
             </UDropdown>
-            
+
         </nav>
-    </footer>
+    </aside>
 </template>
 
-<style >
-footer {
+<style>
+aside {
     background-color: #3d3d3d;
     box-shadow: 0 0px 10px -3px rgb(0, 0, 0, 1);
 }
@@ -114,7 +133,7 @@ footer {
 
 .hover-filter {
     filter: none;
-    transition: filter 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .hover-filter:hover {

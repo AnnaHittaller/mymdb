@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 				},
 			}
 		);
-		const trendingResponse = response.results.map((item) => {
+		const trendingMovieDetails = response.results.map((item) => {
 			return {
 				title: item.title,
 				id: item.id,
@@ -19,8 +19,8 @@ export default defineEventHandler(async (event) => {
 				backdrop: item.backdrop_path,
 			};
 		});
-		//console.log(trendingResponse)
-		return trendingResponse;
+		// console.log("api response", trendingMovieDetails);
+		return trendingMovieDetails;
 	} catch (error) {
 		throw createError({
 			statusCode: 404,

@@ -18,7 +18,7 @@ export const forgotPasswordSchema = z.object({
   email: z.string().email('Invalid email'),
 });
 
-// Contact schema (if needed)
+// Contact schema 
 export const contactSchema = z.object({
   subject: z.string().min(1, 'Subject is required'),
   message: z.string().min(1, 'Message is required'),
