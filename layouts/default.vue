@@ -1,4 +1,5 @@
 <script setup>
+import { useRoute } from 'vue-router'
 
 const isHomePage = computed(() => {
     const route = useRoute()

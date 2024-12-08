@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
-    middleware: "auth"
+    middleware: "auth",
+    layout: "default",
 })
 
 const user = useCurrentUser()
@@ -44,10 +45,10 @@ const user = useCurrentUser()
 </script>
 
 <template>
-    <div class="p-8 max-w-full">
+    <div class="max-w-full">
         <Hero />
         <div class="flex justify-between items-center">
-            <Heading class="pl-4">My movies {{ user?.displayName }}</Heading>
+            <Heading class="pl-8">My movies {{ user?.displayName }}</Heading>
             <!-- <UButton to="/my-movies" label="View All" v-if="usersMovies.length > 2" class="text-lg" /> -->
         </div>
         <!-- <MovieSlider v-if="reversedMovies" :movies="reversedMovies" />

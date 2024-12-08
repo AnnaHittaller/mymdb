@@ -1,89 +1,70 @@
 <script setup>
 import { register } from 'swiper/element/bundle';
+
 register();
 
 const config = useRuntimeConfig();
-// const trendingMoviesStore = useTrendingMoviesStore();
-// // const { computedStyle } = useComputedStyle()
-
-// const isLoading = computed(() => !trendingMoviesStore.isLoaded);
-// const movies = computed(() => trendingMoviesStore.trendingMovies);
-const movies = ref([])
+const trendingMoviesStore = useTrendingMoviesStore();
 
 const baseImageUrl = config.public.apiBaseImageUrl
 
-const { data } = await useFetch('/api/movies/trending')
-movies.value = data.value
-console.log("data", data.value)
-// const fetchTrendingMovies = async () => {
-//     try {
-//         // isLoaded.value = true
-//         //console.log(trendingMovies.value)
-//         //console.log(isLoaded.value)
-//         return data
+onMounted(() => {
+    trendingMoviesStore.fetchTrendingMovies()
+})
 
-//     } catch (error) {
-//         console.log(error);
-//     }
-
-// };
-
-// onMounted(() => {
-
-//     fetchTrendingMovies()
-// })
-
-let hrefValue = ref(null)
+let activeSlideHref = ref(null)
 let backdropImage = ref(null)
-let imageAlt = ref(null)
+let imageAltText = ref(null)
 
 const onSlideChange = (e) => {
-    const [swiper, progress] = e.detail;
-    //console.log(e.detail)
+    const [swiper] = e.detail;
     const activeSlide = swiper.slides[swiper.activeIndex];
 
     const href = activeSlide.querySelector('a').getAttribute('href');
-    hrefValue.value = href;
+    activeSlideHref.value = href;
 
-    const movieIdFromHref = hrefValue.value.match(/\d+$/)[0];
+    const movieIdFromHref = activeSlideHref.value.match(/\d+$/)[0];
 
-    // // Access trendingMovies directly from the store
-    // const trendingMovies = useTrendingMoviesStore().trendingMovies;
-    // const movieArray = Array.from(trendingMovies.value); // Convert proxy-wrapped array to a regular array
-    // const backdropMovie = movieArray.find(movie => movie.id === Number(movieIdFromHref));
+    // Find the movie based on the ID and convert proxy-wrapped array to a regular array
+    const backdropMovie = Array.from(trendingMoviesStore.trendingMovies).find(
+        (movie) => movie.id === Number(movieIdFromHref)
+    );
 
-    // if (backdropMovie) {
-    //     backdropImage.value = backdropMovie.backdrop;
-    //     imageAlt.value = backdropMovie.title;
-    // } else {
-    //     console.error('Movie not found with ID:', movieIdFromHref);
-    // }
+    if (backdropMovie) {
+        backdropImage.value = backdropMovie.backdrop;
+        imageAltText.value = backdropMovie.title;
+    } else {
+        console.error('Movie not found with ID:', movieIdFromHref);
+    }
 
     //https://www.youtube.com/watch?v= +key attribute from videos API
-}
+};
 
-//TODO: add Redis instead of Pinia
 </script>
 
 <template>
 
-    <!-- <div>
-
-        <USkeleton v-if="isLoading"
+    <div>
+        <!-- skeleton loader -->
+        <USkeleton v-if="!trendingMoviesStore.isLoaded"
             class="h-full w-full max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 " />
-        <div v-if="!isLoading"
-            class="lg:bg-gradient-to-r from-[#27272a] via-[#27272a] from-[400px] to-[600px] 2xl:to-[900px] 3xl:from-[40%] 3xl:to-[60%] w-full h-full pb-8 mb-8 bg-contain bg-no-repeat bg-right lg:relative">
-            <img v-if="movies && movies.value.length" :src="`${baseImageUrl}${backdropImage}`" :alt="`${imageAlt}`"
-                class="max-h-[500px] 2xl:max-h-[600px] 3xl:max-h-[700px] ml-auto max-lg:hidden lg:relative lg:-z-10 ">
-            <Heading class="pl-4 sm:pt-4 lg:absolute lg:top-0 z-20">Now trending</Heading>
-            <div v-if="movies && movies.value.length > 0"
-                class="max-w-[500px] sm:max-w-[700px] 2xl:max-w-[60%] w-full max-h-[500px] 3xl:max-h-[600px] px-4 max-lg:mx-auto z-0 lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
-                <swiper-container class="mySwiper max-w-full h-full" loop="true" effect="coverflow" grab-cursor="false"
-                    centered-slides="true" pagination="false" slides-per-view="auto" coverflow-effect-rotate="15"
-                    coverflow-effect-stretch="0" coverflow-effect-depth="300" coverflow-effect-modifier="1"
-                    coverflow-effect-slide-shadows="true" navigation="true" autoplay-delay="5000"
-                    pause-on-mouse-enter="true" @swiperslidechange="onSlideChange" :style="computedStyle">
-                    <swiper-slide v-for="movie in movies.value" :key="movie.id">
+
+        <!-- Movie carousel -->
+        <div v-else
+            class="lg:bg-gradient-to-r from-[#27272a] from-[150px] to-[800px] w-full h-full pb-8 mb-8 lg:relative bg-no-repeat">
+            <img v-if="backdropImage" :src="`${baseImageUrl}${backdropImage}`" :alt="imageAltText"
+                class="max-h-[500px] 2xl:max-h-[600px] 3xl:max-h-[700px] w-full object-cover max-lg:hidden lg:relative lg:-z-10 ">
+            <Heading class="pl-8 sm:pt-4 lg:absolute lg:top-4 z-20">Now trending</Heading>
+
+            <div v-if="trendingMoviesStore.trendingMovies.length > 0"
+                class=" max-w-[100%] lg:max-w-[500px] w-full max-h-[500px] 3xl:max-h-[600px] px-8 max-lg:mx-auto z-0 lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
+                <swiper-container class="mySwiper w-full h-full" loop="true" effect="coverflow" grab-cursor="false"
+                    centered-slides="true" pagination="false" slides-per-view="auto" coverflow-effect-rotate="10"
+                    coverflow-effect-stretch="60" coverflow-effect-depth="300" coverflow-effect-modifier="1"
+                    coverflow-effect-slide-shadows="true" navigation="true" autoplay-delay="8000"
+                    autoplay-disable-on-interaction="false" pause-on-mouse-enter="true"
+                    @swiperslidechange="onSlideChange">
+                    <swiper-slide v-for="movie in trendingMoviesStore.trendingMovies" :key="movie.id">
                         <NuxtLink :to="`/movie/${movie.id}`">
                             <img :src="`${baseImageUrl}${movie.poster}`" class="relative" />
                             <p
@@ -94,7 +75,7 @@ const onSlideChange = (e) => {
                 </swiper-container>
             </div>
         </div>
-    </div> -->
+    </div>
 </template>
 
 <style scoped>
@@ -104,25 +85,24 @@ swiper-container {
 
 swiper-container::part(wrapper) {
     padding-bottom: 2rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
+    padding-top: 2rem;
 }
 
 swiper-slide {
     background-position: center;
     background-size: cover;
-    max-width: 200px;
+    width: 200px;
 
     @media screen and (max-width: 460px) {
-        max-width: 150px;
+        width: 150px;
     }
 
     @media screen and (min-width: 1536px) {
-        max-width: 250px;
+        width: 250px;
     }
 
     @media screen and (min-width: 1800px) {
-        max-width: 300px;
+        width: 300px;
     }
 }
 
@@ -173,11 +153,6 @@ swiper-container::part(button-next):hover {
 swiper-container::part(bullet-active),
 swiper-container::part(bullet) {
     background-color: var(--computed-style);
-}
-
-swiper-container::part(pagination) {
-    position: absolute;
-    bottom: 0;
 }
 
 .carousel-title {
