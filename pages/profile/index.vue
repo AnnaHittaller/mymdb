@@ -1,7 +1,7 @@
 <template>
     <div>
         <Heading>My profile</Heading>
-        <div class="flex items-center flex-col py-8 gap-4">
+        <div class="flex items-center flex-col py-8 gap-4 pb-16">
             <UAvatar src="" :ui="{ background: 'dark:bg-gray-900', placeholder: 'dark:text-primary' }"
                 :alt="`${user?.displayName}`" size="3xl" class="avatar border mb-4" />
             <div class="flex items-center gap-4">
@@ -12,13 +12,14 @@
                 </NuxtLink>
             </div>
             <p class="text-2xl -mt-2 text-zinc-400">{{ user?.email }}</p>
-            <div class="flex gap-4 mt-4">
+            <div class="flex max-[440px]:flex-col gap-4 mt-4">
                 <UButton to="./profile/update" icon="i-heroicons-arrow-left-on-rectangle" label="Sign out" size="xl"
                     class="text-2xl" @click="logout" />
 
                 <UButton icon="i-heroicons-x-circle" variant="outline" label="Delete profile" size="xl" class="text-2xl"
                     @click="isOpen = true" />
             </div>
+            <!-- TODO: fix modal for mobile -->
             <UModal v-model="isOpen"
                 :ui="{ margin: 'sm:my-8', wrapper: 'relative top-[100px] border-2 border-red-500' }" class="top-0">
                 <div class="p-4 ">

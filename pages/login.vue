@@ -10,7 +10,11 @@
 
             <UFormGroup label="Password " name="password" required size="lg" :ui="{ size: { lg: 'text-lg' } }">
                 <UInput v-model.trim="state.password" placeholder="Password" size="lg"
-                    :ui="{ size: { lg: 'text-lg' }, placeholder: 'placeholder:italic' }" type="password" />
+                    :ui="{ size: { lg: 'text-lg' }, placeholder: 'placeholder:italic' }" :type="inputType">
+                    <UIcon :name="inputType === 'password' ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'"
+                        @click="togglePasswordVisibility"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400" />
+                </UInput>
             </UFormGroup>
             <div class="w-max text-lg">
                 <NuxtLink to="./forgot-password"
@@ -78,6 +82,12 @@ const state = reactive({
     success: false
 })
 
+const inputType = ref<"password" | "text">("password")
+
+// TODO: create constants and utils folders
+const togglePasswordVisibility = () => {
+    inputType.value = inputType.value === "password" ? "text" : "password"
+}
 
 async function onSubmit(event: FormSubmitEvent<LoginSchema>) {
     console.log("SUBMIT EVENT LOGIN", event.data)

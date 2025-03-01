@@ -14,7 +14,11 @@
 
             <UFormGroup label="Password " name="password" required size="lg" :ui="{ size: { lg: 'text-lg' } }">
                 <UInput v-model.trim="state.password" placeholder="Password" size="lg"
-                    :ui="{ size: { lg: 'text-lg' }, placeholder: 'placeholder:italic' }" type="password" />
+                    :ui="{ size: { lg: 'text-lg' }, placeholder: 'placeholder:italic' }" type="password">
+                    <UIcon :name="inputType === 'password' ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'"
+                        @click="togglePasswordVisibility"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400" />
+                </UInput>
             </UFormGroup>
 
             <UNotification id="error-notification-register" title="Error:" :description="state.error" v-if="state.error"
@@ -76,6 +80,11 @@ const state = reactive({
     success: false
 })
 
+const inputType = ref<"password" | "text">("password")
+
+const togglePasswordVisibility = () => {
+    inputType.value = inputType.value === "password" ? "text" : "password"
+}
 
 async function onSubmit(event: FormSubmitEvent<RegisterSchema>) {
     console.log("SUBMIT EVENT REGISTER", event.data)

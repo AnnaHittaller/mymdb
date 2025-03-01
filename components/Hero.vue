@@ -46,12 +46,12 @@ const onSlideChange = (e) => {
 
     <div>
         <!-- skeleton loader -->
-        <USkeleton v-if="!trendingMoviesStore.isLoaded"
-            class="h-full w-full max-h-[500px] 2xl:max-h-[600px] ml-auto max-lg:hidden lg:relative lg:-z-10 " />
+        <div
+            class="lg:bg-gradient-to-r from-[#27272a] from-[150px] to-[800px] w-full h-full pb-8 mb-8 lg:relative bg-no-repeat ">
+            <!-- skeleton loader for backdrop image -->
+            <USkeleton v-if="!trendingMoviesStore.isLoaded"
+                class="h-[500px] 2xl:h-[600px] 3xl:h-[700px] w-full object-cover max-lg:hidden lg:relative lg:-z-10 bg-gradient-to-r from-gray-400  to-[800px]" />
 
-        <!-- Movie carousel -->
-        <div v-else
-            class="lg:bg-gradient-to-r from-[#27272a] from-[150px] to-[800px] w-full h-full pb-8 mb-8 lg:relative bg-no-repeat">
             <img v-if="backdropImage" :src="`${baseImageUrl}${backdropImage}`" :alt="imageAltText"
                 class="max-h-[500px] 2xl:max-h-[600px] 3xl:max-h-[700px] w-full object-cover max-lg:hidden lg:relative lg:-z-10 ">
             <Heading class="pl-8 sm:pt-4 lg:absolute lg:top-4 z-20">Now trending</Heading>
