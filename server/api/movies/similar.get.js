@@ -14,20 +14,21 @@ export default defineEventHandler(async (event) => {
 				},
 			}
 		);
-		const shortResponse = response.results.map((item) => {
-			return {
-				title: item.title,
-				id: item.id,
-				popularity: item.popularity,
-				poster: item.poster_path,
-				backdrop: item.backdrop_path,
-				genres: item.genre_ids,
-				rating: item.vote_average,
-			};
-		});
+		// const shortResponse = response.results.map((item) => {
+		// 	return {
+		// 		title: item.title,
+		// 		id: item.id,
+		// 		popularity: item.popularity,
+		// 		poster: item.poster_path,
+		// 		backdrop: item.backdrop_path,
+		// 		genres: item.genre_ids,
+		// 		rating: item.vote_average,
+		// 	};
+		// });
 		//console.log(shortResponse);
 
-		return shortResponse;
+		// return shortResponse;
+		return response.results;
 	} catch (error) {
 		throw createError({
 			statusCode: 404,

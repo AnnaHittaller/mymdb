@@ -1,5 +1,11 @@
 // import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, deleteUser, sendPasswordResetEmail, updateEmail } from 'firebase/auth';
 
+import { useCurrentUser, useFirestore, useCollection } from "vuefire";
+
+const user = useCurrentUser();
+
+export const getUser = () => user;
+
 // export const useFirebaseAuth = () => {
 
 //     const {$auth} = useNuxtApp()
@@ -25,7 +31,7 @@
 //             return user
 
 //         } catch (error: any) {
-//             console.log("REGISTER ERR", error.code, error.message);   
+//             console.log("REGISTER ERR", error.code, error.message);
 //             const errorMessage = extractErrorMessage(error.code);
 //             throw new Error(errorMessage)
 //         }
@@ -36,9 +42,9 @@
 //             const userCredential = await signInWithEmailAndPassword($auth, email, password)
 //             const user = userCredential.user
 //             //console.log(user)
-            
+
 //         } catch (error: any) {
-//             console.log("LOGIN ERROR", error.code, error.message);   
+//             console.log("LOGIN ERROR", error.code, error.message);
 //             const errorMessage = extractErrorMessage(error.code);
 //             throw new Error(errorMessage)
 //         }
@@ -54,9 +60,9 @@
 //         const unsubscribe = onAuthStateChanged($auth, (user) => {
 //             unsubscribe();
 //             if (user) {
-//                 resolve(user); 
+//                 resolve(user);
 //             } else {
-//                 reject(new Error("No user found")); 
+//                 reject(new Error("No user found"));
 //             }
 //         });
 //     }).catch(error => {
@@ -76,7 +82,7 @@
 //             console.log("User deleted successfully")
 //             navigateTo('/login')
 //         } catch (error: any) {
-//             console.log("USER DELETE ERR", error);   
+//             console.log("USER DELETE ERR", error);
 //         }
 //     }
 
@@ -85,9 +91,9 @@
 //     //         if($auth.currentUser) {
 //     //             await updateEmail($auth.currentUser, email )
 //     //         }
-            
+
 //     //     } catch (error: any) {
-//     //         console.log("Error when updating the email", error.code, error.message);   
+//     //         console.log("Error when updating the email", error.code, error.message);
 //     //         const errorMessage = extractErrorMessage(error.code);
 //     //         throw new Error(errorMessage)
 
@@ -96,14 +102,14 @@
 
 //     const resetPassword = async (email: string) => {
 //         try {
-//             await sendPasswordResetEmail($auth, email, 
+//             await sendPasswordResetEmail($auth, email,
 //             //Have to set the final url here to redurect users after resetting their passwords
 //             //{
 //                // url: "https://mymdb-my-movie-watchlist.netlify.app"
 //             // }
 //             )
 //         } catch (error: any) {
-//             console.log("LOGIN ERR", error.code, error.message);   
+//             console.log("LOGIN ERR", error.code, error.message);
 //             const errorMessage = extractErrorMessage(error.code);
 //             throw new Error(errorMessage)
 

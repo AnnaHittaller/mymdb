@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from '#ui/types'
-import { contactSchema, type ContactSchema } from '../utils/schemas';
+import { contactSchema, type ContactSchema } from '../schemas/schemas';
 
 // const { currentUserPromise } = useFirebaseAuth()
 // const userData: any = await currentUserPromise()

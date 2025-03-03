@@ -1,7 +1,11 @@
 <template>
+    <div class="pb-16">
+        <Heading>Change theme color</Heading>
+        <ColorSelector />
+    </div>
     <div>
         <Heading>My profile</Heading>
-        <div class="flex items-center flex-col py-8 gap-4 pb-16">
+        <div class="flex items-center flex-col py-8 gap-4 pb-8">
             <UAvatar src="" :ui="{ background: 'dark:bg-gray-900', placeholder: 'dark:text-primary' }"
                 :alt="`${user?.displayName}`" size="3xl" class="avatar border mb-4" />
             <div class="flex items-center gap-4">
@@ -36,11 +40,6 @@
                 </div>
             </UModal>
         </div>
-
-    </div>
-    <div>
-        <Heading>Change theme color</Heading>
-        <ColorSelector />
     </div>
 </template>
 

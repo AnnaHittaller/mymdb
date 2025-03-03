@@ -59,7 +59,8 @@ export const googleAuthProvider = new GoogleAuthProvider()
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '#ui/types'
-import { loginSchema, type LoginSchema } from '../utils/schemas';
+import { useFirebaseAuth } from 'vuefire';
+import { loginSchema, type LoginSchema } from '../schemas/schemas';
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 
 definePageMeta({

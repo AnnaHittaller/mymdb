@@ -58,8 +58,9 @@ export const googleAuthProvider = new GoogleAuthProvider()
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '#ui/types'
-import { registerSchema, type RegisterSchema } from '../utils/schemas';
+import { registerSchema, type RegisterSchema } from '../schemas/schemas';
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup } from "firebase/auth";
+// import { setUserInFirestore } from '~/composables/useFirestore';
 
 definePageMeta({
     layout: "not-logged-in",
@@ -96,9 +97,13 @@ async function onSubmit(event: FormSubmitEvent<RegisterSchema>) {
 
         // const firestoreUser = await setUser(user.uid, event.data.username, event.data.email, "emerald", []);
         // console.log(firestoreUser);
+        const db = useFirestore()
 
         const { user } = await createUserWithEmailAndPassword(auth!, event.data.email, event.data.password)
+        //add displayName to user object
         await updateProfile(user, { displayName: event.data.username })
+        //add user to firestore with default data
+        await setUserInFirestore(db, user.uid, { uid: user.uid, username: event.data.username, email: event.data.email, theme: "emerald", movies: [] })
 
         state.loading = false
         state.email = undefined
@@ -106,6 +111,7 @@ async function onSubmit(event: FormSubmitEvent<RegisterSchema>) {
         state.password = undefined
         if (!state.error) {
             state.success = true
+            console.log("User created successfully")
             return await navigateTo("/", { replace: true });
         }
     } catch (error: any) {

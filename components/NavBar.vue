@@ -10,6 +10,8 @@
 
 const user = useCurrentUser()
 
+const { computedStyle } = useComputedStyle()
+
 const items = [
     [{
         // label: user?.email,
@@ -55,32 +57,32 @@ const items = [
             <Logo class="max-sm:hidden max-w-full flex m-0 shrink" />
             <NuxtLink to="/"
                 class="hover-filter flex items-center rounded-full size-12 justify-center hover:bg-gray-800 "
-                :style="computedStyle">
+                exact-active-class="bg-gray-800" >
                 <UIcon name="i-heroicons-home" class="text-primary text-3xl" />
             </NuxtLink>
             <NuxtLink to="/my-movies"
                 class="hover-filter flex items-center rounded-full size-12 justify-center hover:bg-gray-800 "
-                :style="computedStyle">
+                exact-active-class="bg-gray-800" >
                 <UIcon name="i-heroicons-list-bullet-20-solid" class="text-primary text-3xl" />
             </NuxtLink>
             <NuxtLink to="/watch-next"
                 class="hover-filter flex  items-center rounded-full size-12 justify-center hover:bg-gray-800 "
-                :style="computedStyle">
+                exact-active-class="bg-gray-800" >
                 <UIcon name="i-heroicons-star-solid" class="text-primary text-3xl" />
             </NuxtLink>
             <NuxtLink to="/search"
                 class="hover-filter flex items-center rounded-full size-12 justify-center hover:bg-gray-800 "
-                :style="computedStyle">
+                exact-active-class="bg-gray-800" >
                 <UIcon name="i-heroicons-magnifying-glass-solid" class="text-primary text-3xl" />
             </NuxtLink>
             <NuxtLink to="/discover"
                 class="hover-filter flex  items-center rounded-full size-12 justify-center hover:bg-gray-800 "
-                :style="computedStyle">
+                exact-active-class="bg-gray-800" >
                 <UIcon name="i-heroicons-light-bulb" class="text-primary text-3xl" />
             </NuxtLink>
             <NuxtLink to="/profile"
-                class="hover-filter flex  items-center rounded-full size-12 justify-center hover:bg-gray-800 "
-                :style="computedStyle">
+                class="hover-filter flex  items-center rounded-full size-12 justify-center hover:bg-gray-800"
+                exact-active-class="bg-gray-800" >
                 <UIcon name="i-heroicons-user-circle" class="text-primary text-3xl" />
             </NuxtLink>
 
@@ -104,8 +106,7 @@ const items = [
                 </template>
                 <template #item="{ item }">
                     <span class="truncate ">{{ item.label }}</span>
-                    <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500 ms-auto"
-                        :style="computedStyle" />
+                    <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500 ms-auto"/>
                 </template>
             </UDropdown>
 
@@ -127,16 +128,9 @@ aside {
     transition: .1s ease;
 }
 
-*[role="menuitem"]:hover>span:nth-child(2) {
-    color: var(--computed-style);
-}
-
 .hover-filter {
     filter: none;
     transition: all 0.2s ease;
 }
 
-.hover-filter:hover {
-    filter: drop-shadow(0 0 3px var(--computed-style));
-}
 </style>

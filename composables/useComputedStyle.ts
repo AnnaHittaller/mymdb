@@ -1,46 +1,33 @@
-// import { computed } from 'vue';
-// import {useUiColorStore} from '@/stores/uiColorStore'
+import { computed } from "vue";
 
-// export const useComputedStyle = () => {
+export const useComputedStyle = () => {
+	const user = useCurrentUser();
+	const db = useFirestore();
+	const userData = useUserData(db, user.value?.uid as string);
+	const config = useAppConfig();
 
-//     const colorStore = useUiColorStore()
-    
-//     const computedStyle = computed(() => {
-//         if (colorStore.uiColor) {
-//             let colorValue = '';
-//             switch (colorStore.uiColor) {
-//                 case 'mandy':
-//                     colorValue = "#ea546c";
-//                     break;
-//                 case 'dusk':
-//                     colorValue = "#839dd1";
-//                     break;
-//                 case 'emerald':
-//                     colorValue = "#10b981";
-//                     break;
-//                 case 'pumpkin':
-//                     colorValue = "#ff8c0a";
-//                     break;
-//                 case 'mauve':
-//                     colorValue = "#bf6ddf";
-//                     break;
-//                 case 'periwinkle':
-//                     colorValue = "#7976de";
-//                     break;
-//                 case 'saffron':
-//                     colorValue = "#f5c518";
-//                     break;
-//                 default:
-//                     colorValue = '';
-//             }
-//             return {
-//                 '--computed-style': colorValue,
-//             };
-//         }
-//         return {}; // Return an empty object if the value is not yet available
-//     });
+	const themeColors: Record<string, string> = {
+		mandy: "#ea546c",
+		dusk: "#839dd1",
+		emerald: "#10b981",
+		pumpkin: "#ff8c0a",
+		mauve: "#bf6ddf",
+		periwinkle: "#7976de",
+		saffron: "#f5c518",
+	};
 
-//     return {
-//         computedStyle
-//     }
-// }
+	const computedStyle = computed(() => {
+		const colorValue = themeColors[userData.value?.theme] || "#10b981"; // Default to emerald
+		return { "--computed-style": colorValue };
+	});
+
+	watchEffect(() => {
+		config.ui.primary = userData.value?.theme;
+		document.documentElement.style.setProperty(
+			"--computed-style",
+			computedStyle.value["--computed-style"]
+		);
+	});
+
+	return { computedStyle };
+};

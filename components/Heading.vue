@@ -1,13 +1,12 @@
-
 <template>
     <div class="pb-4">
-        <h2 class="before:bg-primary pl-4 relative mb-0 text-3xl">
-            <slot/>
+        <h2 class="before:bg-primary pl-4 relative mb-0 text-3xl md:text-2xl">
+            <slot />
         </h2>
     </div>
 </template>
 
-<style scoped> 
+<style scoped>
 h2::before {
     content: "";
     display: inline-block;

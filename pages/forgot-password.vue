@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '#ui/types'
-import { forgotPasswordSchema, type ForgotPasswordSchema } from '../utils/schemas';
+import { forgotPasswordSchema, type ForgotPasswordSchema } from '../schemas/schemas';
 import { sendPasswordResetEmail } from 'firebase/auth';
 
 definePageMeta({

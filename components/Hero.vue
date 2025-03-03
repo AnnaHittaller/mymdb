@@ -1,5 +1,8 @@
 <script setup>
 import { register } from 'swiper/element/bundle';
+// import { useComputedStyle } from '~/composables/useComputedStyle';
+
+const { computedStyle } = useComputedStyle()
 
 register();
 
@@ -44,13 +47,10 @@ const onSlideChange = (e) => {
 
 <template>
 
-    <div>
-        <!-- skeleton loader -->
+
+    <template v-if="trendingMoviesStore.isLoaded">
         <div
-            class="lg:bg-gradient-to-r from-[#27272a] from-[150px] to-[800px] w-full h-full pb-8 mb-8 lg:relative bg-no-repeat ">
-            <!-- skeleton loader for backdrop image -->
-            <USkeleton v-if="!trendingMoviesStore.isLoaded"
-                class="h-[500px] 2xl:h-[600px] 3xl:h-[700px] w-full object-cover max-lg:hidden lg:relative lg:-z-10 bg-gradient-to-r from-gray-400  to-[800px]" />
+            class="lg:bg-gradient-to-r from-[#27272a] from-[150px] to-[800px] w-full h-full pb-8 mb-8 lg:relative bg-no-repeat">
 
             <img v-if="backdropImage" :src="`${baseImageUrl}${backdropImage}`" :alt="imageAltText"
                 class="max-h-[500px] 2xl:max-h-[600px] 3xl:max-h-[700px] w-full object-cover max-lg:hidden lg:relative lg:-z-10 ">
@@ -75,7 +75,16 @@ const onSlideChange = (e) => {
                 </swiper-container>
             </div>
         </div>
-    </div>
+
+    </template>
+
+    <!-- skeleton loader for backdrop image -->
+    <template v-else>
+        <USkeleton
+            class="h-[500px] 2xl:h-[600px] 3xl:h-[700px] w-full object-cover max-lg:hidden lg:relative lg:-z-10 bg-gradient-to-r from-gray-400 to-[800px] pb-8 mb-16 " />
+        <Heading class="pl-8 sm:pt-4 lg:absolute lg:top-4 z-20">Now trending</Heading>
+    </template>
+
 </template>
 
 <style scoped>

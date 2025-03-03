@@ -1,7 +1,7 @@
 <script setup>
 import { register } from 'swiper/element/bundle';
 register();
-//const { computedStyle } = useComputedStyle()
+const { computedStyle } = useComputedStyle()
 
 const props = defineProps(
   { movies: Array }

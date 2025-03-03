@@ -1,10 +1,26 @@
 <script setup lang="ts">
+import { collection, query, where, getDocs, getDoc, doc, Firestore } from "firebase/firestore";
+import { useCurrentUser, useFirestore, useCollection } from 'vuefire';
+
+
 definePageMeta({
     middleware: "auth",
     layout: "default",
 })
 
 const user = useCurrentUser()
+const db = useFirestore()
+
+const userData = useUserData(db, user.value?.uid as string);
+
+const userMovies = userData?.value?.movies || []
+
+// const { data: users, pending } = useCollection(q);
+
+
+
+
+
 // import { useUserMoviesStore } from '~/stores/useUserMoviesStore';
 
 
@@ -51,12 +67,12 @@ const user = useCurrentUser()
             <Heading class="pl-8">My movies {{ user?.displayName }}</Heading>
             <!-- <UButton to="/my-movies" label="View All" v-if="usersMovies.length > 2" class="text-lg" /> -->
         </div>
-        <!-- <MovieSlider v-if="reversedMovies" :movies="reversedMovies" />
-        <div v-if="reversedMovies.length === 0" class="flex gap-4 max-sm:flex-col items-center max-sm:text-lg ">
+        <MovieSlider v-if="userMovies" :movies="userMovies" />
+        <div v-if="userMovies.length === 0" class="flex gap-4 max-sm:flex-col items-center max-sm:text-lg ">
             <p class="px-4">Add some movies to your watchlist first.</p>
             <UButton to="/search" label="Get movies" class="text-lg" />
         </div>
-        <div class="flex justify-between items-center pr-4 pb-8 pt-4">
+        <!-- <div class="flex justify-between items-center pr-4 pb-8 pt-4">
             <Heading class="pl-4 pt-8">Watch next</Heading>
             <UButton to="/watch-next" label="View All" v-if="watchNextMovies.length > 2" class="text-lg" />
         </div>
