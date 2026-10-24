@@ -1,34 +1,21 @@
-<script setup>
-// definePageMeta({
-//     middleware: "auth"
-// })
+<script setup lang="ts">
+import type { UserMovie } from "~/types/movie";
 
-// const { currentUserPromise } = useFirebaseAuth()
-// const { getUser } = useFirestore()
-// const userData = await currentUserPromise()
-// const user = await getUser(userData.uid)
+const { watchNext } = useUserDocument();
+const searchTerm = ref("");
+const debouncedSearchTerm = refDebounced(searchTerm, 700);
 
-// const userMoviesStore = useUserMoviesStore();
-// await userMoviesStore.fetchUserMovies();
-
-// const searchTerm = ref("")
-// const debouncedSearchTerm = refDebounced(searchTerm, 700)
-
-// const watchNextMovies = userMoviesStore.movies.filter(movie => movie.next)
-
-// const filteredMovies = computed(() => {
-//     return userMoviesStore.movies.filter(movie => {
-//         return movie.next && movie.title.toLowerCase().includes(debouncedSearchTerm.value.toLowerCase());
-//     });
-// });
+const filteredMovies = computed(() => {
+	const term = debouncedSearchTerm.value.toLowerCase();
+	return watchNext.value.filter((movie: UserMovie) => movie.title.toLowerCase().includes(term));
+});
 </script>
 
 <template>
     <div>
         <div class="flex gap-4 items-center justify-start">
             <Heading>Watch next</Heading>
-            <!-- <UBadge variant="outline" class="mb-4">{{ watchNextMovies.length }}</UBadge> -->
-        <!-- </div>
+        </div>
         <UInput size="xl" placeholder="Filter for title..." v-model="searchTerm" name="search"
             :ui="{ icon: { trailing: { pointer: '' } }, size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
             class="relative mb-8">
@@ -44,13 +31,13 @@
         </UInput>
         <div class="flex flex-col items-stretch">
             <Heading v-if="debouncedSearchTerm !== ''">Results</Heading>
-            <p v-if="debouncedSearchTerm !== '' && watchNextMovies && filteredMovies.length === 0" class="text-xl">No
+            <p v-if="debouncedSearchTerm !== '' && filteredMovies.length === 0" class="text-xl">No
                 matching
                 results can be found.</p>
-            <p v-if="watchNextMovies.length === 0">You have no movies on your watch next list.</p>
+            <p v-if="watchNext.length === 0">You have no movies on your watch next list.</p>
             <div class="movie-grid " v-if="filteredMovies.length > 0">
                 <MovieCard :movie="movie" v-for="movie in filteredMovies" :key="movie.id" />
-            </div> -->
+            </div>
         </div>
     </div>
 </template>

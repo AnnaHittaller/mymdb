@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { BASE_IMAGE_URL, MOVIE_API_URL } from "~/constants/movie";
-import type { Movie, UserMovie } from "~/types/movie";
-// definePageMeta({
-//     middleware: "auth"
-// })
+import type { Movie } from "~/types/movie";
+definePageMeta({
+    middleware: "auth"
+})
 
 const route = useRoute()
 
-const user = useCurrentUser()
-const db = useFirestore()
+const { isInList, movies, add, remove, setNext } = useUserDocument()
 
-const userData = useUserData(db, user.value?.uid as string);
-
-const movieId = computed(() => route.params.id)
+const movieId = computed(() => String(route.params.id))
 
 const { data, pending, error } = await useFetch(`/api/movies/${movieId.value}`)
 const movie = toRaw(data?.value)
@@ -25,40 +22,34 @@ const moviesWithPoster = computed(() => {
     return filtered
 });
 
-const isInMovieList = computed(() => {
-    return userData?.value?.movies?.some((movie: UserMovie) => movie.id === route.params.id) || false;
-});
+const isInMovieList = computed(() => isInList(movieId.value));
+
 const isInNextList = computed(() => {
-    return userData?.value?.movies?.some((movie: UserMovie) => movie.id === route.params.id && movie.next) || false;
+    return movies.value.some((entry) => entry.id === movieId.value && entry.next);
 });
 
 const addToMovieList = async () => {
-    await addMovie(db, user.value?.uid as string,
-        {
-            id: route.params.id as string,
-            title: movie.title,
-            rating: movie.vote_average,
-            poster: movie.poster_path,
-            seen: false,
-            next: false,
-            timestamp: new Date()
-        });
+    await add({
+        id: movieId.value,
+        title: movie.title,
+        rating: movie.vote_average,
+        poster: movie.poster_path,
+        seen: false,
+        next: false,
+        timestamp: new Date()
+    });
 };
 
-watch(userData, (newVal) => {
-    console.log("User data updated:", newVal);
-});
-
 const removeFromMovieList = async () => {
-    await removeMovie(db, user.value?.uid as string, route.params.id as string)
+    await remove(movieId.value)
 }
 
 const addToNextList = async () => {
-    await updateMovie(db, user.value?.uid as string, route.params.id as string, { next: true });
+    await setNext(movieId.value, true);
 }
 
 const removeFromNextList = async () => {
-    await updateMovie(db, user.value?.uid as string, route.params.id as string, { next: false });
+    await setNext(movieId.value, false);
 }
 
 // TODO: add directors, producers and music composers
@@ -66,7 +57,7 @@ const removeFromNextList = async () => {
 
 <template>
     <div v-if="movie && !error">
-        <Heading class="block md:hidden">{{ movie.title }}</Heading>
+        <Heading class="block md:hidden pb-8">{{ movie.title }}</Heading>
         <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4 text-lg md:text-base">
             <div class="flex flex-col gap-4 md:self-start md:w-[18rem] lg:w-sm md:shrink-0">
                 <div class="relative" v-auto-animate>
@@ -118,6 +109,7 @@ const removeFromNextList = async () => {
             </div>
         </div>
         <Heading class="pt-4">More like this</Heading>
+
         <div class="movie-grid " v-if="moviesWithPoster.length > 0">
             <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
         </div>

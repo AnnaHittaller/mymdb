@@ -1,5 +1,7 @@
 <script setup>
 
+provideUserDocument()
+
 useHead({
     bodyAttrs: {
         class: 'bg-zinc-50 dark:bg-zinc-800'

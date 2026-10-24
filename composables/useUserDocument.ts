@@ -1,10 +1,24 @@
 import { doc } from "firebase/firestore";
+import type { ComputedRef, InjectionKey } from "vue";
 import { useCurrentUser, useDocument, useFirestore } from "vuefire";
 import { createUserDocument } from "../domain/user-document/createUserDocument";
 import { createVueFireUserDocumentStore } from "../domain/user-document/vueFireStore";
 import type { UserMovie } from "../types/movie";
 
-export function useUserDocument() {
+type UserDocumentApi = {
+	movies: ComputedRef<UserMovie[]>;
+	watchNext: ComputedRef<UserMovie[]>;
+	theme: ComputedRef<string>;
+	isInList: (id: string) => boolean;
+	add: (movie: UserMovie) => Promise<void>;
+	remove: (id: string) => Promise<void>;
+	setNext: (id: string, next: boolean) => Promise<void>;
+	setTheme: (theme: string) => Promise<void>;
+};
+
+const userDocumentKey: InjectionKey<UserDocumentApi> = Symbol("user-document");
+
+export function provideUserDocument() {
 	const user = useCurrentUser();
 	const db = useFirestore();
 	const userRef = computed(() => (user.value?.uid ? doc(db, "users", user.value.uid) : null));
@@ -23,7 +37,7 @@ export function useUserDocument() {
 		store.dispose();
 	});
 
-	return {
+	const api: UserDocumentApi = {
 		movies: computed(() => {
 			version.value;
 			return document.movies();
@@ -45,4 +59,14 @@ export function useUserDocument() {
 		setNext: (id: string, next: boolean) => document.setNext(id, next),
 		setTheme: (theme: string) => document.setTheme(theme),
 	};
+
+	provide(userDocumentKey, api);
+}
+
+export function useUserDocument() {
+	const api = inject(userDocumentKey);
+	if (!api) {
+		throw new Error("User document is not available");
+	}
+	return api;
 }

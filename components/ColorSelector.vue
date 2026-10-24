@@ -6,10 +6,7 @@
 
 // const userData = await currentUserPromise()
 
-const user = useCurrentUser()
-const db = useFirestore()
-
-const userData = useUserData(db, user.value?.uid as string);
+const { theme, setTheme } = useUserDocument()
 
 let selectedColor = ref('')
 
@@ -25,12 +22,11 @@ const colors = [
     // Add more colors as needed
 ]
 
-const updateColor = async (color) => {
+const updateColor = async (color: string) => {
     selectedColor.value = color; // Update the selectedColor value
-    await updateTheme(db, user.value?.uid as string, color)
+    await setTheme(color)
 }
 
-//TODO: add special class for current color button
 </script>
         
 <template>
@@ -39,7 +35,9 @@ const updateColor = async (color) => {
             <label :for="color.value">
                 <input type="radio" :id="color.value" :value="color.value" v-model="selectedColor"
                     @change="updateColor(color.value)" class="hidden" />
-                <UBadge :color="color.value" :class="color.value === userData.theme ? 'ring-2 ring-primary ring-offset-4 ring-offset-gray-800' : ''" size="lg" class="cursor-pointer text-lg">{{ color.label }}</UBadge>
+                <UBadge :color="color.value"
+                    :class="color.value === theme ? 'ring-2 ring-primary ring-offset-4 ring-offset-gray-800' : ''"
+                    size="lg" class="cursor-pointer text-lg">{{ color.label }}</UBadge>
             </label>
         </div>
     </div>

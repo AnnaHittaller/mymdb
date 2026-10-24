@@ -1,9 +1,7 @@
 import { computed } from "vue";
 
 export const useComputedStyle = () => {
-	const user = useCurrentUser();
-	const db = useFirestore();
-	const userData = useUserData(db, user.value?.uid as string);
+	const { theme } = useUserDocument();
 	const config = useAppConfig();
 
 	const themeColors: Record<string, string> = {
@@ -17,16 +15,20 @@ export const useComputedStyle = () => {
 	};
 
 	const computedStyle = computed(() => {
-		const colorValue = themeColors[userData.value?.theme] || "#10b981"; // Default to emerald
+		const colorValue = themeColors[theme.value] || "#10b981";
 		return { "--computed-style": colorValue };
 	});
 
 	watchEffect(() => {
-		config.ui.primary = userData.value?.theme;
-		document.documentElement.style.setProperty(
-			"--computed-style",
-			computedStyle.value["--computed-style"]
-		);
+		if (theme.value) {
+			config.ui.primary = theme.value;
+		}
+		if (typeof document !== "undefined") {
+			document.documentElement.style.setProperty(
+				"--computed-style",
+				computedStyle.value["--computed-style"]
+			);
+		}
 	});
 
 	return { computedStyle };
