@@ -70,6 +70,8 @@ definePageMeta({
 // const { register } = useFirebaseAuth()
 // const { setUser } = useFirestore()
 const auth = useFirebaseAuth()
+const route = useRoute()
+const destination = computed(() => pathFromRedirect(route.query.redirect))
 
 
 const state = reactive({
@@ -112,7 +114,7 @@ async function onSubmit(event: FormSubmitEvent<RegisterSchema>) {
         if (!state.error) {
             state.success = true
             console.log("User created successfully")
-            return await navigateTo("/", { replace: true });
+            return await navigateTo(destination.value, { replace: true });
         }
     } catch (error: any) {
         console.error(error)
@@ -126,7 +128,7 @@ const signUpWithGoogle = async () => {
     try {
         const result = await signInWithPopup(auth!, googleAuthProvider)
         console.log(result)
-        return await navigateTo("/", { replace: true });
+        return await navigateTo(destination.value, { replace: true });
     } catch (error: any) {
         console.error(error)
     }

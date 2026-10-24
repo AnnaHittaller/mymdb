@@ -40,7 +40,7 @@
                 </UButton>
                 <div class="flex items-center gap-2 max-[300px]:flex-col pt-4">
                     <p class="text-lg">Don't have an account yet?</p>
-                    <NuxtLink to="/register"
+                    <NuxtLink :to="route.query.redirect ? { path: '/register', query: { redirect: route.query.redirect } } : '/register'"
                         class="text-lg text-primary font-semibold flex items-center gap-0.5 hover:underline underline-offset-[5px]">
                         <UIcon name="i-heroicons-chevron-double-right-20-solid" class="text-lg" />
                         Register
@@ -73,6 +73,8 @@ definePageMeta({
 // colorStore.initialize()
 
 const auth = useFirebaseAuth()
+const route = useRoute()
+const destination = computed(() => pathFromRedirect(route.query.redirect))
 
 
 const state = reactive({
@@ -103,7 +105,7 @@ async function onSubmit(event: FormSubmitEvent<LoginSchema>) {
         state.password = undefined
         if (!state.error) {
             state.success = true
-            return await navigateTo("/", { replace: true });
+            return await navigateTo(destination.value, { replace: true });
         }
     } catch (error: any) {
         console.error("Frontend error:", error.message);
@@ -117,7 +119,7 @@ async function onSubmit(event: FormSubmitEvent<LoginSchema>) {
 const signInWithGoogle = async () => {
     try {
         await signInWithPopup(auth!, googleAuthProvider)
-        return await navigateTo("/", { replace: true });
+        return await navigateTo(destination.value, { replace: true });
     } catch (error: any) {
         console.error(error)
     }

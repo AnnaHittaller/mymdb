@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { UserMovie } from "~/types/movie";
 
+definePageMeta({
+	middleware: "auth",
+});
+
 const { watchNext } = useUserDocument();
 const searchTerm = ref("");
 const debouncedSearchTerm = refDebounced(searchTerm, 700);

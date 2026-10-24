@@ -3,10 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "build": "node ./scripts/with-system-ca.mjs build",
+    "dev": "node ./scripts/with-system-ca.mjs dev",
+    "generate": "node ./scripts/with-system-ca.mjs generate",
+    "preview": "node ./scripts/with-system-ca.mjs preview",
     "test": "vitest run",
     "postinstall": "nuxt prepare"
   },

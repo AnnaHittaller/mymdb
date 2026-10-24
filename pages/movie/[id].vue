@@ -2,10 +2,11 @@
 import { BASE_IMAGE_URL, MOVIE_API_URL } from "~/constants/movie";
 import type { Movie } from "~/types/movie";
 definePageMeta({
-    middleware: "auth"
+    layout: "default",
 })
 
 const route = useRoute()
+const user = useCurrentUser()
 
 const { isInList, movies, add, remove, setNext } = useUserDocument()
 
@@ -61,7 +62,7 @@ const removeFromNextList = async () => {
         <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4 text-lg md:text-base">
             <div class="flex flex-col gap-4 md:self-start md:w-[18rem] lg:w-sm md:shrink-0">
                 <div class="relative" v-auto-animate>
-                    <div v-auto-animate="{ duration: 150 }" v-if="isInMovieList">
+                    <div v-auto-animate="{ duration: 150 }" v-if="user && isInMovieList">
                         <UIcon name="i-heroicons-star"
                             class="z-20 text-2xl text-primary absolute -top-1 -right-1 transition scale-150 origin-center cursor-pointer"
                             v-if="!isInNextList" @click.stop="addToNextList" />
@@ -73,12 +74,16 @@ const removeFromNextList = async () => {
                         class="w-full max-w-sm  " />
                 </div>
                 <div class="icon-group flex gap-4 w-full">
-                    <UButton v-if="!isInMovieList" icon="i-heroicons-list-bullet-20-solid" color="primary"
+                    <UButton v-if="!user" icon="i-heroicons-arrow-right-on-rectangle" color="primary"
+                        variant="outline" label="Sign in"
+                        class="flex gap-2 items-center justify-center text-lg" block
+                        :to="{ path: '/login', query: { redirect: route.fullPath } }" />
+                    <UButton v-else-if="!isInMovieList" icon="i-heroicons-list-bullet-20-solid" color="primary"
                         variant="outline" label="Add to my movies"
                         class="flex gap-2 items-center justify-center text-lg" block @click="addToMovieList" />
                     <UButton icon="i-heroicons-x-circle" color="primary" variant="outline" label="Remove from watchlist"
                         class="flex gap-2 items-center justify-center text-lg" block @click="removeFromMovieList"
-                        v-if="isInMovieList" />
+                        v-else />
                 </div>
             </div>
             <div class="w-full flex flex-col gap-4">

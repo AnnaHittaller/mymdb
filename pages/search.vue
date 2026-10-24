@@ -1,8 +1,8 @@
 <script setup>
 
-// definePageMeta({
-//     middleware: "auth"
-// })
+definePageMeta({
+    middleware: "auth"
+})
 
 // // Search related data
 // const searchTerm = ref("")

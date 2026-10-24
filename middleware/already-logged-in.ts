@@ -25,6 +25,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   // redirect the user to the login page
   if (user) {
-    return await navigateTo('/')
+    return await navigateTo(pathFromRedirect(to.query.redirect))
   }
 })

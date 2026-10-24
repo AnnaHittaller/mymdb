@@ -43,13 +43,13 @@ const shouldDisplayNavigation = computed(() => {
 });
 
 watch([movies, currentBreakpoint], () => {
-  //shouldDisplayNavigation.value;
+  shouldDisplayNavigation.value;
 });
 
 onMounted(() => {
   window.addEventListener('resize', handleResize);
-  currentBreakpoint.value = getInitialBreakpoint(); 
-  //shouldDisplayNavigation.value;
+  currentBreakpoint.value = getInitialBreakpoint();
+  shouldDisplayNavigation.value;
 });
 
 const handleResize = () => {
@@ -59,17 +59,15 @@ const handleResize = () => {
 function getInitialBreakpoint() {
   const windowWidth = window.innerWidth;
   return Object.keys(breakpoints)
-    .sort((a, b) => b - a) 
+    .sort((a, b) => b - a)
     .find(breakpoint => windowWidth >= parseInt(breakpoint)) || 900; // Default to 900 if no matching breakpoint found
 }
 
 
-</script> 
-
+</script>
 <template>
-  <div class="relative px-4">
-    <p>THIS IS MOVIESLIDER</p>
-    <!-- <swiper-container space-between="10" class="movieSlider z-0" centered-slides="false"
+  <div class="relative px-6">
+    <swiper-container space-between="10" class="movieSlider z-0" centered-slides="false"
       :navigation="shouldDisplayNavigation" :loop="false" :style="computedStyle" @swiperslidechange="onSlideChange"
       :breakpoints="breakpoints">
       <swiper-slide v-for="movie in movies" :key="movie.id" auto-scroll-offset="1" class="" v-auto-animate>
@@ -77,7 +75,7 @@ function getInitialBreakpoint() {
         <MovieCard :movie="movie" class="" />
 
       </swiper-slide>
-    </swiper-container> -->
+    </swiper-container>
   </div>
 </template>
 

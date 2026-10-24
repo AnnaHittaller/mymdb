@@ -1,8 +1,8 @@
 <script setup>
 
-// definePageMeta({
-//     middleware: "auth"
-// })
+definePageMeta({
+    middleware: "auth"
+})
 
 // let movies = ref([])
 // let currentPage = 1;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const user = useCurrentUser()
 const { movies, isInList, remove, setNext } = useUserDocument()
 
 const props = defineProps({
@@ -33,7 +34,7 @@ const isInNextList = computed(() => {
 <template>
     <div class="relative pt-2 px-2 group">
 
-        <div v-auto-animate v-if="isInMovieList">
+        <div v-auto-animate v-if="user && isInMovieList">
             <UIcon name="i-heroicons-star"
                 class="z-20 text-2xl text-primary absolute -top-1 -right-1 transition scale-150 origin-center cursor-pointer sm:opacity-50 sm:hover:opacity-100"
                 v-if="!isInNextList" @click.stop="addToNextList" />
@@ -41,7 +42,7 @@ const isInNextList = computed(() => {
                 class="z-20 text-2xl scale-150 text-primary absolute -top-1 -right-1 transition origin-center cursor-pointer"
                 v-if="isInNextList" @click.stop="removeFromNextList" />
         </div>
-        <div v-auto-animate v-if="isInMovieList">
+        <div v-auto-animate v-if="user && isInMovieList">
             <UIcon name="i-heroicons-x-circle"
                 class="z-20 text-2xl scale-150 text-primary sm:opacity-0 absolute top-8 -right-1 transition origin-center cursor-pointer sm:group-hover:opacity-100"
                 @click.stop="removeFromMovieList" />

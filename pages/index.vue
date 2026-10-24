@@ -2,7 +2,6 @@
 import { useCurrentUser } from 'vuefire';
 
 definePageMeta({
-    middleware: "auth",
     layout: "default",
 })
 
@@ -13,6 +12,7 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
 <template>
     <div class="max-w-full">
         <Hero />
+        <template v-if="user">
         <div class="flex justify-between items-center pr-8 pb-4 gap-8">
             <Heading class="pl-8">My movies {{ user?.displayName }}</Heading>
             <UButton to="/my-movies" label="View All" v-if="userMovies.length > 2" class="text-lg" />
@@ -31,6 +31,14 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
             class="flex gap-4 max-sm:flex-col max-sm:text-lg items-center pb-8">
             <p class="px-8">Add some movies to your watchlist first.</p>
             <UButton to="/search" label="Get movies" class="text-lg" />
+        </div>
+        </template>
+        <div v-else class="flex flex-col items-start gap-4 px-8 pb-8">
+            <p class="text-lg">Sign in to keep your watchlist and watch next.</p>
+            <div class="flex gap-4">
+                <UButton :to="{ path: '/login', query: { redirect: '/' } }" label="Sign in" class="text-lg" />
+                <UButton to="/register" label="Register" variant="outline" class="text-lg" />
+            </div>
         </div>
     </div>
 </template>

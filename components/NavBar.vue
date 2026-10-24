@@ -57,37 +57,44 @@ const items = [
             <Logo class="max-sm:hidden max-w-full flex m-0 shrink" />
             <NuxtLink to="/"
                 class="hover-filter flex items-center rounded-full size-12 justify-center hover:bg-gray-800 "
-                exact-active-class="bg-gray-800" >
+                exact-active-class="bg-gray-800">
                 <UIcon name="i-heroicons-home" class="text-primary text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/my-movies"
+            <NuxtLink v-if="user" to="/my-movies"
                 class="hover-filter flex items-center rounded-full size-12 justify-center hover:bg-gray-800 "
-                exact-active-class="bg-gray-800" >
+                exact-active-class="bg-gray-800">
                 <UIcon name="i-heroicons-list-bullet-20-solid" class="text-primary text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/watch-next"
+            <NuxtLink v-if="user" to="/watch-next"
                 class="hover-filter flex  items-center rounded-full size-12 justify-center hover:bg-gray-800 "
-                exact-active-class="bg-gray-800" >
+                exact-active-class="bg-gray-800">
                 <UIcon name="i-heroicons-star-solid" class="text-primary text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/search"
+            <NuxtLink v-if="user" to="/search"
                 class="hover-filter flex items-center rounded-full size-12 justify-center hover:bg-gray-800 "
-                exact-active-class="bg-gray-800" >
+                exact-active-class="bg-gray-800">
                 <UIcon name="i-heroicons-magnifying-glass-solid" class="text-primary text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/discover"
+            <NuxtLink v-if="user" to="/discover"
                 class="hover-filter flex  items-center rounded-full size-12 justify-center hover:bg-gray-800 "
-                exact-active-class="bg-gray-800" >
+                exact-active-class="bg-gray-800">
                 <UIcon name="i-heroicons-light-bulb" class="text-primary text-3xl" />
             </NuxtLink>
-            <NuxtLink to="/profile"
+            <NuxtLink v-if="user" to="/profile"
                 class="hover-filter flex  items-center rounded-full size-12 justify-center hover:bg-gray-800"
-                exact-active-class="bg-gray-800" >
+                exact-active-class="bg-gray-800">
                 <UIcon name="i-heroicons-user-circle" class="text-primary text-3xl" />
+            </NuxtLink>
+            <NuxtLink v-if="!user" to="/login"
+                class="text-primary text-lg font-semibold px-2">
+                Sign in
             </NuxtLink>
 
             <!-- profile context menu -->
-            <UDropdown :items="items"
+
+            <!-- TODO: add hamburger or dots menu with about and contact -->
+
+            <!-- <UDropdown :items="items"
                 :ui="{ item: { disabled: 'cursor-text select-text', size: 'text-lg' }, width: 'w-max' }"
                 class="z-40 relative " :popper="{ offsetDistance: 12 }">
                 <UAvatar src=""
@@ -104,11 +111,11 @@ const items = [
                         </p>
                     </div>
                 </template>
-                <template #item="{ item }">
+<template #item="{ item }">
                     <span class="truncate ">{{ item.label }}</span>
                     <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500 ms-auto"/>
                 </template>
-            </UDropdown>
+</UDropdown> -->
 
         </nav>
     </aside>
@@ -132,5 +139,4 @@ aside {
     filter: none;
     transition: all 0.2s ease;
 }
-
 </style>
