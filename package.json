@@ -26,7 +26,6 @@
     "@vueuse/nuxt": "^10.6.1",
     "firebase": "^10.14.1",
     "firebase-admin": "^13.0.1",
-    "firebase-functions": "^4.9.0",
     "nuxt-vuefire": "^1.0.1",
     "pinia": "^2.1.7",
     "swiper": "^11.0.5",

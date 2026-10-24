@@ -1,0 +1,5 @@
+# Nitro SSR. `nuxt generate` would omit POST /api/__session, and a hard refresh of a
+# gated page would send a signed-in user to login.
+[build]
+  command = "npm run build"
+  publish = "dist"

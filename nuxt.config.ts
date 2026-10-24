@@ -24,8 +24,19 @@ export default defineNuxtConfig({
     icons: "all",
   },
 
+  // Server render so a hard refresh of a gated page can read the __session cookie.
+  ssr: true,
+
   vuefire: {
-   auth: {enabled: true, sessionCookie: true},
+   auth: {
+    enabled: true,
+    sessionCookie: {
+      httpOnly: true,
+      secure: true,
+      path: '/',
+      sameSite: 'lax',
+    },
+   },
    config: {
      apiKey: process.env.FIREBASE_APIKEY,
      authDomain: process.env.FIREBASE_AUTHDOMAIN,
@@ -50,7 +61,6 @@ export default defineNuxtConfig({
   //     appId: process.env.FIREBASE_APPID,
      }
    },
-  // ssr: false,
   vue: {  
    compilerOptions: {
      isCustomElement: (tag: string) => tag.startsWith('swiper-'),
