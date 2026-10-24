@@ -7,13 +7,9 @@ const { computedStyle } = useComputedStyle()
 register();
 
 const config = useRuntimeConfig();
-const trendingMoviesStore = useTrendingMoviesStore();
+const { data: trendingMovies, pending } = await useTrendingMovies();
 
 const baseImageUrl = config.public.apiBaseImageUrl
-
-onMounted(() => {
-    trendingMoviesStore.fetchTrendingMovies()
-})
 
 let activeSlideHref = ref(null)
 let backdropImage = ref(null)
@@ -28,8 +24,7 @@ const onSlideChange = (e) => {
 
     const movieIdFromHref = activeSlideHref.value.match(/\d+$/)[0];
 
-    // Find the movie based on the ID and convert proxy-wrapped array to a regular array
-    const backdropMovie = Array.from(trendingMoviesStore.trendingMovies).find(
+    const backdropMovie = (trendingMovies.value || []).find(
         (movie) => movie.id === Number(movieIdFromHref)
     );
 
@@ -46,9 +41,7 @@ const onSlideChange = (e) => {
 </script>
 
 <template>
-
-
-    <template v-if="trendingMoviesStore.isLoaded">
+    <template v-if="!pending">
         <div
             class="lg:bg-gradient-to-r from-[#27272a] from-[150px] to-[800px] w-full h-full pb-8 mb-8 lg:relative bg-no-repeat">
 
@@ -56,7 +49,7 @@ const onSlideChange = (e) => {
                 class="max-h-[500px] 2xl:max-h-[600px] 3xl:max-h-[700px] w-full object-cover max-lg:hidden lg:relative lg:-z-10 ">
             <Heading class="pl-8 sm:pt-4 lg:absolute lg:top-4 z-20">Now trending</Heading>
 
-            <div v-if="trendingMoviesStore.trendingMovies.length > 0"
+            <div v-if="trendingMovies?.length > 0"
                 class=" max-w-[100%] lg:max-w-[500px] w-full max-h-[500px] 3xl:max-h-[600px] px-8 max-lg:mx-auto z-0 lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
                 <swiper-container class="mySwiper w-full h-full" loop="true" effect="coverflow" grab-cursor="false"
                     centered-slides="true" pagination="false" slides-per-view="auto" coverflow-effect-rotate="10"
@@ -64,7 +57,7 @@ const onSlideChange = (e) => {
                     coverflow-effect-slide-shadows="true" navigation="true" autoplay-delay="8000"
                     autoplay-disable-on-interaction="false" pause-on-mouse-enter="true"
                     @swiperslidechange="onSlideChange">
-                    <swiper-slide v-for="movie in trendingMoviesStore.trendingMovies" :key="movie.id">
+                    <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
                         <NuxtLink :to="`/movie/${movie.id}`">
                             <img :src="`${baseImageUrl}${movie.poster}`" class="relative" />
                             <p

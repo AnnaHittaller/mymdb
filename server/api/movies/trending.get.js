@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async () => {
 	try {
 		const config = useRuntimeConfig();
 		const response = await $fetch(
@@ -19,7 +19,6 @@ export default defineEventHandler(async (event) => {
 				backdrop: item.backdrop_path,
 			};
 		});
-		// console.log("api response", trendingMovieDetails);
 		return trendingMovieDetails;
 	} catch (error) {
 		throw createError({
@@ -27,4 +26,8 @@ export default defineEventHandler(async (event) => {
 			message: "Couldn't fetch trending movies.",
 		});
 	}
+}, {
+	maxAge: 60 * 60,
+	name: "trending-movies",
+	getKey: () => "week",
 });

@@ -1,4 +1,7 @@
+import { readFile } from 'node:fs/promises'
+import { findExports } from 'mlly'
 import { defineNuxtConfig } from 'nuxt/config'
+import { glob } from 'tinyglobby'
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
@@ -54,5 +57,52 @@ export default defineNuxtConfig({
    },
  },
 
-  compatibilityDate: '2024-12-02'
+  compatibilityDate: '2024-12-02',
+
+  hooks: {
+    async 'imports:extend'(imports) {
+      const files = await glob(['composables/*.{ts,js,mjs}', 'utils/*.{ts,js,mjs}'], {
+        absolute: true,
+        cwd: process.cwd(),
+        ignore: ['**/*.test.ts'],
+      })
+      const seen = new Set(imports.map((item: { from: string; name: string }) => `${item.from}:${item.name}`))
+      for (const file of files) {
+        const code = await readFile(file, 'utf8')
+        for (const exp of findExports(code)) {
+          const names = exp.type === 'declaration' && exp.name
+            ? [exp.name]
+            : exp.type === 'named'
+              ? exp.names
+              : []
+          for (const name of names) {
+            const key = `${file}:${name}`
+            if (seen.has(key)) continue
+            seen.add(key)
+            imports.push({ name, as: name, from: file })
+          }
+        }
+      }
+    },
+    'vite:configResolved'(config) {
+      const visit = (plugin: any) => {
+        if (!plugin) return
+        if (Array.isArray(plugin)) {
+          plugin.forEach(visit)
+          return
+        }
+        if (plugin.name !== 'nuxt:components:imports' || typeof plugin.transformInclude !== 'function') return
+        const include = plugin.transformInclude
+        plugin.transformInclude = (id: string) => {
+          if (id.includes('\0')) return false
+          try {
+            return include(id)
+          } catch {
+            return false
+          }
+        }
+      }
+      visit(config.plugins)
+    },
+  },
 })
