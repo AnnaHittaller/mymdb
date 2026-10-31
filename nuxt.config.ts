@@ -2,26 +2,25 @@ import { readFile } from 'node:fs/promises'
 import { findExports } from 'mlly'
 import { defineNuxtConfig } from 'nuxt/config'
 import { glob } from 'tinyglobby'
+import { debugEconnPlugin } from './server/debug-econn-plugin'
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
   spaLoadingTemplate: true,
 
+  srcDir: '.',
+
+  css: ['~/assets/css/tailwind.css'],
+
   modules: [
     '@nuxt/ui', 
     '@vueuse/nuxt',
-    '@pinia/nuxt',
     '@formkit/auto-animate/nuxt',
     'nuxt-vuefire',
-    'vue-sonner/nuxt',
   ],
 
   colorMode: {
     preference: 'dark',
-  },
-
-  ui: {
-    icons: "all",
   },
 
   // Server render so a hard refresh of a gated page can read the __session cookie.
@@ -52,7 +51,6 @@ export default defineNuxtConfig({
      apiBaseUrl: process.env.NUXT_API_BASE_URL,
      apiBearerToken: process.env.NUXT_API_BEARER_TOKEN,
      public: {
-        apiBaseImageUrl: process.env.NUXT_API_BASE_IMAGE_URL,
   //     apiKey: process.env.FIREBASE_APIKEY,
   //     authDomain: process.env.FIREBASE_AUTHDOMAIN,
   //     projectId: process.env.FIREBASE_PROJECTID,
@@ -67,7 +65,7 @@ export default defineNuxtConfig({
    },
  },
 
-  compatibilityDate: '2024-12-02',
+  compatibilityDate: '2026-10-25',
 
   hooks: {
     async 'imports:extend'(imports) {
@@ -93,6 +91,9 @@ export default defineNuxtConfig({
           }
         }
       }
+    },
+    'vite:extendConfig'(config) {
+      config.plugins?.push(debugEconnPlugin())
     },
     'vite:configResolved'(config) {
       const visit = (plugin: any) => {
