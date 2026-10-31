@@ -56,9 +56,9 @@ export const setUserInFirestore = async (
 ) => {
 	try {
 		await setDoc(doc(db, "users", uid), { ...userData });
-		//console.log("setuser",newUser)
 	} catch (error) {
-		console.log(error);
+		console.warn(error);
+		throw error;
 	}
 };
 

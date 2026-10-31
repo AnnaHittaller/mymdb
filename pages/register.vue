@@ -2,39 +2,33 @@
     <div class="max-w-[450px] w-full mx-auto">
         <Heading>Register</Heading>
         <UForm :schema="registerSchema" :state="state" class="space-y-6 w-full pt-8 text-lg" @submit="onSubmit">
-            <UFormGroup label="Email " name="email" required size="lg" :ui="{ size: { lg: 'text-lg' } }">
+            <UFormField label="Email " name="email" required size="lg" :ui="{ label: 'text-lg' }">
                 <UInput v-model.trim="state.email" placeholder="Email" size="lg"
-                    :ui="{ size: { lg: 'text-lg' }, placeholder: 'placeholder:italic' }" />
-            </UFormGroup>
+                    :ui="{ base: 'text-lg placeholder:italic' }" />
+            </UFormField>
 
-            <UFormGroup label="Username " name="username" required size="lg" :ui="{ size: { lg: 'text-lg' } }">
+            <UFormField label="Username " name="username" required size="lg" :ui="{ label: 'text-lg' }">
                 <UInput v-model.trim="state.username" placeholder="Username" size="lg"
-                    :ui="{ size: { lg: 'text-lg' }, placeholder: 'placeholder:italic' }" type="text" />
-            </UFormGroup>
+                    :ui="{ base: 'text-lg placeholder:italic' }" type="text" />
+            </UFormField>
 
-            <UFormGroup label="Password " name="password" required size="lg" :ui="{ size: { lg: 'text-lg' } }">
-                <UInput v-model.trim="state.password" placeholder="Password" size="lg"
-                    :ui="{ size: { lg: 'text-lg' }, placeholder: 'placeholder:italic' }" type="password">
-                    <UIcon :name="inputType === 'password' ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'"
-                        @click="togglePasswordVisibility"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400" />
+            <UFormField label="Password " name="password" required size="lg" :ui="{ label: 'text-lg' }">
+                <UInput v-model="state.password" placeholder="Password" size="lg"
+                    :ui="{ base: 'text-lg placeholder:italic' }" :type="inputType">
+                    <template #trailing>
+                        <UIcon :name="inputType === 'password' ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'"
+                            @click="togglePasswordVisibility" class="cursor-pointer text-xl text-gray-400" />
+                    </template>
                 </UInput>
-            </UFormGroup>
-
-            <UNotification id="error-notification-register" title="Error:" :description="state.error" v-if="state.error"
-                :timeout="0" @close="state.error = undefined" icon="i-heroicons-exclamation-circle" color="red" />
-
-            <UNotification id="success-notification-register" title="Registration successful, redirecting..."
-                v-if="state.success" :timeout="0" @close="state.success = false" icon="i-heroicons-check-circle"
-                color="green" />
+            </UFormField>
 
             <div class="flex items-center justify-between pt-8 flex-col">
                 <UButton type="submit" class="text-lg" :loading="state.loading" block>
                     Create an account
                 </UButton>
-                <UDivider label="OR" class="py-4" orientation="horizontal"
-                    :ui="{ border: { base: 'dark:border-gray-400' } }" />
-                <UButton type="button" class="text-lg" @click="signUpWithGoogle" block>
+                <USeparator label="OR" class="py-4" orientation="horizontal"
+                    :ui="{ border: 'dark:border-gray-400' }" />
+                <UButton type="button" class="text-lg" :loading="state.loading" @click="signUpWithGoogle" block>
                     Sign up with Google
                 </UButton>
                 <div class="flex items-center gap-2 max-[300px]:flex-col pt-4">
@@ -47,20 +41,24 @@
                 </div>
             </div>
         </UForm>
+        <LinkGooglePasswordModal
+            v-model:open="linkModalOpen"
+            :email="linkModalEmail"
+            :loading="linkModalLoading"
+            @confirm="onLinkPasswordConfirm"
+            @cancel="cancelLinkPassword"
+        />
     </div>
 </template>
 
-<!-- this has to be created in a separate script tag -->
-<script lang="ts">
-import { GoogleAuthProvider } from 'firebase/auth'
-export const googleAuthProvider = new GoogleAuthProvider()
-</script>
-
 <script setup lang="ts">
-import type { FormSubmitEvent } from '#ui/types'
+import type { FormSubmitEvent } from '@nuxt/ui'
 import { registerSchema, type RegisterSchema } from '../schemas/schemas';
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup } from "firebase/auth";
-// import { setUserInFirestore } from '~/composables/useFirestore';
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { googleAuthProvider } from '~/composables/googleAuthProvider';
+import { signInWithGoogleAndLink } from '~/composables/googleSignIn';
+import { defaultUsername, ensureUserProfile } from '~/composables/userProfile';
+import { useGoogleLinkPasswordPrompt } from '~/composables/useGoogleLinkPasswordPrompt';
 
 definePageMeta({
     layout: "not-logged-in",
@@ -70,18 +68,35 @@ definePageMeta({
 // const { register } = useFirebaseAuth()
 // const { setUser } = useFirestore()
 const auth = useFirebaseAuth()
+const db = useFirestore()
 const route = useRoute()
 const destination = computed(() => pathFromRedirect(route.query.redirect))
 
+const {
+    linkModalOpen,
+    linkModalEmail,
+    linkModalLoading,
+    promptForPassword,
+    confirmLinkPassword,
+    cancelLinkPassword,
+    finishLinkPasswordFlow,
+} = useGoogleLinkPasswordPrompt()
+
+function onLinkPasswordConfirm(password: string) {
+    confirmLinkPassword(password)
+}
+
 
 const state = reactive({
-    email: undefined,
-    password: undefined,
-    username: undefined,
-    error: undefined,
+    email: undefined as string | undefined,
+    password: undefined as string | undefined,
+    username: undefined as string | undefined,
+    error: undefined as string | undefined,
     loading: false,
     success: false
 })
+
+const { clearFormToasts } = useFormToasts(state, { successTitle: 'Registration successful, redirecting...' })
 
 const inputType = ref<"password" | "text">("password")
 
@@ -94,27 +109,21 @@ async function onSubmit(event: FormSubmitEvent<RegisterSchema>) {
     state.loading = true
     state.success = false
     try {
-        // const user = await register(event.data.email, event.data.password)
-        // console.log(user)
-
-        // const firestoreUser = await setUser(user.uid, event.data.username, event.data.email, "emerald", []);
-        // console.log(firestoreUser);
-        const db = useFirestore()
-
         const { user } = await createUserWithEmailAndPassword(auth!, event.data.email, event.data.password)
         //add displayName to user object
         await updateProfile(user, { displayName: event.data.username })
-        //add user to firestore with default data
-        await setUserInFirestore(db, user.uid, { uid: user.uid, username: event.data.username, email: event.data.email, theme: "emerald", movies: [] })
+        await ensureUserProfile(db, user, {
+            username: event.data.username,
+            email: event.data.email,
+        })
 
         state.loading = false
         state.email = undefined
         state.username = undefined
         state.password = undefined
         if (!state.error) {
-            state.success = true
-            console.log("User created successfully")
-            return await navigateTo(destination.value, { replace: true });
+            clearFormToasts()
+            await navigateTo(destination.value, { replace: true })
         }
     } catch (error: any) {
         console.error(error)
@@ -125,12 +134,26 @@ async function onSubmit(event: FormSubmitEvent<RegisterSchema>) {
 }
 
 const signUpWithGoogle = async () => {
+    state.loading = true
     try {
-        const result = await signInWithPopup(auth!, googleAuthProvider)
-        console.log(result)
-        return await navigateTo(destination.value, { replace: true });
+        const { user } = await signInWithGoogleAndLink(auth!, googleAuthProvider, {
+            promptForPassword,
+        })
+        const signedInEmail = user.email ?? ""
+        await ensureUserProfile(db, user, {
+            username: defaultUsername(user, signedInEmail),
+            email: signedInEmail,
+        })
+        clearFormToasts()
+        await navigateTo(destination.value, { replace: true })
     } catch (error: any) {
+        if (error.message !== 'Google link cancelled.') {
+            state.error = error.message ?? 'Google sign-in failed.'
+        }
         console.error(error)
+    } finally {
+        finishLinkPasswordFlow()
+        state.loading = false
     }
 }
 
