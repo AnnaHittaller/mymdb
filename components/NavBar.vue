@@ -10,8 +10,6 @@
 
 const user = useCurrentUser()
 
-const { computedStyle } = useComputedStyle()
-
 const items = [
     [{
         // label: user?.email,

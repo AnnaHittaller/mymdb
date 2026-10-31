@@ -6,8 +6,6 @@ if (import.meta.client) {
     register();
 }
 
-useComputedStyle()
-
 const swiperEl = ref(null)
 const { data: trendingMovies, pending } = await useTrendingMovies();
 

@@ -16,6 +16,7 @@ useHead({
 
 <template>
     <UApp :toaster="{ duration: 5000, progress: true, expand: false }">
+        <AppComputedStyle />
         <NuxtLoadingIndicator />
         <NuxtLayout>
             <NuxtPage />
