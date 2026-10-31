@@ -4,7 +4,7 @@ provideUserDocument()
 
 useHead({
     bodyAttrs: {
-        class: 'bg-zinc-50 dark:bg-zinc-800'
+        class: 'bg-surface-page text-fg-default'
     },
     title: 'MyMDb',
     meta: [
@@ -23,5 +23,3 @@ useHead({
         </NuxtLayout>
     </UApp>
 </template>
-
-<style></style>

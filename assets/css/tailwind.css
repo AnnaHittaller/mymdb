@@ -2,8 +2,53 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+/*
+ * THEME MAP (dark-only app shell)
+ * | UI region              | Utility / token              | Hex (reference)        |
+ * |------------------------|------------------------------|------------------------|
+ * | Page background        | bg-surface-page              | #27272a (zinc-800)     |
+ * | Sidebar / mobile nav   | bg-surface-sidebar           | #3d3d3d                |
+ * | Sidebar shadow         | shadow-surface-sidebar       | black glow             |
+ * | Nav hover / active     | bg-surface-nav-active        | #1f2937 (gray-800)     |
+ * | Elevated surfaces      | bg-surface-elevated          | #404040 (neutral-700)  |
+ * | Inset (avatar, etc.)   | bg-surface-inset             | #18181b (zinc-900)     |
+ * | Poster placeholder     | bg-surface-poster            | #374151 (gray-700)     |
+ * | Carousel overlay       | bg-surface-overlay/70        | #1f2937 @ 70%          |
+ * | Default text           | text-fg-default              | #fafafa (zinc-50)      |
+ * | Muted text             | text-fg-muted                | #a1a1aa (zinc-400)     |
+ * | Subtle text            | text-fg-subtle               | #71717a (zinc-500)     |
+ * | Text on accent badge   | text-fg-on-accent            | #111827 (gray-900)     |
+ * | Borders                | border-border-default        | #9ca3af (gray-400)     |
+ * | Ring offset (picker)   | ring-offset-surface-nav-active | #1f2937              |
+ * | User accent (runtime)  | --color-accent, text-primary | palette *-500          |
+ * | Hero gradient          | from-surface-page            | #27272a                |
+ *
+ * Styles that must remain in Vue <style>: Hero swiper shadow DOM ::part() only.
+ * See docs/agents/theming.md for agent rules.
+ */
+
 @theme static {
 	--breakpoint-3xl: 1800px;
+
+	/* Shell semantics */
+	--color-surface-page: #27272a;
+	--color-surface-sidebar: #3d3d3d;
+	--color-surface-nav-active: #1f2937;
+	--color-surface-elevated: #404040;
+	--color-surface-inset: #18181b;
+	--color-surface-poster: #374151;
+	--color-surface-overlay: #1f2937;
+
+	--color-fg-default: #fafafa;
+	--color-fg-muted: #a1a1aa;
+	--color-fg-subtle: #71717a;
+	--color-fg-on-accent: #111827;
+
+	--color-border-default: #9ca3af;
+
+	--color-accent: var(--color-emerald-500);
+
+	--shadow-surface-sidebar: 0 0px 10px -3px rgb(0 0 0 / 1);
 
 	--color-mandy-50: #fef2f3;
 	--color-mandy-100: #fde6e7;
@@ -76,6 +121,48 @@
 	--color-saffron-800: #824b11;
 	--color-saffron-900: #6f3e14;
 	--color-saffron-950: #411f07;
+}
+
+@utility max-w-main {
+	max-width: calc(100% - 96px - 2rem);
+}
+
+@utility nav-sticky-mobile {
+	@media screen and (max-width: 639px) {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		z-index: 1000;
+	}
+}
+
+@utility scrollbar-none {
+	scrollbar-width: none;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+@utility nav-item {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	line-height: 0;
+	border-radius: 9999px;
+	width: 3rem;
+	height: 3rem;
+	transition: all 0.2s ease;
+
+	& svg {
+		display: block;
+	}
+
+	&:hover {
+		background-color: var(--color-surface-nav-active);
+	}
 }
 
 @layer base {

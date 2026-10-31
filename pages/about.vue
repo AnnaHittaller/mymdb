@@ -5,7 +5,7 @@
 </script>
 
 <template>
-    <div class="text-xl">
+    <div class="text-xl [&_p]:mb-2 [&_p]:max-w-[600px] [&_p]:font-normal">
         <Heading>About MyMDb</Heading>
         <p>Welcome to your ultimate movie collection app, designed with one goal in mind: making your cinematic journey a
             breeze.
@@ -43,11 +43,3 @@
         </div>
     </div>
 </template>
-
-<style scoped>
-p {
-    margin-bottom: .5rem;
-    max-width: 600px;
-    font-weight: 400;
-}
-</style>

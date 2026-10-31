@@ -50,9 +50,9 @@ const isInNextList = computed(() => {
         <NuxtLink :to="`/movie/${movie?.id}`" class="relative">
 
             <div class="flex flex-col gap-2 w-full justify-start items-start">
-                <div class="bg-gray-700 max-w-[250px] relative group">
+                <div class="relative max-w-[250px] bg-surface-poster group">
                     <div
-                        class="z-20 bg-primary text-neutral-800 font-semibold p-2 absolute top-0 left-0 transition sm:opacity-0 sm:scale-0 sm:group-hover:opacity-100 sm:group-hover:scale-100 sm:origin-top-left">
+                        class="absolute left-0 top-0 z-20 origin-top-left bg-primary p-2 font-semibold text-fg-on-accent transition sm:scale-0 sm:opacity-0 sm:group-hover:scale-100 sm:group-hover:opacity-100">
                         {{ movie?.rating ? movie.rating.toFixed(1) : (movie?.vote_average ?
                             movie.vote_average.toFixed(1) : 'Ø') }}</div>
                     <img v-if="movie && (movie.poster || movie.poster_path)"
@@ -66,5 +66,3 @@ const isInNextList = computed(() => {
         </NuxtLink>
     </div>
 </template>
-
-<style></style>

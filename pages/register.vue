@@ -17,7 +17,7 @@
                     :ui="{ base: 'text-lg placeholder:italic' }" :type="inputType">
                     <template #trailing>
                         <UIcon :name="inputType === 'password' ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'"
-                            @click="togglePasswordVisibility" class="cursor-pointer text-xl text-gray-400" />
+                            @click="togglePasswordVisibility" class="cursor-pointer text-xl text-fg-muted" />
                     </template>
                 </UInput>
             </UFormField>
@@ -26,8 +26,7 @@
                 <UButton type="submit" class="text-lg" :loading="state.loading" block>
                     Create an account
                 </UButton>
-                <USeparator label="OR" class="py-4" orientation="horizontal"
-                    :ui="{ border: 'dark:border-gray-400' }" />
+                <USeparator label="OR" class="py-4" orientation="horizontal" />
                 <UButton type="button" class="text-lg" :loading="state.loading" @click="signUpWithGoogle" block>
                     Sign up with Google
                 </UButton>

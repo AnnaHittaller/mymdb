@@ -30,30 +30,21 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="relative px-6">
-    <div ref="scroller" class="movie-row flex gap-2.5 overflow-x-auto snap-x snap-mandatory">
+    <div ref="scroller" class="movie-row scrollbar-none flex snap-x snap-mandatory gap-2.5 overflow-x-auto">
       <div v-for="movie in movies" :key="movie.id" class="snap-start shrink-0 pt-3 pr-2">
         <MovieCard :movie="movie" />
       </div>
     </div>
     <button v-show="canScroll" type="button" aria-label="Previous movies"
-      class="absolute left-0 top-[40%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-neutral-800 transition hover:scale-110"
+      class="absolute left-0 top-[40%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-fg-on-accent transition hover:scale-110"
       @click="scrollByDir(-1)">
       <UIcon name="i-heroicons-arrow-left-circle-20-solid" class="text-2xl" />
     </button>
     <button v-show="canScroll" type="button" aria-label="Next movies"
-      class="absolute right-2 top-[40%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-neutral-800 transition hover:scale-110"
+      class="absolute right-2 top-[40%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-fg-on-accent transition hover:scale-110"
       @click="scrollByDir(1)">
       <UIcon name="i-heroicons-arrow-right-circle-20-solid" class="text-2xl" />
     </button>
   </div>
 </template>
 
-<style scoped>
-.movie-row {
-  scrollbar-width: none;
-}
-
-.movie-row::-webkit-scrollbar {
-  display: none;
-}
-</style>

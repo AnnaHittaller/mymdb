@@ -1,5 +1,8 @@
 export const POSTER_IMAGE_URL = "https://image.tmdb.org/t/p/w342";
 
+/** Detail page poster column (up to ~384px CSS); w780 keeps 2× displays sharp. */
+export const POSTER_DETAIL_IMAGE_URL = "https://image.tmdb.org/t/p/w780";
+
 export const BACKDROP_IMAGE_URL = "https://image.tmdb.org/t/p/w1280";
 
 export const PROFILE_IMAGE_URL = "https://image.tmdb.org/t/p/w185";

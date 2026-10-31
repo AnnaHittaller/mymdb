@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { POSTER_IMAGE_URL, PROFILE_IMAGE_URL } from "~/constants/movie";
+import { POSTER_DETAIL_IMAGE_URL, PROFILE_IMAGE_URL } from "~/constants/movie";
 import type { Movie } from "~/types/movie";
 
 definePageMeta({
@@ -80,8 +80,8 @@ const removeFromNextList = async () => {
                             class="z-20 text-2xl scale-150 text-primary absolute -top-1 -right-1 transition origin-center cursor-pointer"
                             v-if="isInNextList" @click.stop="removeFromNextList" />
                     </div>
-                    <img :src="`${POSTER_IMAGE_URL}${movie.poster_path}`" :alt="movie.title"
-                        width="342" height="513" loading="lazy" decoding="async"
+                    <img :src="`${POSTER_DETAIL_IMAGE_URL}${movie.poster_path}`" :alt="movie.title"
+                        width="780" height="1170" fetchpriority="high" decoding="async"
                         class="w-full max-w-sm aspect-[2/3] object-cover" />
                 </div>
                 <div class="icon-group flex gap-4 w-full">
@@ -136,4 +136,3 @@ const removeFromNextList = async () => {
     </div>
 </template>
 
-<style scoped></style>

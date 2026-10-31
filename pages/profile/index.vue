@@ -6,8 +6,8 @@
     <div>
         <Heading>My profile</Heading>
         <div class="flex items-center flex-col py-8 gap-4 pb-8">
-            <UAvatar src="" :ui="{ root: 'dark:bg-gray-900', fallback: 'dark:text-primary' }"
-                :alt="`${user?.displayName}`" size="3xl" class="avatar border mb-4" />
+            <UAvatar src=""
+                :alt="`${user?.displayName}`" size="3xl" class="avatar mb-4 border" />
             <div class="flex items-center gap-4">
                 <p class="text-4xl">{{ user?.displayName }}</p>
                 <NuxtLink to="./profile/update">
@@ -15,7 +15,7 @@
                         class="text-primary sm:text-3xl text-2xl hover:scale-125 transition" />
                 </NuxtLink>
             </div>
-            <p class="text-2xl -mt-2 text-zinc-400">{{ user?.email }}</p>
+            <p class="-mt-2 text-2xl text-fg-muted">{{ user?.email }}</p>
             <div class="flex max-[440px]:flex-col gap-4 mt-4">
                 <UButton icon="i-heroicons-arrow-left-on-rectangle" label="Sign out" size="xl"
                     class="text-2xl" @click="logout" />

@@ -3,8 +3,8 @@
 		<template #body>
 			<div class="space-y-4 p-2">
 				<h3 class="text-lg font-semibold">Link Google to your account</h3>
-				<p class="text-sm text-zinc-400">
-					<strong class="text-zinc-200">{{ email }}</strong> already has a password. Enter it once to
+				<p class="text-sm text-fg-muted">
+					<strong class="text-fg-default">{{ email }}</strong> already has a password. Enter it once to
 					link Google sign-in to the same profile.
 				</p>
 				<UFormField label="Password" name="linkPassword" required>

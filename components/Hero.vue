@@ -80,7 +80,7 @@ watch(swiperEl, (el) => {
 <template>
     <template v-if="!pending">
         <div
-            class="lg:bg-gradient-to-r from-[#27272a] from-[150px] to-[800px] w-full h-full pb-8 mb-8 lg:relative bg-no-repeat">
+            class="mb-8 h-full w-full bg-no-repeat pb-8 lg:relative lg:bg-gradient-to-r lg:from-surface-page lg:from-[150px] lg:to-[800px]">
 
             <img v-if="backdropImage" :src="`${BACKDROP_IMAGE_URL}${backdropImage}`" :alt="imageAltText"
                 width="1280" height="720" fetchpriority="high"
@@ -97,7 +97,7 @@ watch(swiperEl, (el) => {
                                 <img :src="`${POSTER_IMAGE_URL}${movie.poster}`" :alt="movie.title"
                                     width="342" height="513" loading="lazy" decoding="async" class="relative" />
                                 <p
-                                    class="carousel-title text-lg text-center absolute bottom-2 left-0 right-0 bg-gray-800 bg-opacity-70 duration-200">
+                                    class="carousel-title absolute bottom-2 left-0 right-0 bg-surface-overlay/70 text-center text-lg duration-200">
                                     {{ movie.title }}</p>
                             </NuxtLink>
                         </swiper-slide>
@@ -111,7 +111,7 @@ watch(swiperEl, (el) => {
     <!-- skeleton loader for backdrop image -->
     <template v-else>
         <USkeleton
-            class="h-[500px] 2xl:h-[600px] 3xl:h-[700px] w-full object-cover max-lg:hidden lg:relative lg:-z-10 bg-gradient-to-r from-gray-400 to-[800px] pb-8 mb-16 " />
+            class="mb-16 h-[500px] w-full bg-gradient-to-r from-fg-muted to-[800px] object-cover pb-8 max-lg:hidden lg:relative lg:-z-10 2xl:h-[600px] 3xl:h-[700px]" />
         <Heading class="pl-8 sm:pt-4 lg:absolute lg:top-4 z-20">Now trending</Heading>
     </template>
 
@@ -157,7 +157,7 @@ swiper-slide img {
 swiper-container::part(button-next),
 swiper-container::part(button-prev) {
     color: transparent;
-    background-color: var(--computed-style);
+    background-color: var(--color-accent);
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -191,7 +191,7 @@ swiper-container::part(button-next):hover {
 
 swiper-container::part(bullet-active),
 swiper-container::part(bullet) {
-    background-color: var(--computed-style);
+    background-color: var(--color-accent);
 }
 
 .carousel-title {

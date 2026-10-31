@@ -100,13 +100,13 @@ const selectMenuConfig = {
     option: {
         color: 'text-primary',
         selectedIcon: {
-            base: 'dark:text-primary flex-shrink-0 cursor-pointer',
+            base: 'text-primary flex-shrink-0 cursor-pointer',
         },
-        active: 'dark:bg-gray-800'
+        active: 'bg-surface-nav-active',
     },
-    background: 'dark:bg-neutral-700',
+    background: 'bg-surface-elevated',
     placeholder: 'text-primary',
-    select: 'cursor-pointer'
+    select: 'cursor-pointer',
 }
 
 </script>

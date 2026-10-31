@@ -29,7 +29,7 @@ const filteredMovies = computed(() => {
                     square @click="searchTerm = ''" class="pointer-events-auto pr-10" />
                 <div
                     class="bg-primary absolute right-0 top-0 h-full search-btn rounded-r-md flex items-center justify-center">
-                    <UIcon name="i-heroicons-magnifying-glass-20-solid" class="text-zinc-900 text-xl " />
+                    <UIcon name="i-heroicons-magnifying-glass-20-solid" class="text-fg-on-accent text-xl " />
                 </div>
             </template>
         </UInput>
@@ -45,5 +45,3 @@ const filteredMovies = computed(() => {
         </div>
     </div>
 </template>
-
-<style scoped></style>

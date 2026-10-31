@@ -12,7 +12,7 @@
                     :ui="{ base: 'text-lg placeholder:italic' }" :type="inputType">
                     <template #trailing>
                         <UIcon :name="inputType === 'password' ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'"
-                            @click="togglePasswordVisibility" class="cursor-pointer text-xl text-gray-400" />
+                            @click="togglePasswordVisibility" class="cursor-pointer text-xl text-fg-muted" />
                     </template>
                 </UInput>
             </UFormField>
@@ -27,11 +27,11 @@
                 <UButton type="submit" class="text-lg" :loading="state.loading" block>
                     Sign in
                 </UButton>
-                <USeparator label="OR" class="py-4" orientation="horizontal" :ui="{ border: 'dark:border-gray-400' }" />
+                <USeparator label="OR" class="py-4" orientation="horizontal" />
                 <UButton type="button" class="text-lg" :loading="state.loading" @click="onGoogleButtonClick" block>
                     Sign in with Google
                 </UButton>
-                <p class="text-sm text-zinc-500 text-center pt-2">{{ googleLinkHint }}</p>
+                <p class="pt-2 text-center text-sm text-fg-subtle">{{ googleLinkHint }}</p>
                 <div class="flex items-center gap-2 max-[300px]:flex-col pt-4">
                     <p class="text-lg">Don't have an account yet?</p>
                     <NuxtLink

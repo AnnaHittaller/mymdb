@@ -43,8 +43,6 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
     </div>
 </template>
 
-<style scoped></style>
-
 <!-- TODO
 
 delete sonner
