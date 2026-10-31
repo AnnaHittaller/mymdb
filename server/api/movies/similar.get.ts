@@ -1,20 +1,27 @@
-import { CACHE_DURATION } from "~/constants/movie";
+import { CACHE_DURATION } from '~/constants/movie'
+
+type TmdbSimilarResult = {
+	id: number
+	title: string
+	poster_path: string | null
+	vote_average: number
+}
 
 export default defineCachedEventHandler(async (event) => {
 	try {
-		const config = useRuntimeConfig();
-		const query = getQuery(event);
+		const config = useRuntimeConfig()
+		const query = getQuery(event)
 
-		const response = await $fetch(
+		const response = await $fetch<{ results: TmdbSimilarResult[] }>(
 			`https://api.themoviedb.org/3/movie/${query.id}/similar?language=en-US&page=1`,
 			{
-				method: "GET",
+				method: 'GET',
 				headers: {
-					accept: "application/json",
+					accept: 'application/json',
 					Authorization: `Bearer ${config.apiBearerToken}`,
 				},
-			}
-		);
+			},
+		)
 
 		return response.results
 			.filter((item) => item.poster_path)
@@ -23,15 +30,15 @@ export default defineCachedEventHandler(async (event) => {
 				title: item.title,
 				poster: item.poster_path,
 				rating: item.vote_average,
-			}));
-	} catch (error) {
+			}))
+	} catch {
 		throw createError({
 			statusCode: 404,
 			message: "Similar movies can't be found",
-		});
+		})
 	}
 }, {
 	maxAge: CACHE_DURATION / 1000,
-	name: "similar",
+	name: 'similar',
 	getKey: (event) => String(getQuery(event).id),
-});
+})

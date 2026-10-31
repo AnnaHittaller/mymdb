@@ -18,6 +18,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/tailwind.css'],
 
   modules: [
+    '@nuxt/eslint',
     '@nuxt/ui', 
     '@vueuse/nuxt',
     '@formkit/auto-animate/nuxt',

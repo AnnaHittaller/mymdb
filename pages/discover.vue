@@ -117,16 +117,11 @@ const selectMenuConfig = {
             <Heading>Discover new movies</Heading>
             <div class="flex gap-4 items-center max-[500px]:flex-col">
 
-                <!-- Rating filter dropdown -->
-                <!-- <USelectMenu v-model="selectedRatings" size="lg" :options="ratings" placeholder="Minimum rating"
-                    color="primary" :uiMenu="selectMenuConfig" class="z-55 min-w-[150px] w-max" />
-
-                <!-- Genre filter dropdown -->
-                <!-- <USelectMenu v-model="selectedGenres" size="lg" :options="genres" multiple searchable
-                    placeholder="Filter by genres" searchable-placeholder="Search by genre" color="primary"
-                    :uiMenu="selectMenuConfig" class="z-50 min-w-[150px] w-max" />
-
-                <UButton label="Clear filters" size="lg" @click="clearFilters"/>  -->
+                <!-- Rating / genre filters temporarily disabled (see git history)
+                <USelectMenu ... />
+                <USelectMenu ... />
+                <UButton ... />
+                -->
             </div>
         </div>
         <div class="flex flex-col items-stretch">

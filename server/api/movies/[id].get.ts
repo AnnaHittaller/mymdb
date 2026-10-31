@@ -1,30 +1,28 @@
-import { CACHE_DURATION } from "~/constants/movie";
+import { CACHE_DURATION } from '~/constants/movie'
 
 export default defineCachedEventHandler(async (event) => {
 	try {
-		const config = useRuntimeConfig();
-		const { id } = event.context.params;
+		const config = useRuntimeConfig()
+		const { id } = event.context.params!
 
-		const response = await $fetch(
+		return await $fetch(
 			`https://api.themoviedb.org/3/movie/${id}?append_to_response=credits&language=en-US&page=1`,
 			{
-				method: "GET",
+				method: 'GET',
 				headers: {
-					accept: "application/json",
+					accept: 'application/json',
 					Authorization: `Bearer ${config.apiBearerToken}`,
 				},
-			}
-		);
-
-		return response;
-	} catch (error) {
+			},
+		)
+	} catch {
 		throw createError({
 			statusCode: 404,
 			message: "Movie can't be found",
-		});
+		})
 	}
 }, {
 	maxAge: CACHE_DURATION / 1000,
-	name: "movie",
-	getKey: (event) => event.context.params.id,
-});
+	name: 'movie',
+	getKey: (event) => String(event.context.params?.id ?? ''),
+})
