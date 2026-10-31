@@ -1,6 +1,6 @@
 <script setup>
 import { register } from 'swiper/element/bundle';
-import { BACKDROP_IMAGE_URL, POSTER_IMAGE_URL } from "~/constants/movie";
+import { BACKDROP_IMAGE_URL, POSTER_CAROUSEL_IMAGE_URL } from "~/constants/movie";
 
 if (import.meta.client) {
     register();
@@ -45,6 +45,7 @@ const swiperParams = {
     grabCursor: false,
     centeredSlides: true,
     slidesPerView: 'auto',
+    roundLengths: true,
     coverflowEffect: {
         rotate: 10,
         stretch: 60,
@@ -93,11 +94,14 @@ watch(swiperEl, (el) => {
                     <swiper-container ref="swiperEl" class="mySwiper w-full h-full" init="false"
                         @swiperslidechange="onSlideChange">
                         <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
-                            <NuxtLink :to="`/movie/${movie.id}`">
-                                <img :src="`${POSTER_IMAGE_URL}${movie.poster}`" :alt="movie.title"
-                                    width="342" height="513" loading="lazy" decoding="async" class="relative" />
+                            <NuxtLink :to="`/movie/${movie.id}`" class="relative block">
+                                <div class="poster-frame">
+                                    <img :src="`${POSTER_CAROUSEL_IMAGE_URL}${movie.poster}`" :alt="movie.title"
+                                        width="500" height="750" loading="lazy" decoding="async"
+                                        class="block w-full aspect-[2/3] object-cover" />
+                                </div>
                                 <p
-                                    class="carousel-title absolute bottom-2 left-0 right-0 bg-surface-overlay/70 text-center text-lg duration-200">
+                                    class="carousel-title pointer-events-none absolute inset-x-0 bottom-2 bg-surface-overlay/70 text-center text-lg">
                                     {{ movie.title }}</p>
                             </NuxtLink>
                         </swiper-slide>
@@ -145,12 +149,9 @@ swiper-slide {
     }
 }
 
-swiper-slide img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 2/3;
-    object-fit: cover;
-    /* -webkit-box-reflect: below 1px linear-gradient(transparent, transparent, #0002, #0004); */
+.poster-frame {
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 
@@ -196,6 +197,7 @@ swiper-container::part(bullet) {
 
 .carousel-title {
     opacity: 0;
+    transition: opacity 0.2s ease;
 }
 
 swiper-slide:hover .carousel-title {
