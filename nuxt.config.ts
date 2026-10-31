@@ -4,6 +4,11 @@ import { defineNuxtConfig } from 'nuxt/config'
 import { glob } from 'tinyglobby'
 import { debugEconnPlugin } from './server/debug-econn-plugin'
 
+const firebaseEmulatorsActive =
+  process.env.NUXT_E2E === 'true' ||
+  Boolean(process.env.FIRESTORE_EMULATOR_HOST) ||
+  Boolean(process.env.FIREBASE_AUTH_EMULATOR_HOST)
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   spaLoadingTemplate: true,
@@ -29,12 +34,19 @@ export default defineNuxtConfig({
   vuefire: {
    auth: {
     enabled: true,
-    sessionCookie: {
-      httpOnly: true,
-      secure: true,
-      path: '/',
-      sameSite: 'lax',
-    },
+    // Secure httpOnly cookies do not apply cleanly on http://127.0.0.1 during local e2e.
+    sessionCookie: firebaseEmulatorsActive
+      ? false
+      : {
+          httpOnly: true,
+          secure: true,
+          path: '/',
+          sameSite: 'lax',
+        },
+   },
+   emulators: {
+    enabled: firebaseEmulatorsActive,
+    host: '127.0.0.1',
    },
    config: {
      apiKey: process.env.FIREBASE_APIKEY,

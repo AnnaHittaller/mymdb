@@ -17,7 +17,7 @@
             </div>
             <p class="text-2xl -mt-2 text-zinc-400">{{ user?.email }}</p>
             <div class="flex max-[440px]:flex-col gap-4 mt-4">
-                <UButton to="./profile/update" icon="i-heroicons-arrow-left-on-rectangle" label="Sign out" size="xl"
+                <UButton icon="i-heroicons-arrow-left-on-rectangle" label="Sign out" size="xl"
                     class="text-2xl" @click="logout" />
 
                 <!-- TODO: add back delete profile button after fixing modal -->

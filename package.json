@@ -8,11 +8,15 @@
     "generate": "node ./scripts/with-system-ca.mjs generate",
     "preview": "node ./scripts/with-system-ca.mjs preview",
     "test": "vitest run",
+    "test:e2e": "node ./scripts/playwright-test.mjs",
+    "test:e2e:local": "node ./scripts/e2e-with-emulators.mjs",
     "typecheck": "node ./scripts/with-system-ca.mjs typecheck",
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
+    "@nuxt/test-utils": "^4.3.4",
+    "@playwright/test": "^1.64.1",
     "nuxt": "^4.1.0",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4",
