@@ -32,7 +32,6 @@ definePageMeta({
     middleware: "already-logged-in"
 })
 
-// const { resetPassword } = useFirebaseAuth()
 const router = useRouter()
 const auth = useFirebaseAuth()
 

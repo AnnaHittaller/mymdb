@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-// const { getUser, updateUserName } = useFirestore()
-// const { currentUserPromise } = useFirebaseAuth()
 const router = useRouter()
 
 definePageMeta({
     middleware: "auth"
 })
 
-// const userData: any = await currentUserPromise()
-// const user = await getUser(userData.uid)
-//console.log("User:", userData)
 const user = useCurrentUser()
 
 const schema = z.object({
@@ -33,8 +28,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     console.log("UPDATE EVENT REGISTER", event.data)
     state.loading = true
     try {
-        // await updateUserName(userData.uid, event.data.username)
-
+        // TODO: persist display name via user profile API
         state.loading = false
         state.success = true
 

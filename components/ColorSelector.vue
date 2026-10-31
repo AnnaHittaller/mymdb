@@ -1,14 +1,7 @@
-        
 <script setup lang="ts">
-// const colorStore = useUiColorStore()
-// const { currentUserPromise } = useFirebaseAuth()
-// const { updateTheme } = useFirestore()
-
-// const userData = await currentUserPromise()
-
 const { theme, setTheme } = useUserDocument()
 
-let selectedColor = ref('')
+const selectedColor = ref('')
 
 const colors = [
     { value: 'emerald', label: 'Emerald', class: 'bg-emerald-500 text-white' },

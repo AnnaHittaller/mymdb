@@ -52,13 +52,6 @@ definePageMeta({
     middleware: "auth"
 })
 
-// const { currentUserPromise, deleteUserAccount } = useFirebaseAuth()
-// const { getUser, deleteUserDoc } = useFirestore()
-
-// const userData = await currentUserPromise()
-// const user = await getUser(userData.uid)
-//console.log("User:", user)
-
 const auth = useFirebaseAuth()
 const user = useCurrentUser()
 
@@ -70,11 +63,7 @@ const logout = async () => {
 }
 
 const deleteCurrentUser = async () => {
-    //deleting user from Firebase
-    // deleteUserAccount()
-    // //deleting user doc from Firestore DB
-    // await deleteUserDoc(userData.uid)
-    // navigateTo('/login')
+    // TODO: wire delete profile when modal UX is fixed
 }
 
 </script>

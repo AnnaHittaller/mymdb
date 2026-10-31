@@ -65,8 +65,6 @@ definePageMeta({
     middleware: "already-logged-in"
 })
 
-// const { register } = useFirebaseAuth()
-// const { setUser } = useFirestore()
 const auth = useFirebaseAuth()
 const db = useFirestore()
 const route = useRoute()

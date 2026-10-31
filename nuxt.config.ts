@@ -2,7 +2,6 @@ import { readFile } from 'node:fs/promises'
 import { findExports } from 'mlly'
 import { defineNuxtConfig } from 'nuxt/config'
 import { glob } from 'tinyglobby'
-import { debugEconnPlugin } from './server/debug-econn-plugin'
 
 const firebaseEmulatorsActive =
   process.env.NUXT_E2E === 'true' ||
@@ -63,14 +62,7 @@ export default defineNuxtConfig({
      apiKey: process.env.NUXT_API_KEY,
      apiBaseUrl: process.env.NUXT_API_BASE_URL,
      apiBearerToken: process.env.NUXT_API_BEARER_TOKEN,
-     public: {
-  //     apiKey: process.env.FIREBASE_APIKEY,
-  //     authDomain: process.env.FIREBASE_AUTHDOMAIN,
-  //     projectId: process.env.FIREBASE_PROJECTID,
-  //     storageBucket: process.env.FIREBASE_STORAGEBUCKET,
-  //     messagingSenderId: process.env.FIREBASE_MESSAGINGSENDERID,
-  //     appId: process.env.FIREBASE_APPID,
-     }
+     public: {},
    },
   vue: {  
    compilerOptions: {
@@ -104,9 +96,6 @@ export default defineNuxtConfig({
           }
         }
       }
-    },
-    'vite:extendConfig'(config) {
-      config.plugins?.push(debugEconnPlugin())
     },
     'vite:configResolved'(config) {
       const visit = (plugin: any) => {

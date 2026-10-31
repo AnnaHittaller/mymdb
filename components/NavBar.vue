@@ -1,52 +1,5 @@
 <script setup>
-//const { computedStyle } = useComputedStyle()
-// const { logout, currentUserPromise } = useFirebaseAuth()
-// const { getUser } = useFirestore()
-// const colorStore = useUiColorStore() 
-
-// const userData = await currentUserPromise()
-// const user = await getUser(userData.uid)
-//console.log("User:", user)
-
 const user = useCurrentUser()
-
-const items = [
-    [{
-        // label: user?.email,
-        label: 'label',
-        slot: 'account',
-        disabled: true
-    }], [{
-        label: 'Profile',
-        icon: 'i-heroicons-user-circle',
-        to: '/profile'
-    }], [{
-        label: 'Settings',
-        icon: 'i-heroicons-cog-6-tooth',
-        to: '/profile/settings'
-    }, {
-        label: 'About',
-        icon: 'i-heroicons-information-circle',
-        to: '/about'
-    }, {
-        label: 'Contact',
-        icon: 'i-heroicons-chat-bubble-left-ellipsis',
-        to: '/contact'
-    }], [{
-        label: 'Sign out',
-        icon: 'i-heroicons-arrow-left-on-rectangle',
-        // click: () => {
-        //     handleLogout()
-        // }
-    }]
-]
-
-// const handleLogout = async () => {
-//     await logout();
-//     colorStore.colorReset();
-// };
-
-
 </script>
 
 <template>
@@ -87,34 +40,6 @@ const items = [
                 class="text-primary text-lg font-semibold px-2">
                 Sign in
             </NuxtLink>
-
-            <!-- profile context menu -->
-
-            <!-- TODO: add hamburger or dots menu with about and contact -->
-
-            <!-- <UDropdown :items="items"
-                :ui="{ item: { disabled: 'cursor-text select-text', size: 'text-lg' }, width: 'w-max' }"
-                class="z-40 relative " :popper="{ offsetDistance: 12 }">
-                <UAvatar src=""
-                    :ui="{ background: 'dark:bg-gray-800', placeholder: 'dark:text-primary', size: { sm: 'text-base' } }"
-                    :alt="`${user?.username}`" class="avatar border hover:border-primary" />
-
-                <template #account="{ item }">
-                    <div class="text-left">
-                        <p>
-                            Signed in as
-                        </p>
-                        <p class="truncate font-medium text-gray-900 dark:text-white">
-                            {{ item.label }}
-                        </p>
-                    </div>
-                </template>
-<template #item="{ item }">
-                    <span class="truncate ">{{ item.label }}</span>
-                    <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500 ms-auto"/>
-                </template>
-</UDropdown> -->
-
         </nav>
     </aside>
 </template>

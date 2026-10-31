@@ -2,13 +2,6 @@
 import type { FormError, FormSubmitEvent } from '@nuxt/ui'
 import { contactSchema, type ContactSchema } from '../schemas/schemas';
 
-// const { currentUserPromise } = useFirebaseAuth()
-// const userData: any = await currentUserPromise()
-
-// definePageMeta({
-//     middleware: "auth"
-// })
-
 const state = reactive({
     subject: undefined,
     message: undefined,
