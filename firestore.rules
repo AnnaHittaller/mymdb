@@ -6,7 +6,8 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Document id must be the signed-in uid. get is enough for the VueFire listener.
+    // Top-level user profile doc at /users/{uid} — not /users/{uid}/...
+    // A rule like match /users/{userId}/{documents=**} does NOT cover this document.
     // list stays closed: an allow read here would open collection queries.
     match /users/{userId} {
       function isOwner() {
