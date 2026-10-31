@@ -1,17 +1,91 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import "tailwindcss";
+@import "@nuxt/ui";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme static {
+	--breakpoint-3xl: 1800px;
+
+	--color-mandy-50: #fef2f3;
+	--color-mandy-100: #fde6e7;
+	--color-mandy-200: #fbd0d5;
+	--color-mandy-300: #f7aab2;
+	--color-mandy-400: #f27a8a;
+	--color-mandy-500: #ea546c;
+	--color-mandy-600: #d5294d;
+	--color-mandy-700: #b31d3f;
+	--color-mandy-800: #961b3c;
+	--color-mandy-900: #811a39;
+	--color-mandy-950: #48091a;
+
+	--color-dusk-50: #f2f7fb;
+	--color-dusk-100: #e7f0f8;
+	--color-dusk-200: #d3e2f2;
+	--color-dusk-300: #b9cfe8;
+	--color-dusk-400: #9cb6dd;
+	--color-dusk-500: #839dd1;
+	--color-dusk-600: #6a7fc1;
+	--color-dusk-700: #6374ae;
+	--color-dusk-800: #4a5989;
+	--color-dusk-900: #414e6e;
+	--color-dusk-950: #262c40;
+
+	--color-pumpkin-50: #fff9ec;
+	--color-pumpkin-100: #fff2d3;
+	--color-pumpkin-200: #ffe1a5;
+	--color-pumpkin-300: #ffca6d;
+	--color-pumpkin-400: #ffa732;
+	--color-pumpkin-500: #ff8c0a;
+	--color-pumpkin-600: #ff7300;
+	--color-pumpkin-700: #cc5302;
+	--color-pumpkin-800: #a1400b;
+	--color-pumpkin-900: #82370c;
+	--color-pumpkin-950: #461904;
+
+	--color-mauve-50: #fcf6fe;
+	--color-mauve-100: #f7ebfc;
+	--color-mauve-200: #efdbf9;
+	--color-mauve-300: #e1baf2;
+	--color-mauve-400: #d296ea;
+	--color-mauve-500: #bf6ddf;
+	--color-mauve-600: #ad4ecf;
+	--color-mauve-700: #953cb4;
+	--color-mauve-800: #7d3594;
+	--color-mauve-900: #662c77;
+	--color-mauve-950: #471556;
+
+	--color-periwinkle-50: #f0f2fd;
+	--color-periwinkle-100: #e4e8fb;
+	--color-periwinkle-200: #ced4f7;
+	--color-periwinkle-300: #bac1f2;
+	--color-periwinkle-400: #9195e8;
+	--color-periwinkle-500: #7976de;
+	--color-periwinkle-600: #685bd0;
+	--color-periwinkle-700: #594cb6;
+	--color-periwinkle-800: #494093;
+	--color-periwinkle-900: #3e3976;
+	--color-periwinkle-950: #262145;
+
+	--color-saffron-50: #fefce8;
+	--color-saffron-100: #fdf7c4;
+	--color-saffron-200: #fcec8c;
+	--color-saffron-300: #f9da4b;
+	--color-saffron-400: #f5c518;
+	--color-saffron-500: #e5ad0d;
+	--color-saffron-600: #c68508;
+	--color-saffron-700: #9e5f0a;
+	--color-saffron-800: #824b11;
+	--color-saffron-900: #6f3e14;
+	--color-saffron-950: #411f07;
+}
 
 @layer base {
 	html {
 		font-family: "Roboto Condensed", system-ui, sans-serif;
 		font-size: 14px;
-		@screen sm {
-			font-size: 16px;
-		}
-		@screen md {
+	}
+
+	@media (width >= 40rem) {
+		html {
 			font-size: 16px;
 		}
 	}
@@ -22,13 +96,12 @@
 }
 
 .search-btn {
-    aspect-ratio: 1/1;
+	aspect-ratio: 1/1;
 }
 
 .movie-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    row-gap: 2rem;
-    column-gap: 1rem;
-
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	row-gap: 2rem;
+	column-gap: 1rem;
 }

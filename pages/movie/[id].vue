@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { BASE_IMAGE_URL, MOVIE_API_URL } from "~/constants/movie";
+import { POSTER_IMAGE_URL, PROFILE_IMAGE_URL } from "~/constants/movie";
 import type { Movie } from "~/types/movie";
+
 definePageMeta({
     layout: "default",
 })
@@ -12,16 +13,22 @@ const { isInList, movies, add, remove, setNext } = useUserDocument()
 
 const movieId = computed(() => String(route.params.id))
 
-const { data, pending, error } = await useFetch(`/api/movies/${movieId.value}`)
-const movie = toRaw(data?.value)
+const cachedPayload = (key: string, nuxtApp: ReturnType<typeof useNuxtApp>) =>
+    nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
 
-// getting similar movies
-const { data: similar, pending: similarPending, error: similarError } = await useFetch(`/api/movies/similar?id=${movieId.value}`)
+const movieFetch = useFetch<Movie>(() => `/api/movies/${movieId.value}`, {
+    key: `movie-${movieId.value}`,
+    getCachedData: cachedPayload,
+})
+const similarFetch = useFetch(() => `/api/movies/similar?id=${movieId.value}`, {
+    key: `similar-${movieId.value}`,
+    getCachedData: cachedPayload,
+})
 
-const moviesWithPoster = computed(() => {
-    const filtered = similar.value.filter((movie: Movie) => movie.poster_path !== null);
-    return filtered
-});
+const [{ data, pending, error }, { data: similar }] = await Promise.all([movieFetch, similarFetch])
+
+const movie = computed(() => data.value)
+const moviesWithPoster = computed(() => similar.value ?? [])
 
 const isInMovieList = computed(() => isInList(movieId.value));
 
@@ -30,11 +37,13 @@ const isInNextList = computed(() => {
 });
 
 const addToMovieList = async () => {
+    const current = movie.value
+    if (!current) return
     await add({
         id: movieId.value,
-        title: movie.title,
-        rating: movie.vote_average,
-        poster: movie.poster_path,
+        title: current.title,
+        rating: current.vote_average,
+        poster: current.poster_path,
         seen: false,
         next: false,
         timestamp: new Date()
@@ -57,7 +66,8 @@ const removeFromNextList = async () => {
 </script>
 
 <template>
-    <div v-if="movie && !error">
+    <div v-if="pending" class="px-8 py-8 text-lg">Loading…</div>
+    <div v-else-if="movie && !error">
         <Heading class="block md:hidden pb-8">{{ movie.title }}</Heading>
         <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4 text-lg md:text-base">
             <div class="flex flex-col gap-4 md:self-start md:w-[18rem] lg:w-sm md:shrink-0">
@@ -70,8 +80,9 @@ const removeFromNextList = async () => {
                             class="z-20 text-2xl scale-150 text-primary absolute -top-1 -right-1 transition origin-center cursor-pointer"
                             v-if="isInNextList" @click.stop="removeFromNextList" />
                     </div>
-                    <img :src="`${BASE_IMAGE_URL}${movie.poster_path}`" :alt="`${movie.title}`"
-                        class="w-full max-w-sm  " />
+                    <img :src="`${POSTER_IMAGE_URL}${movie.poster_path}`" :alt="movie.title"
+                        width="342" height="513" loading="lazy" decoding="async"
+                        class="w-full max-w-sm aspect-[2/3] object-cover" />
                 </div>
                 <div class="icon-group flex gap-4 w-full">
                     <UButton v-if="!user" icon="i-heroicons-arrow-right-on-rectangle" color="primary"
@@ -105,7 +116,8 @@ const removeFromNextList = async () => {
                 <div class="flex flex-wrap gap-x-6 gap-y-4 md:max-lg:gap-x-4">
                     <div v-for="actor in movie.credits.cast.slice(0, 5)" :key="actor.id"
                         class=" flex flex-col items-center text-center shrink-0 w-20 md:max-lg:w-[4.5rem]">
-                        <img :src="`${BASE_IMAGE_URL}${actor.profile_path}`" :alt="actor.name"
+                        <img v-if="actor.profile_path" :src="`${PROFILE_IMAGE_URL}${actor.profile_path}`" :alt="actor.name"
+                            width="185" height="278" loading="lazy" decoding="async"
                             class="w-16 h-24 rounded-md object-cover" />
                         <p class="mt-2 text-sm font-medium">{{ actor.name }}</p>
                     </div>

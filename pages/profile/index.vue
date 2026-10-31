@@ -6,7 +6,7 @@
     <div>
         <Heading>My profile</Heading>
         <div class="flex items-center flex-col py-8 gap-4 pb-8">
-            <UAvatar src="" :ui="{ background: 'dark:bg-gray-900', placeholder: 'dark:text-primary' }"
+            <UAvatar src="" :ui="{ root: 'dark:bg-gray-900', fallback: 'dark:text-primary' }"
                 :alt="`${user?.displayName}`" size="3xl" class="avatar border mb-4" />
             <div class="flex items-center gap-4">
                 <p class="text-4xl">{{ user?.displayName }}</p>
@@ -20,24 +20,26 @@
                 <UButton to="./profile/update" icon="i-heroicons-arrow-left-on-rectangle" label="Sign out" size="xl"
                     class="text-2xl" @click="logout" />
 
-                <UButton icon="i-heroicons-x-circle" variant="outline" label="Delete profile" size="xl" class="text-2xl"
-                    @click="isOpen = true" />
+                <!-- TODO: add back delete profile button after fixing modal -->
+                <!-- <UButton icon="i-heroicons-x-circle" variant="outline" label="Delete profile" size="xl" class="text-2xl"
+                    @click="isOpen = true" /> -->
             </div>
             <!-- TODO: fix modal for mobile -->
-            <UModal v-model="isOpen"
-                :ui="{ margin: 'sm:my-8', wrapper: 'relative top-[100px] border-2 border-red-500' }" class="top-0">
-                <div class="p-4 ">
-                    <h4 class="text-red-500 text-center text-lg mb-8">Are you sure you want to delete your profile? This
-                        action is irreversible and all
-                        of your data will be lost. </h4>
-                    <div
-                        class="flex items-center justify-center gap-8 max-[300px]:flex-col max-[300px]:gap-4 max-[300px]:mb-4">
-                        <UButton icon="" label="Cancel" size="md" class="text-md duration-150" color="green"
-                            @click="isOpen = false" />
-                        <UButton icon="" label="Yes, delete my profile" size="md" class="text-md duration-150"
-                            color="red" @click="deleteCurrentUser" />
+            <UModal v-model:open="isOpen" :ui="{ content: 'relative top-[100px] border-2 border-red-500' }">
+                <template #body>
+                    <div class="p-4">
+                        <h4 class="text-red-500 text-center text-lg mb-8">Are you sure you want to delete your profile? This
+                            action is irreversible and all
+                            of your data will be lost. </h4>
+                        <div
+                            class="flex items-center justify-center gap-8 max-[300px]:flex-col max-[300px]:gap-4 max-[300px]:mb-4">
+                            <UButton label="Cancel" size="md" class="text-md duration-150" color="success"
+                                @click="isOpen = false" />
+                            <UButton label="Yes, delete my profile" size="md" class="text-md duration-150"
+                                color="error" @click="deleteCurrentUser" />
+                        </div>
                     </div>
-                </div>
+                </template>
             </UModal>
         </div>
     </div>

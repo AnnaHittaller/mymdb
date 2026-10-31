@@ -21,7 +21,7 @@ export const useComputedStyle = () => {
 
 	watchEffect(() => {
 		if (theme.value) {
-			config.ui.primary = theme.value;
+			config.ui.colors.primary = theme.value;
 		}
 		if (typeof document !== "undefined") {
 			document.documentElement.style.setProperty(

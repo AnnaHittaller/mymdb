@@ -1,131 +1,59 @@
 <script setup>
-import { register } from 'swiper/element/bundle';
-register();
-const { computedStyle } = useComputedStyle()
-
-const props = defineProps(
-  { movies: Array }
-)
+const props = defineProps({ movies: Array })
 const { movies } = toRefs(props)
 
-const currentBreakpoint = ref(900);
+const scroller = ref(null)
+const canScroll = ref(false)
 
-const breakpoints = {
-  0: {
-    slidesPerView: 2,
-  },
-  400: {
-    slidesPerView: 3,
-  },
-  700: {
-    slidesPerView: 4,
-  },
-  900: {
-    slidesPerView: 5,
-  },
-  1100: {
-    slidesPerView: 6,
-  },
-  1280: {
-    slidesPerView: 7,
-  },
-  1536: {
-    slidesPerView: 9,
-  },
-  1920: {
-    slidesPerView: 11,
-  },
+function updateOverflow() {
+  const el = scroller.value
+  canScroll.value = !!el && el.scrollWidth > el.clientWidth + 1
 }
 
-const shouldDisplayNavigation = computed(() => {
-  const slidesPerView = breakpoints[currentBreakpoint.value]?.slidesPerView;
-  return movies.value.length > slidesPerView;
-});
+function scrollByDir(direction) {
+  const el = scroller.value
+  if (!el) return
+  el.scrollBy({ left: direction * el.clientWidth * 0.8, behavior: 'smooth' })
+}
 
-watch([movies, currentBreakpoint], () => {
-  shouldDisplayNavigation.value;
-});
+watch(() => movies.value?.length, () => nextTick(updateOverflow))
 
 onMounted(() => {
-  window.addEventListener('resize', handleResize);
-  currentBreakpoint.value = getInitialBreakpoint();
-  shouldDisplayNavigation.value;
-});
+  updateOverflow()
+  window.addEventListener('resize', updateOverflow)
+})
 
-const handleResize = () => {
-  currentBreakpoint.value = getInitialBreakpoint();
-};
-
-function getInitialBreakpoint() {
-  const windowWidth = window.innerWidth;
-  return Object.keys(breakpoints)
-    .sort((a, b) => b - a)
-    .find(breakpoint => windowWidth >= parseInt(breakpoint)) || 900; // Default to 900 if no matching breakpoint found
-}
-
-
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateOverflow)
+})
 </script>
+
 <template>
   <div class="relative px-6">
-    <swiper-container space-between="10" class="movieSlider z-0" centered-slides="false"
-      :navigation="shouldDisplayNavigation" :loop="false" :style="computedStyle" @swiperslidechange="onSlideChange"
-      :breakpoints="breakpoints">
-      <swiper-slide v-for="movie in movies" :key="movie.id" auto-scroll-offset="1" class="" v-auto-animate>
-
-        <MovieCard :movie="movie" class="" />
-
-      </swiper-slide>
-    </swiper-container>
+    <div ref="scroller" class="movie-row flex gap-2.5 overflow-x-auto snap-x snap-mandatory">
+      <div v-for="movie in movies" :key="movie.id" class="snap-start shrink-0 pt-3 pr-2">
+        <MovieCard :movie="movie" />
+      </div>
+    </div>
+    <button v-show="canScroll" type="button" aria-label="Previous movies"
+      class="absolute left-0 top-[40%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-neutral-800 transition hover:scale-110"
+      @click="scrollByDir(-1)">
+      <UIcon name="i-heroicons-arrow-left-circle-20-solid" class="text-2xl" />
+    </button>
+    <button v-show="canScroll" type="button" aria-label="Next movies"
+      class="absolute right-2 top-[40%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-neutral-800 transition hover:scale-110"
+      @click="scrollByDir(1)">
+      <UIcon name="i-heroicons-arrow-right-circle-20-solid" class="text-2xl" />
+    </button>
   </div>
 </template>
 
 <style scoped>
-swiper-container {
-  width: 100%;
-  height: 100%;
+.movie-row {
+  scrollbar-width: none;
 }
 
-swiper-slide {
-  text-align: center;
-  font-size: 18px;
-  max-width: max-content;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-
-swiper-container.movieSlider::part(button-next),
-swiper-container.movieSlider::part(button-prev) {
-  color: transparent;
-  background-color: var(--computed-style);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: .75rem;
-  height: 1rem;
-  width: 1rem;
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-  background-position: center;
-  position: absolute;
-  top: 40%;
-}
-
-swiper-container::part(button-next) {
-  background-image: url("https://api.iconify.design/heroicons:arrow-right-circle-20-solid.svg?color=%233d3d3d");
-  transition: all .2s ease-in;
-}
-
-swiper-container::part(button-prev) {
-  background-image: url("https://api.iconify.design/heroicons:arrow-left-circle-20-solid.svg?color=%233d3d3d");
-  transition: all .2s ease-in;
-}
-
-swiper-container::part(button-prev):hover,
-swiper-container::part(button-next):hover {
-  scale: 1.1;
+.movie-row::-webkit-scrollbar {
+  display: none;
 }
 </style>

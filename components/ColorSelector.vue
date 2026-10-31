@@ -11,15 +11,13 @@ const { theme, setTheme } = useUserDocument()
 let selectedColor = ref('')
 
 const colors = [
-    { value: 'emerald', label: 'Emerald' },
-    { value: 'mandy', label: 'Mandy' },
-    { value: 'dusk', label: 'Dusk' },
-    { value: 'pumpkin', label: 'Pumpkin' },
-    { value: 'mauve', label: 'Mauve' },
-    { value: 'periwinkle', label: 'Periwinkle' },
-    { value: 'saffron', label: 'Saffron' },
-
-    // Add more colors as needed
+    { value: 'emerald', label: 'Emerald', class: 'bg-emerald-500 text-white' },
+    { value: 'mandy', label: 'Mandy', class: 'bg-mandy-500 text-white' },
+    { value: 'dusk', label: 'Dusk', class: 'bg-dusk-500 text-white' },
+    { value: 'pumpkin', label: 'Pumpkin', class: 'bg-pumpkin-500 text-white' },
+    { value: 'mauve', label: 'Mauve', class: 'bg-mauve-500 text-white' },
+    { value: 'periwinkle', label: 'Periwinkle', class: 'bg-periwinkle-500 text-white' },
+    { value: 'saffron', label: 'Saffron', class: 'bg-saffron-500 text-neutral-950' },
 ]
 
 const updateColor = async (color: string) => {
@@ -35,9 +33,10 @@ const updateColor = async (color: string) => {
             <label :for="color.value">
                 <input type="radio" :id="color.value" :value="color.value" v-model="selectedColor"
                     @change="updateColor(color.value)" class="hidden" />
-                <UBadge :color="color.value"
-                    :class="color.value === theme ? 'ring-2 ring-primary ring-offset-4 ring-offset-gray-800' : ''"
-                    size="lg" class="cursor-pointer text-lg">{{ color.label }}</UBadge>
+                <UBadge color="neutral" variant="solid" size="lg"
+                    :class="[color.class, 'cursor-pointer text-lg', color.value === theme ? 'ring-2 ring-primary ring-offset-4 ring-offset-gray-800' : '']">
+                    {{ color.label }}
+                </UBadge>
             </label>
         </div>
     </div>

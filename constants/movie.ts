@@ -1,5 +1,7 @@
-export const BASE_IMAGE_URL = "https://image.tmdb.org/t/p/w500";
+export const POSTER_IMAGE_URL = "https://image.tmdb.org/t/p/w342";
 
-export const MOVIE_API_URL = "https://api.themoviedb.org/3/movie/";
+export const BACKDROP_IMAGE_URL = "https://image.tmdb.org/t/p/w1280";
+
+export const PROFILE_IMAGE_URL = "https://image.tmdb.org/t/p/w185";
 
 export const CACHE_DURATION = 1000 * 60 * 60 * 24; // 24 hours

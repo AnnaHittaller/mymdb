@@ -21,12 +21,12 @@ const filteredMovies = computed(() => {
             <Heading>Watch next</Heading>
         </div>
         <UInput size="xl" placeholder="Filter for title..." v-model="searchTerm" name="search"
-            :ui="{ icon: { trailing: { pointer: '' } }, size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
-            class="relative mb-8">
+            :ui="{ base: 'text-xl placeholder:italic', trailing: 'pointer-events-none' }"
+            class="relative mb-8 w-full">
             <template #trailing>
 
-                <UButton v-show="searchTerm !== ''" color="white" variant="link" icon="i-heroicons-x-mark-20-solid"
-                    :padded="false" @click="searchTerm = ''" class="pr-10" />
+                <UButton v-show="searchTerm !== ''" color="neutral" variant="link" icon="i-heroicons-x-mark-20-solid"
+                    square @click="searchTerm = ''" class="pointer-events-auto pr-10" />
                 <div
                     class="bg-primary absolute right-0 top-0 h-full search-btn rounded-r-md flex items-center justify-center">
                     <UIcon name="i-heroicons-magnifying-glass-20-solid" class="text-zinc-900 text-xl " />

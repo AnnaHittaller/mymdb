@@ -15,10 +15,12 @@ useHead({
 </script>
 
 <template>
+    <UApp :toaster="{ duration: 5000, progress: true, expand: false }">
         <NuxtLoadingIndicator />
         <NuxtLayout>
             <NuxtPage />
         </NuxtLayout>
+    </UApp>
 </template>
 
 <style></style>

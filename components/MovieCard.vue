@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { POSTER_IMAGE_URL } from "~/constants/movie";
+
 const user = useCurrentUser()
 const { movies, isInList, remove, setNext } = useUserDocument()
 
@@ -7,8 +9,6 @@ const props = defineProps({
 })
 
 const { movie } = toRefs(props)
-const config = useRuntimeConfig();
-const baseImageUrl = config.public.apiBaseImageUrl
 const movieId = computed(() => movie?.value?.id.toString() || '')
 
 const addToNextList = async () => {
@@ -55,7 +55,9 @@ const isInNextList = computed(() => {
                         class="z-20 bg-primary text-neutral-800 font-semibold p-2 absolute top-0 left-0 transition sm:opacity-0 sm:scale-0 sm:group-hover:opacity-100 sm:group-hover:scale-100 sm:origin-top-left">
                         {{ movie?.rating ? movie.rating.toFixed(1) : (movie?.vote_average ?
                             movie.vote_average.toFixed(1) : 'Ø') }}</div>
-                    <img v-if="movie" :src="`${baseImageUrl}${movie.poster || movie.poster_path}`"
+                    <img v-if="movie && (movie.poster || movie.poster_path)"
+                        :src="`${POSTER_IMAGE_URL}${movie.poster || movie.poster_path}`" :alt="movie.title"
+                        width="342" height="513" loading="lazy" decoding="async"
                         class="object-cover w-full h-full aspect-[2/3]" />
                 </div>
 

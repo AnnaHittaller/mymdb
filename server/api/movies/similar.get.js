@@ -1,7 +1,8 @@
-export default defineEventHandler(async (event) => {
+import { CACHE_DURATION } from "~/constants/movie";
+
+export default defineCachedEventHandler(async (event) => {
 	try {
 		const config = useRuntimeConfig();
-		//const { id } = event.context.params;
 		const query = getQuery(event);
 
 		const response = await $fetch(
@@ -14,25 +15,23 @@ export default defineEventHandler(async (event) => {
 				},
 			}
 		);
-		// const shortResponse = response.results.map((item) => {
-		// 	return {
-		// 		title: item.title,
-		// 		id: item.id,
-		// 		popularity: item.popularity,
-		// 		poster: item.poster_path,
-		// 		backdrop: item.backdrop_path,
-		// 		genres: item.genre_ids,
-		// 		rating: item.vote_average,
-		// 	};
-		// });
-		//console.log(shortResponse);
 
-		// return shortResponse;
-		return response.results;
+		return response.results
+			.filter((item) => item.poster_path)
+			.map((item) => ({
+				id: item.id,
+				title: item.title,
+				poster: item.poster_path,
+				rating: item.vote_average,
+			}));
 	} catch (error) {
 		throw createError({
 			statusCode: 404,
 			message: "Similar movies can't be found",
 		});
 	}
+}, {
+	maxAge: CACHE_DURATION / 1000,
+	name: "similar",
+	getKey: (event) => String(getQuery(event).id),
 });

@@ -1,13 +1,23 @@
 export default defineAppConfig({
   ui: {
-    
-    primary: 'emerald',
-    gray: 'zinc',
-    colors: ['mandy', 'dusk', 'pumpkin', 'mauve', 'periwinkle', 'saffron'],
+    colors: {
+      primary: 'emerald',
+      neutral: 'zinc',
+    },
     button: {
-
-        font: 'font-extrabold'
-      
-    }
-  }
-}) 
+      slots: {
+        base: 'font-extrabold',
+      },
+    },
+    input: {
+      slots: {
+        root: 'w-full',
+      },
+    },
+    textarea: {
+      slots: {
+        root: 'w-full',
+      },
+    },
+  },
+})

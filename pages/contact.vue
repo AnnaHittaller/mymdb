@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FormError, FormSubmitEvent } from '#ui/types'
+import type { FormError, FormSubmitEvent } from '@nuxt/ui'
 import { contactSchema, type ContactSchema } from '../schemas/schemas';
 
 // const { currentUserPromise } = useFirebaseAuth()
@@ -12,10 +12,12 @@ import { contactSchema, type ContactSchema } from '../schemas/schemas';
 const state = reactive({
     subject: undefined,
     message: undefined,
-    error: undefined,
+    error: undefined as string | undefined,
     loading: false,
     success: false
 })
+
+useFormToasts(state, { successTitle: 'Thank you for your message!', successDuration: 5000 })
 
 const validate = (state: any): FormError[] => {
     const errors = []
@@ -64,23 +66,15 @@ async function onSubmit(event: FormSubmitEvent<ContactSchema>) {
         <Heading>Contact</Heading>
         <UForm :validate="validate" :schema="contactSchema" :state="state" class="space-y-4 w-full pt-8 "
             @submit="onSubmit">
-            <UFormGroup label="Subject " name="subject" required size="xl">
+            <UFormField label="Subject " name="subject" required size="xl">
                 <UInput v-model="state.subject" placeholder="Subject" size="xl"
-                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
-            </UFormGroup>
+                    :ui="{ base: 'text-xl placeholder:italic' }" class="mt-2" />
+            </UFormField>
 
-            <UFormGroup label="Message " name="message" required class="pb-8" size="xl">
+            <UFormField label="Message " name="message" required class="pb-8" size="xl">
                 <UTextarea v-model="state.message" placeholder="Message" size="xl" :rows="5" autoresize
-                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
-            </UFormGroup>
-
-            <UNotification id="error-notification-login" title="Error:" :description="state.error" v-if="state.error"
-                :timeout="0" @close="state.error = undefined" icon="i-heroicons-exclamation-circle" color="red"
-                class="mb-2" />
-
-            <UNotification id="success-notification-login" title="Thank you for your message!" v-if="state.success"
-                :timeout="5000" @close="state.success = false" icon="i-heroicons-check-circle" color="green"
-                class="mb-8" />
+                    :ui="{ base: 'text-xl placeholder:italic' }" class="mt-2" />
+            </UFormField>
 
             <UButton type="submit" class="text-xl">
                 Send message

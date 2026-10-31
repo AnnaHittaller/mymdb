@@ -1,43 +1,82 @@
 <script setup>
 import { register } from 'swiper/element/bundle';
-// import { useComputedStyle } from '~/composables/useComputedStyle';
+import { BACKDROP_IMAGE_URL, POSTER_IMAGE_URL } from "~/constants/movie";
 
-const { computedStyle } = useComputedStyle()
+if (import.meta.client) {
+    register();
+}
 
-register();
+useComputedStyle()
 
-const config = useRuntimeConfig();
+const swiperEl = ref(null)
 const { data: trendingMovies, pending } = await useTrendingMovies();
 
-const baseImageUrl = config.public.apiBaseImageUrl
+const backdropImage = ref(null)
+const imageAltText = ref(null)
 
-let activeSlideHref = ref(null)
-let backdropImage = ref(null)
-let imageAltText = ref(null)
+function applyMovie(movie) {
+    if (!movie) return
+    backdropImage.value = movie.backdrop
+    imageAltText.value = movie.title
+}
 
-const onSlideChange = (e) => {
+watch(trendingMovies, (movies) => {
+    if (backdropImage.value || !movies?.length) return
+    applyMovie(movies[0])
+}, { immediate: true })
+
+function onSlideChange(e) {
     const [swiper] = e.detail;
-    const activeSlide = swiper.slides[swiper.activeIndex];
-
-    const href = activeSlide.querySelector('a').getAttribute('href');
-    activeSlideHref.value = href;
-
-    const movieIdFromHref = activeSlideHref.value.match(/\d+$/)[0];
+    const activeSlide = swiper.slides?.[swiper.activeIndex];
+    const href = activeSlide?.querySelector('a')?.getAttribute('href');
+    const movieIdFromHref = href?.match(/\d+$/)?.[0];
+    if (!movieIdFromHref) return
 
     const backdropMovie = (trendingMovies.value || []).find(
         (movie) => movie.id === Number(movieIdFromHref)
     );
 
     if (backdropMovie) {
-        backdropImage.value = backdropMovie.backdrop;
-        imageAltText.value = backdropMovie.title;
-    } else {
-        console.error('Movie not found with ID:', movieIdFromHref);
+        applyMovie(backdropMovie)
     }
+}
 
-    //https://www.youtube.com/watch?v= +key attribute from videos API
-};
+const swiperParams = {
+    loop: true,
+    effect: 'coverflow',
+    grabCursor: false,
+    centeredSlides: true,
+    slidesPerView: 'auto',
+    coverflowEffect: {
+        rotate: 10,
+        stretch: 60,
+        depth: 300,
+        modifier: 1,
+        slideShadows: true,
+    },
+    navigation: true,
+    autoplay: {
+        delay: 8000,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true,
+    },
+}
 
+watch(swiperEl, (el) => {
+    if (!el || el.swiper) return
+    nextTick(() => {
+        if (!swiperEl.value || swiperEl.value.swiper) return
+        Object.assign(swiperEl.value, swiperParams)
+        swiperEl.value.initialize()
+        if (swiperEl.value.swiper) {
+            const active = swiperEl.value.swiper.slides?.[swiperEl.value.swiper.activeIndex]
+            const href = active?.querySelector('a')?.getAttribute('href')
+            const movieId = href?.match(/\d+$/)?.[0]
+            const movie = (trendingMovies.value || []).find((item) => item.id === Number(movieId))
+            applyMovie(movie || trendingMovies.value?.[0])
+        }
+    })
+})
 </script>
 
 <template>
@@ -45,27 +84,27 @@ const onSlideChange = (e) => {
         <div
             class="lg:bg-gradient-to-r from-[#27272a] from-[150px] to-[800px] w-full h-full pb-8 mb-8 lg:relative bg-no-repeat">
 
-            <img v-if="backdropImage" :src="`${baseImageUrl}${backdropImage}`" :alt="imageAltText"
+            <img v-if="backdropImage" :src="`${BACKDROP_IMAGE_URL}${backdropImage}`" :alt="imageAltText"
+                width="1280" height="720" fetchpriority="high"
                 class="max-h-[500px] 2xl:max-h-[600px] 3xl:max-h-[700px] w-full object-cover max-lg:hidden lg:relative lg:-z-10 ">
             <Heading class="pl-8 sm:pt-4 lg:absolute lg:top-4 z-20">Now trending</Heading>
 
             <div v-if="trendingMovies?.length > 0"
                 class=" max-w-[100%] lg:max-w-[500px] w-full max-h-[500px] 3xl:max-h-[600px] px-8 max-lg:mx-auto z-0 lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
-                <swiper-container class="mySwiper w-full h-full" loop="true" effect="coverflow" grab-cursor="false"
-                    centered-slides="true" pagination="false" slides-per-view="auto" coverflow-effect-rotate="10"
-                    coverflow-effect-stretch="60" coverflow-effect-depth="300" coverflow-effect-modifier="1"
-                    coverflow-effect-slide-shadows="true" navigation="true" autoplay-delay="8000"
-                    autoplay-disable-on-interaction="false" pause-on-mouse-enter="true"
-                    @swiperslidechange="onSlideChange">
-                    <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
-                        <NuxtLink :to="`/movie/${movie.id}`">
-                            <img :src="`${baseImageUrl}${movie.poster}`" class="relative" />
-                            <p
-                                class="carousel-title text-lg text-center absolute bottom-2 left-0 right-0 bg-gray-800 bg-opacity-70 duration-200">
-                                {{ movie.title }}</p>
-                        </NuxtLink>
-                    </swiper-slide>
-                </swiper-container>
+                <ClientOnly>
+                    <swiper-container ref="swiperEl" class="mySwiper w-full h-full" init="false"
+                        @swiperslidechange="onSlideChange">
+                        <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
+                            <NuxtLink :to="`/movie/${movie.id}`">
+                                <img :src="`${POSTER_IMAGE_URL}${movie.poster}`" :alt="movie.title"
+                                    width="342" height="513" loading="lazy" decoding="async" class="relative" />
+                                <p
+                                    class="carousel-title text-lg text-center absolute bottom-2 left-0 right-0 bg-gray-800 bg-opacity-70 duration-200">
+                                    {{ movie.title }}</p>
+                            </NuxtLink>
+                        </swiper-slide>
+                    </swiper-container>
+                </ClientOnly>
             </div>
         </div>
 
@@ -138,12 +177,12 @@ swiper-container::part(button-prev) {
 }
 
 swiper-container::part(button-next) {
-    background-image: url("https://api.iconify.design/heroicons:arrow-right-circle-20-solid.svg?color=%233d3d3d");
+    background-image: url("https://api.iconify.design/heroicons/arrow-right-circle-20-solid.svg?color=%233d3d3d");
     transition: all .2s ease-in;
 }
 
 swiper-container::part(button-prev) {
-    background-image: url("https://api.iconify.design/heroicons:arrow-left-circle-20-solid.svg?color=%233d3d3d");
+    background-image: url("https://api.iconify.design/heroicons/arrow-left-circle-20-solid.svg?color=%233d3d3d");
     transition: all .2s ease-in;
 }
 

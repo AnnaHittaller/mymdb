@@ -13,25 +13,25 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
     <div class="max-w-full">
         <Hero />
         <template v-if="user">
-        <div class="flex justify-between items-center pr-8 pb-4 gap-8">
-            <Heading class="pl-8">My movies {{ user?.displayName }}</Heading>
-            <UButton to="/my-movies" label="View All" v-if="userMovies.length > 2" class="text-lg" />
-        </div>
-        <MovieSlider v-if="userMovies" :movies="userMovies" />
-        <div v-if="userMovies.length === 0" class="flex gap-4 max-sm:flex-col items-center max-sm:text-lg ">
-            <p class="px-8">Add some movies to your watchlist first.</p>
-            <UButton to="/search" label="Get movies" class="text-lg" />
-        </div>
-        <div class="flex justify-between items-center pr-8 pb-8 pt-4">
-            <Heading class="pl-4 pt-8">Watch next</Heading>
-            <UButton to="/watch-next" label="View All" v-if="watchNextMovies.length > 2" class="text-lg" />
-        </div>
-        <MovieSlider v-if="watchNextMovies" :movies="watchNextMovies" />
-        <div v-if="watchNextMovies.length === 0"
-            class="flex gap-4 max-sm:flex-col max-sm:text-lg items-center pb-8">
-            <p class="px-8">Add some movies to your watchlist first.</p>
-            <UButton to="/search" label="Get movies" class="text-lg" />
-        </div>
+            <div class="flex justify-between items-center pr-8 pb-4 gap-8">
+                <Heading class="pl-8">My movies {{ user?.displayName }}</Heading>
+                <UButton to="/my-movies" label="View All" v-if="userMovies.length > 2" class="text-lg" />
+            </div>
+            <MovieSlider v-if="userMovies" :movies="userMovies" />
+            <div v-if="userMovies.length === 0" class="flex gap-4 max-sm:flex-col items-center max-sm:text-lg ">
+                <p class="px-8">Add some movies to your watchlist first.</p>
+                <UButton to="/search" label="Get movies" class="text-lg" />
+            </div>
+            <div class="flex justify-between items-center pr-8 pb-8 pt-4">
+                <Heading class="pl-8 pt-8">Watch next</Heading>
+                <UButton to="/watch-next" label="View All" v-if="watchNextMovies.length > 2" class="text-lg" />
+            </div>
+            <MovieSlider v-if="watchNextMovies" :movies="watchNextMovies" />
+            <div v-if="watchNextMovies.length === 0"
+                class="flex gap-4 max-sm:flex-col max-sm:text-lg items-center pb-8">
+                <p class="px-8">Add some movies to your watchlist first.</p>
+                <UButton to="/search" label="Get movies" class="text-lg" />
+            </div>
         </template>
         <div v-else class="flex flex-col items-start gap-4 px-8 pb-8">
             <p class="text-lg">Sign in to keep your watchlist and watch next.</p>
@@ -49,7 +49,7 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
 
 delete sonner
 refresh movies and movie store (ratings and poster) when loading the app first
-search page and discover page: display icons for movieCards according to user's movies from pinia
+search page and discover page: display icons for movieCards according to user's movies from useUserDocument
 create skeleton for swiper sliders and hero image / or loaders
 adding toast for movie page: list modifications
 add filtering options for directors / actors in the discovery page 
