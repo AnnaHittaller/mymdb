@@ -176,12 +176,12 @@ swiper-container::part(button-prev) {
 }
 
 swiper-container::part(button-next) {
-    background-image: url("https://api.iconify.design/heroicons/arrow-right-circle-20-solid.svg?color=%233d3d3d");
+    background-image: url("https://api.iconify.design/heroicons/arrow-right-circle-20-solid.svg?color=%23151515");
     transition: all .2s ease-in;
 }
 
 swiper-container::part(button-prev) {
-    background-image: url("https://api.iconify.design/heroicons/arrow-left-circle-20-solid.svg?color=%233d3d3d");
+    background-image: url("https://api.iconify.design/heroicons/arrow-left-circle-20-solid.svg?color=%23151515");
     transition: all .2s ease-in;
 }
 

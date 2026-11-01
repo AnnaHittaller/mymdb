@@ -16,7 +16,7 @@ The app runs in dark mode only (`colorMode.preference: 'dark'` in `nuxt.config.t
 |------|---------|
 | Page background | `bg-surface-page`, `text-fg-default` on `body` via `app.vue` |
 | Sidebar / mobile nav | `bg-surface-sidebar`, `shadow-surface-sidebar` |
-| Nav links | `nav-item`, active `bg-surface-nav-active` |
+| Nav links | `nav-item`, `nav-item-icon`, `nav-item-label`; active `nav-item-active` (desktop accent tint) |
 | Main content width | `sm:max-w-main`, mobile `max-sm:pb-14` on `main` |
 | Mobile nav position | `nav-sticky-mobile` on `NavBar` |
 
@@ -30,8 +30,9 @@ See THEME MAP in `tailwind.css` for the complete list (elevated surfaces, border
 
 ## User accent color
 
-- **[composables/useComputedStyle.ts](../../composables/useComputedStyle.ts)** sets `config.ui.colors.primary` and `--color-accent` to `var(--color-{theme}-500)` at runtime.
-- Do not duplicate palette hex in composables or stores.
+- **[composables/useComputedStyle.ts](../../composables/useComputedStyle.ts)** sets `config.ui.colors.primary`. Nuxt UI rewrites `--ui-primary` / `--color-primary` from that name.
+- `--color-accent` in `tailwind.css` aliases `--color-primary`, so nav, Hero, and the loading indicator follow the same token as `text-primary` and `bg-primary`.
+- Do not duplicate palette hex in composables or stores, and do not keep a second accent path (localStorage, head script, or a color-only plugin).
 - Hero swiper pagination uses `var(--color-accent)` inside scoped CSS (`::part()`).
 
 ## `<style>` blocks

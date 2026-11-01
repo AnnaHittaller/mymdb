@@ -16,14 +16,7 @@ export const useComputedStyle = () => {
 	});
 
 	watchEffect(() => {
-		const themeName = effectiveTheme.value;
-		config.ui.colors.primary = themeName;
-		if (typeof document !== "undefined") {
-			document.documentElement.style.setProperty(
-				"--color-accent",
-				`var(--color-${themeName}-500)`,
-			);
-		}
+		config.ui.colors.primary = effectiveTheme.value;
 	});
 
 	return { effectiveTheme };

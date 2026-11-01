@@ -10,7 +10,18 @@ const firebaseEmulatorsActive =
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  spaLoadingTemplate: true,
+  spaLoadingTemplate: false,
+
+  app: {
+    head: {
+      style: [
+        {
+          key: 'shell-bg',
+          innerHTML: 'html,body{background-color:#101010;color:#fafafa}',
+        },
+      ],
+    },
+  },
 
   srcDir: '.',
 
