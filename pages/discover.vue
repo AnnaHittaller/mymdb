@@ -1,135 +1,134 @@
-<script setup>
-
-definePageMeta({
-    middleware: "auth"
-})
-
-// let movies = ref([])
-// let currentPage = 1;
-
-// // Rating and Genre filter options 
-// const ratings = ['8.0', '7.0', '6.0', '5.0', '4.0', '3.0', '2.0'];
-
-// // Selected filters
-// const selectedRatings = ref("");
-// const selectedGenres = ref([]);
-// let genreMap = {}; // Object to map genre names to IDs
-
-// const fetchGenres = async () => {
-//     try {
-//         const { data } = await useFetch('/api/movies/genres');
-//         genreMap = data.value.genres.reduce((acc, genre) => {
-//             acc[genre.name] = genre.id;
-//             return acc;
-//         }, {});
-//     } catch (error) {
-//         console.error('Error while fetching genres:', error);
-//     }
-// };
-// fetchGenres();
-
-// // Compute genre names from genreMap
-// const genreNames = computed(() => Object.keys(genreMap));
-// //console.log(genreNames)
-
-// const { data: genreList, pending: genrePending, error: genreError } = await useFetch('/api/movies/genres')
-// const genres = toRaw(genreList.value.genres).map(genre => genre.name);
-// //console.log(toRaw(genreList.value.genres))
-
-// // Clear filters function
-// const clearFilters = () => {
-//     selectedRatings.value = "";
-//     selectedGenres.value = [];
-
-//     currentPage = 1;
-
-//     fetchMovies();
-// };
-
-// const fetchMovies = async () => {
-//     try {
-//         // Fetch data based on the current filters and page
-//         const genreIds = selectedGenres.value.map(genre => genreMap[genre]); // Map selected genre names to IDs
-//         const genreQuery = genreIds.join(','); // Join multiple genre IDs with comma
-//         //console.log(genreQuery)
-//         const { data, pending, error } = await useFetch(`/api/movies/discover?page=${currentPage}&rating=${selectedRatings.value}&genres=${genreQuery}`);
-
-//         // Update the movies ref with the new data, replacing existing movies
-//         movies.value = toRaw(data.value);
-//     } catch (error) {
-//         console.error('Error while fetching movies:', error);
-//     }
-// };
-
-// // Watch for changes in selectedRatings and fetch movies accordingly
-// watch(selectedRatings, async (newRating) => {
-//     try {
-//         await fetchMovies();
-//     } catch (error) {
-//         console.error('Error while fetching movies with rating:', error);
-//     }
-// });
-
-// watchEffect(() => {
-//     fetchMovies();
-// });
-
-
-// const moviesWithPoster = computed(() => {
-//     return movies?.value?.filter(movie => movie.poster !== null);
-// });
-
-
-// const loadMoreMovies = async () => {
-//     try {
-//         currentPage++;
-//         // Fetch more movies based on the original query and current page
-//         const genreIds = selectedGenres.value.map(genre => genreMap[genre]); // Map selected genre names to IDs
-//         const genreQuery = genreIds.join(','); // Join multiple genre IDs with comma
-//         const { data, pending, error } = await useFetch(`/api/movies/discover?page=${currentPage}&rating=${selectedRatings.value}&genres=${genreQuery}`);
-
-//         const newMovies = toRaw(data.value);
-//         movies.value = [...movies.value, ...newMovies.filter(newMovie => !movies.value.some(existingMovie => existingMovie.id === newMovie.id))];
-
-//     } catch (error) {
-//         console.error('Error while loading more movies:', error);
-//     }
-// };
-
-const selectMenuConfig = {
-    option: {
-        color: 'text-primary',
-        selectedIcon: {
-            base: 'text-primary flex-shrink-0 cursor-pointer',
-        },
-        active: 'bg-surface-nav-active',
-    },
-    background: 'bg-surface-elevated',
-    placeholder: 'text-primary',
-    select: 'cursor-pointer',
+<script setup lang="ts">
+type DiscoverMovie = {
+	id: number
+	title: string
+	popularity: number
+	poster: string | null
+	backdrop: string | null
+	genres: number[]
+	rating: number
 }
 
+type GenreList = {
+	genres: { id: number, name: string }[]
+}
+
+definePageMeta({
+	middleware: "auth",
+})
+
+const ratingItems = [
+	{ label: "Any rating", value: 0 },
+	{ label: "8+", value: 8 },
+	{ label: "7+", value: 7 },
+	{ label: "6+", value: 6 },
+	{ label: "5+", value: 5 },
+	{ label: "4+", value: 4 },
+	{ label: "3+", value: 3 },
+	{ label: "2+", value: 2 },
+]
+
+const page = ref(1)
+const rating = ref(0)
+const genreIds = ref<number[]>([])
+const movies = ref<DiscoverMovie[]>([])
+const hasMore = ref(false)
+
+const { data: genreList } = await useFetch<GenreList>("/api/movies/genres")
+const genreItems = computed(() =>
+	(genreList.value?.genres ?? []).map((genre) => ({ label: genre.name, value: genre.id })),
+)
+
+const genreKey = computed(() => genreIds.value.join(","))
+const filtersActive = computed(() => rating.value > 0 || genreIds.value.length > 0)
+
+watch([rating, genreKey], () => {
+	page.value = 1
+	movies.value = []
+	hasMore.value = false
+})
+
+const { data, status, error } = await useAsyncData(
+	"discover-movies",
+	async () => {
+		const requestedPage = page.value
+		const requestedRating = rating.value
+		const requestedGenres = genreKey.value
+		const results = await $fetch<DiscoverMovie[]>("/api/movies/discover", {
+			query: {
+				page: requestedPage,
+				rating: requestedRating,
+				genres: requestedGenres,
+			},
+		})
+		return { results, requestedPage, requestedRating, requestedGenres }
+	},
+	{ watch: [page, rating, genreKey] },
+)
+
+watch(data, (payload) => {
+	if (!payload) return
+	if (
+		payload.requestedPage !== page.value
+		|| payload.requestedRating !== rating.value
+		|| payload.requestedGenres !== genreKey.value
+	) return
+	const visible = payload.results.filter((movie) => movie.poster)
+	hasMore.value = payload.results.length >= 20
+	if (payload.requestedPage === 1) {
+		movies.value = visible
+		return
+	}
+	const seen = new Set(movies.value.map((movie) => movie.id))
+	movies.value = [...movies.value, ...visible.filter((movie) => !seen.has(movie.id))]
+}, { immediate: true })
+
+const pending = computed(() => status.value === "pending")
+
+function clearFilters() {
+	rating.value = 0
+	genreIds.value = []
+}
+
+function loadMore() {
+	if (pending.value || !hasMore.value) return
+	page.value += 1
+}
 </script>
 
 <template>
-    <div>
-        <div class="flex flex-col gap-4 pb-8">
-            <Heading>Discover new movies</Heading>
-            <div class="flex gap-4 items-center max-[500px]:flex-col">
-
-                <!-- Rating / genre filters temporarily disabled (see git history)
-                <USelectMenu ... />
-                <USelectMenu ... />
-                <UButton ... />
-                -->
-            </div>
-        </div>
-        <div class="flex flex-col items-stretch">
-            <div class="movie-grid " v-if="true">
-                <!-- <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" /> -->
-            </div>
-            <!-- <UButton label="Load more" @click="loadMoreMovies" class="mt-14 mb-8 self-center" size="xl"
-                v-if="moviesWithPoster.length > 0" /> -->
-        </div>
-    </div>
+	<div>
+		<div class="flex flex-col gap-4 pb-8">
+			<Heading>Discover new movies</Heading>
+			<div class="flex flex-wrap gap-4 items-center">
+				<USelect v-model="rating" :items="ratingItems" class="w-full sm:w-48" />
+				<USelectMenu
+					v-model="genreIds"
+					:items="genreItems"
+					value-key="value"
+					multiple
+					placeholder="Genres"
+					class="w-full sm:w-72"
+				/>
+				<UButton v-if="filtersActive" label="Clear" variant="outline" @click="clearFilters" />
+			</div>
+		</div>
+		<div class="flex flex-col items-stretch">
+			<p v-if="error && movies.length === 0" class="text-lg">Couldn't load movies.</p>
+			<p v-else-if="pending && movies.length === 0" class="text-lg">Loading movies…</p>
+			<p v-else-if="movies.length === 0" class="text-lg">No movies match these filters.</p>
+			<div v-if="movies.length > 0" class="movie-grid">
+				<MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" />
+			</div>
+			<UButton
+				v-if="movies.length > 0 && hasMore"
+				label="Load more"
+				size="xl"
+				class="mt-14 mb-8 self-center"
+				:loading="pending && page > 1"
+				:disabled="pending"
+				@click="loadMore"
+			/>
+		</div>
+	</div>
 </template>

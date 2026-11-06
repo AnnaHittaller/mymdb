@@ -27,7 +27,7 @@ const navLinkActiveClass = 'nav-item-active'
                 <span class="nav-item-label">Search</span>
             </NuxtLink>
             <NuxtLink v-if="user" to="/discover" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
-                <UIcon name="i-heroicons-light-bulb" class="nav-item-icon" />
+                <UIcon name="i-heroicons-fire" class="nav-item-icon" />
                 <span class="nav-item-label">Discover</span>
             </NuxtLink>
             <NuxtLink v-if="user" to="/profile" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
