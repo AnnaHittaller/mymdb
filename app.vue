@@ -2,6 +2,9 @@
 
 provideUserDocument()
 
+// Start trending with the session. server: false so other pages are not held for this request.
+useTrendingMovies({ lazy: true, server: false })
+
 useHead({
     bodyAttrs: {
         class: 'bg-surface-page text-fg-default'

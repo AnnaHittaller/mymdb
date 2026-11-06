@@ -1,3 +1,14 @@
+export interface TrendingMovie {
+	id: number;
+	title: string;
+	poster: string | null;
+	backdrop: string | null;
+	overview: string;
+	vote_average: number;
+	release_date: string;
+	genres: string[];
+}
+
 export interface UserMovie {
 	id: string;
 	title: string;

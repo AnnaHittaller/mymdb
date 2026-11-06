@@ -5,7 +5,7 @@ Rules for UI color and styling in this app. The full hex table and region map li
 ## Source of truth
 
 - Define semantic colors only in `assets/css/tailwind.css` (`@theme` tokens and THEME MAP).
-- Do **not** add hex colors in Vue or TypeScript, except unavoidable external assets (e.g. Iconify URLs in Hero swiper controls).
+- Do **not** add hex colors in Vue or TypeScript. Image CDNs and other external assets stay in `constants/`.
 - Use semantic Tailwind utilities (`bg-surface-page`, `text-fg-muted`, …) in templates and in Nuxt UI slot classes.
 
 ## App shell (dark-only)
@@ -32,14 +32,14 @@ See THEME MAP in `tailwind.css` for the complete list (elevated surfaces, border
 
 - **[composables/useComputedStyle.ts](../../composables/useComputedStyle.ts)** sets `config.ui.colors.primary`. Nuxt UI rewrites `--ui-primary` / `--color-primary` from that name.
 - `--color-accent` in `tailwind.css` aliases `--color-primary`, so nav, Hero, and the loading indicator follow the same token as `text-primary` and `bg-primary`.
+- `--color-rating` aliases saffron-500 for the hero rating star. It does not follow the user accent.
 - Do not duplicate palette hex in composables or stores, and do not keep a second accent path (localStorage, head script, or a color-only plugin).
-- Hero swiper pagination uses `var(--color-accent)` inside scoped CSS (`::part()`).
 
 ## `<style>` blocks
 
 Default: **no** component `<style>` for colors or layout that Tailwind can express.
 
-Allowed exception: **shadow DOM / `::part()`** styling (currently [components/Hero.vue](../../components/Hero.vue) swiper only). Document new exceptions in THEME MAP.
+Allowed exception: **shadow DOM / `::part()`** styling. Document new exceptions in THEME MAP. There is no current exception.
 
 Shared layout/color utilities belong in `tailwind.css` (`@utility`), not duplicated in Vue.
 

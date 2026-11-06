@@ -1,206 +1,173 @@
-<script setup>
-import { register } from 'swiper/element/bundle';
-import { BACKDROP_IMAGE_URL, POSTER_CAROUSEL_IMAGE_URL } from "~/constants/movie";
+<script setup lang="ts">
+import { useCurrentUser } from "vuefire";
+import { BACKDROP_COMPACT_IMAGE_URL, BACKDROP_IMAGE_URL, POSTER_IMAGE_URL } from "~/constants/movie";
+import type { TrendingMovie } from "~/types/movie";
 
-if (import.meta.client) {
-    register();
+const user = useCurrentUser();
+const { isInList, movies, add, remove, setNext } = useUserDocument();
+const { data: trendingMovies } = await useTrendingMovies();
+
+const backdropSizes = "(max-width: 639px) calc(100vw - 32px), calc(100vw - 136px - 32px)";
+
+const firstBackdrop = computed(() => trendingMovies.value?.[0]?.backdrop ?? "");
+
+function backdropSrcSet(path: string) {
+	return `${BACKDROP_COMPACT_IMAGE_URL}${path} 780w, ${BACKDROP_IMAGE_URL}${path} 1280w`;
 }
 
-const swiperEl = ref(null)
-const { data: trendingMovies, pending } = await useTrendingMovies();
+useHead(() => {
+	if (!firstBackdrop.value) return {};
+	return {
+		link: [{
+			rel: "preload",
+			as: "image",
+			href: `${BACKDROP_IMAGE_URL}${firstBackdrop.value}`,
+			imagesrcset: backdropSrcSet(firstBackdrop.value),
+			imagesizes: backdropSizes,
+			fetchpriority: "high",
+		}],
+	};
+});
 
-const backdropImage = ref(null)
-const imageAltText = ref(null)
-
-function applyMovie(movie) {
-    if (!movie) return
-    backdropImage.value = movie.backdrop
-    imageAltText.value = movie.title
+function ratingLabel(movie: TrendingMovie) {
+	if (!movie.vote_average) return "N/A";
+	return movie.vote_average.toFixed(1);
 }
 
-watch(trendingMovies, (movies) => {
-    if (backdropImage.value || !movies?.length) return
-    applyMovie(movies[0])
-}, { immediate: true })
-
-function onSlideChange(e) {
-    const [swiper] = e.detail;
-    const activeSlide = swiper.slides?.[swiper.activeIndex];
-    const href = activeSlide?.querySelector('a')?.getAttribute('href');
-    const movieIdFromHref = href?.match(/\d+$/)?.[0];
-    if (!movieIdFromHref) return
-
-    const backdropMovie = (trendingMovies.value || []).find(
-        (movie) => movie.id === Number(movieIdFromHref)
-    );
-
-    if (backdropMovie) {
-        applyMovie(backdropMovie)
-    }
+function yearLabel(movie: TrendingMovie) {
+	return movie.release_date?.slice(0, 4) ?? "";
 }
 
-const swiperParams = {
-    loop: true,
-    effect: 'coverflow',
-    grabCursor: false,
-    centeredSlides: true,
-    slidesPerView: 'auto',
-    roundLengths: true,
-    coverflowEffect: {
-        rotate: 10,
-        stretch: 60,
-        depth: 300,
-        modifier: 1,
-        slideShadows: true,
-    },
-    navigation: true,
-    autoplay: {
-        delay: 8000,
-        disableOnInteraction: false,
-        pauseOnMouseEnter: true,
-    },
+function inWatchNext(movie: TrendingMovie) {
+	const id = String(movie.id);
+	return movies.value.some((entry) => entry.id === id && entry.next);
 }
 
-watch(swiperEl, (el) => {
-    if (!el || el.swiper) return
-    nextTick(() => {
-        if (!swiperEl.value || swiperEl.value.swiper) return
-        Object.assign(swiperEl.value, swiperParams)
-        swiperEl.value.initialize()
-        if (swiperEl.value.swiper) {
-            const active = swiperEl.value.swiper.slides?.[swiperEl.value.swiper.activeIndex]
-            const href = active?.querySelector('a')?.getAttribute('href')
-            const movieId = href?.match(/\d+$/)?.[0]
-            const movie = (trendingMovies.value || []).find((item) => item.id === Number(movieId))
-            applyMovie(movie || trendingMovies.value?.[0])
-        }
-    })
-})
+async function addToList(movie: TrendingMovie) {
+	await add({
+		id: String(movie.id),
+		title: movie.title,
+		rating: movie.vote_average,
+		poster: movie.poster ?? "",
+		seen: false,
+		next: false,
+		timestamp: new Date(),
+	});
+}
+
+async function removeFromList(movie: TrendingMovie) {
+	await remove(String(movie.id));
+}
+
+async function toggleWatchNext(movie: TrendingMovie) {
+	await setNext(String(movie.id), !inWatchNext(movie));
+}
+
+const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full border border-primary bg-surface-sidebar/80 p-0 text-primary hover:bg-surface-sidebar sm:size-10";
 </script>
 
 <template>
-    <template v-if="!pending">
-        <div
-            class="mb-8 h-full w-full bg-no-repeat pb-8 lg:relative lg:bg-gradient-to-r lg:from-surface-page lg:from-[150px] lg:to-[800px]">
-
-            <img v-if="backdropImage" :src="`${BACKDROP_IMAGE_URL}${backdropImage}`" :alt="imageAltText"
-                width="1280" height="720" fetchpriority="high"
-                class="max-h-[500px] 2xl:max-h-[600px] 3xl:max-h-[700px] w-full object-cover max-lg:hidden lg:relative lg:-z-10 ">
-            <Heading class="pl-8 sm:pt-4 lg:absolute lg:top-4 z-20">Now trending</Heading>
-
-            <div v-if="trendingMovies?.length > 0"
-                class=" max-w-[100%] lg:max-w-[500px] w-full max-h-[500px] 3xl:max-h-[600px] px-8 max-lg:mx-auto z-0 lg:absolute lg:top-[50%] lg:translate-y-[-50%]">
-                <ClientOnly>
-                    <swiper-container ref="swiperEl" class="mySwiper w-full h-full" init="false"
-                        @swiperslidechange="onSlideChange">
-                        <swiper-slide v-for="movie in trendingMovies" :key="movie.id">
-                            <NuxtLink :to="`/movie/${movie.id}`" class="relative block">
-                                <div class="poster-frame">
-                                    <img :src="`${POSTER_CAROUSEL_IMAGE_URL}${movie.poster}`" :alt="movie.title"
-                                        width="500" height="750" loading="lazy" decoding="async"
-                                        class="block w-full aspect-[2/3] object-cover" />
-                                </div>
-                                <p
-                                    class="carousel-title pointer-events-none absolute inset-x-0 bottom-2 bg-surface-overlay/70 text-center text-lg">
-                                    {{ movie.title }}</p>
-                            </NuxtLink>
-                        </swiper-slide>
-                    </swiper-container>
-                </ClientOnly>
-            </div>
-        </div>
-
-    </template>
-
-    <!-- skeleton loader for backdrop image -->
-    <template v-else>
-        <USkeleton
-            class="mb-16 h-[500px] w-full bg-gradient-to-r from-fg-muted to-[800px] object-cover pb-8 max-lg:hidden lg:relative lg:-z-10 2xl:h-[600px] 3xl:h-[700px]" />
-        <Heading class="pl-8 sm:pt-4 lg:absolute lg:top-4 z-20">Now trending</Heading>
-    </template>
-
+	<div class="p-4">
+		<UCarousel
+			v-if="trendingMovies?.length"
+			v-slot="{ item, index }"
+			class="@container"
+			fade
+			loop
+			arrows
+			prev-icon="i-heroicons-chevron-left-20-solid"
+			next-icon="i-heroicons-chevron-right-20-solid"
+			:prev="{ variant: 'ghost', color: 'neutral', ui: { leadingIcon: 'size-6' } }"
+			:next="{ variant: 'ghost', color: 'neutral', ui: { leadingIcon: 'size-6' } }"
+			:autoplay="{ delay: 8000, stopOnMouseEnter: true, stopOnInteraction: false }"
+			:items="trendingMovies"
+			:ui="{
+				container: 'items-stretch',
+				item: 'flex basis-full',
+				viewport: 'min-h-[350px] overflow-hidden rounded-[12px] [transform:translateZ(0)]',
+				prev: `start-4 top-1/2 -translate-y-1/2 sm:start-4 @max-[447px]:start-1/2 @max-[447px]:end-auto @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-8 @max-[447px]:translate-x-[calc(-100%-12px)] @max-[447px]:translate-y-0 ${arrowClass}`,
+				next: `end-4 top-1/2 -translate-y-1/2 sm:end-4 @max-[447px]:end-auto @max-[447px]:start-1/2 @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-8 @max-[447px]:translate-x-[12px] @max-[447px]:translate-y-0 ${arrowClass}`,
+			}"
+		>
+			<div class="relative flex h-full min-h-[350px] w-full flex-1 items-center justify-center px-6 py-[40px] @max-[447px]:py-[60px]">
+				<img
+					v-if="item.backdrop"
+					:src="`${BACKDROP_IMAGE_URL}${item.backdrop}`"
+					:srcset="index === 0 ? backdropSrcSet(item.backdrop) : undefined"
+					:sizes="index === 0 ? backdropSizes : undefined"
+					:alt="item.title"
+					width="1280"
+					height="720"
+					:fetchpriority="index === 0 ? 'high' : 'low'"
+					:loading="index === 0 ? 'eager' : 'lazy'"
+					decoding="async"
+					class="absolute inset-0 h-full w-full object-cover"
+				>
+				<div class="@container relative z-10 flex w-full justify-center">
+					<div
+						class="flex w-full flex-col items-center gap-4 rounded-[12px] border border-fg-muted/40 bg-surface-overlay/70 p-4 backdrop-blur-md @min-[400px]:w-[min(100%,600px,max(400px,66.67%))] @min-[400px]:flex-row @min-[400px]:items-stretch"
+					>
+						<NuxtLink :to="`/movie/${item.id}`" class="relative shrink-0 self-center">
+							<img
+								v-if="item.poster"
+								:src="`${POSTER_IMAGE_URL}${item.poster}`"
+								:alt="item.title"
+								width="342"
+								height="513"
+								:fetchpriority="index === 0 ? 'auto' : 'low'"
+								:loading="index === 0 ? 'eager' : 'lazy'"
+								decoding="async"
+								class="aspect-[2/3] w-[7.5rem] rounded-lg object-cover"
+							>
+						</NuxtLink>
+						<div class="flex min-w-0 flex-1 flex-col gap-2 text-fg-default">
+							<NuxtLink :to="`/movie/${item.id}`" class="flex flex-col gap-2">
+								<span class="flex flex-col gap-0.5">
+									<span class="text-lg uppercase leading-tight">{{ item.title }}</span>
+									<span v-if="item.genres?.length" class="text-sm leading-tight text-fg-muted">{{ item.genres.join(" · ") }}</span>
+								</span>
+								<span>
+									<UIcon name="i-heroicons-star-20-solid" class="mr-1 align-[-0.15em] text-rating" />
+									{{ ratingLabel(item) }}<span v-if="yearLabel(item)" class="text-fg-muted"> · {{ yearLabel(item) }}</span>
+								</span>
+								<span class="line-clamp-3 min-h-[4.5rem] leading-6">{{ item.overview }}</span>
+							</NuxtLink>
+							<div v-if="user" class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3 text-fg-muted">
+								<button
+									v-if="!isInList(String(item.id))"
+									type="button"
+									class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
+									aria-label="Add to my movies"
+									@click="addToList(item)"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="size-6" viewBox="0 0 24 24" aria-hidden="true">
+										<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25L4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.5 48.5 0 0 1 11.186 0" />
+										<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M12 8.25v3.5M10.25 10h3.5" />
+									</svg>
+								</button>
+								<button
+									v-else
+									type="button"
+									class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
+									aria-label="Remove from watchlist"
+									@click="removeFromList(item)"
+								>
+									<UIcon name="i-heroicons-x-circle" class="size-6" />
+								</button>
+								<button
+									v-if="isInList(String(item.id))"
+									type="button"
+									class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
+									:aria-label="inWatchNext(item) ? 'Remove from watch next' : 'Add to watch next'"
+									@click="toggleWatchNext(item)"
+								>
+									<UIcon :name="inWatchNext(item) ? 'i-heroicons-star-20-solid' : 'i-heroicons-star'" class="size-6" />
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</UCarousel>
+	</div>
 </template>
-
-<style scoped>
-swiper-container {
-    height: 100%;
-}
-
-swiper-container::part(wrapper) {
-    padding-bottom: 2rem;
-    padding-top: 2rem;
-}
-
-swiper-slide {
-    background-position: center;
-    background-size: cover;
-    width: 200px;
-
-    @media screen and (max-width: 460px) {
-        width: 150px;
-    }
-
-    @media screen and (min-width: 1536px) {
-        width: 250px;
-    }
-
-    @media screen and (min-width: 1800px) {
-        width: 300px;
-    }
-}
-
-.poster-frame {
-    backface-visibility: hidden;
-    transform: translateZ(0);
-}
-
-
-swiper-container::part(button-next),
-swiper-container::part(button-prev) {
-    color: transparent;
-    background-color: var(--color-accent);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: .75rem;
-    height: 1rem;
-    width: 1rem;
-    background-repeat: no-repeat;
-    background-size: 100% auto;
-    background-position: center;
-
-    @media screen and (max-width: 640px) {
-        display: none;
-    }
-}
-
-swiper-container::part(button-next) {
-    background-image: url("https://api.iconify.design/heroicons/arrow-right-circle-20-solid.svg?color=%23151515");
-    transition: all .2s ease-in;
-}
-
-swiper-container::part(button-prev) {
-    background-image: url("https://api.iconify.design/heroicons/arrow-left-circle-20-solid.svg?color=%23151515");
-    transition: all .2s ease-in;
-}
-
-swiper-container::part(button-prev):hover,
-swiper-container::part(button-next):hover {
-    scale: 1.1;
-}
-
-swiper-container::part(bullet-active),
-swiper-container::part(bullet) {
-    background-color: var(--color-accent);
-}
-
-.carousel-title {
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-swiper-slide:hover .carousel-title {
-    opacity: 1;
-}
-</style>

@@ -75,12 +75,6 @@ export default defineNuxtConfig({
      apiBearerToken: process.env.NUXT_API_BEARER_TOKEN,
      public: {},
    },
-  vue: {  
-   compilerOptions: {
-     isCustomElement: (tag: string) => tag.startsWith('swiper-'),
-   },
- },
-
   compatibilityDate: '2026-10-25',
 
   hooks: {

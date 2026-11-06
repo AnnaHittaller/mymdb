@@ -10,6 +10,7 @@
  * | Sidebar / mobile nav   | bg-surface-sidebar           | #151515                |
  * | Sidebar shadow         | shadow-surface-sidebar       | black glow             |
  * | Nav hover / active     | nav-item-active (desktop)    | accent @ ~10% mix      |
+ * | Nav active + hover     | nav-item + nav-item-active   | icon/label primary-500 |
  * | Nav icons (inactive)   | nav-item-icon                | fg-subtle              |
  * | Nav active (mobile)    | nav-item-active              | accent, no background  |
  * | Elevated surfaces      | bg-surface-elevated          | #404040 (neutral-700)  |
@@ -23,9 +24,9 @@
  * | Borders                | border-border-default        | #9ca3af (gray-400)     |
  * | Ring offset (picker)   | ring-offset-surface-nav-active | #1f2937              |
  * | User accent (runtime)  | --color-primary, text-primary | Nuxt UI primary       |
+ * | Rating star            | text-rating                  | saffron-500 #e5ad0d    |
  * | Hero gradient          | from-surface-page            | #101010                |
  *
- * Styles that must remain in Vue <style>: Hero swiper shadow DOM ::part() only.
  * See docs/agents/theming.md for agent rules.
  */
 
@@ -49,6 +50,7 @@
 	--color-border-default: #9ca3af;
 
 	--color-accent: var(--color-primary);
+	--color-rating: var(--color-saffron-500);
 
 	--shadow-surface-sidebar: 0 0px 10px -3px rgb(0 0 0 / 1);
 
@@ -196,10 +198,15 @@
 		display: block;
 	}
 
+	/* Match Logo hover:bg-primary-500 while current route is active */
+	&.nav-item-active:hover .nav-item-icon {
+		color: var(--color-primary-500);
+	}
+
 	@media (width >= 40rem) {
 		flex-direction: column;
 		line-height: normal;
-		border-radius: 0.75rem; 
+		border-radius: 0.75rem;
 		width: auto;
 		min-width: 4.75rem;
 		height: auto;
@@ -216,6 +223,11 @@
 			& .nav-item-icon,
 			& .nav-item-label {
 				color: var(--color-primary);
+			}
+
+			&.nav-item-active .nav-item-icon,
+			&.nav-item-active .nav-item-label {
+				color: var(--color-primary-500);
 			}
 		}
 	}
