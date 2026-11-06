@@ -18,6 +18,7 @@ type UserDocumentApi = {
 	remove: (id: string) => Promise<void>;
 	setNext: (id: string, next: boolean) => Promise<void>;
 	setTheme: (theme: string) => Promise<void>;
+	setUsername: (username: string) => Promise<void>;
 };
 
 const userDocumentKey: InjectionKey<UserDocumentApi> = Symbol("user-document");
@@ -73,6 +74,7 @@ export function provideUserDocument() {
 		remove: (id: string) => document.remove(id),
 		setNext: (id: string, next: boolean) => document.setNext(id, next),
 		setTheme: (theme: string) => document.setTheme(theme),
+		setUsername: (username: string) => document.setUsername(username),
 	};
 
 	provide(userDocumentKey, api);

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
+import { updateProfile } from 'firebase/auth'
 const router = useRouter()
 
 definePageMeta({
@@ -8,6 +9,7 @@ definePageMeta({
 })
 
 const user = useCurrentUser()
+const { setUsername } = useUserDocument()
 
 const schema = z.object({
     username: z.string().min(3, 'Must be at least 3 characters').max(30, "Too long - must be under 30 characters")
@@ -28,7 +30,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     console.log("UPDATE EVENT REGISTER", event.data)
     state.loading = true
     try {
-        // TODO: persist display name via user profile API
+        const current = user.value
+        if (!current) {
+            throw new Error('You need to be signed in to update your username')
+        }
+        const displayName = event.data.username
+        await updateProfile(current, { displayName })
+        await setUsername(displayName)
         state.loading = false
         state.success = true
 

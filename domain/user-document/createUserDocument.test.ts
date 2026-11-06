@@ -118,6 +118,16 @@ describe("user document", () => {
 		expect(document.movies()).toEqual([movie("a")]);
 	});
 
+	it("updates the username without rewriting the movie list", async () => {
+		const store = createMemoryUserDocumentStore(user([movie("a")]));
+		const document = createUserDocument(store);
+
+		await document.setUsername("new-name");
+
+		expect(store.current()?.username).toBe("new-name");
+		expect(document.movies()).toEqual([movie("a")]);
+	});
+
 	it("keeps both writes when a remove overlaps an add", async () => {
 		const document = createUserDocument(
 			createMemoryUserDocumentStore(user([movie("a"), movie("b")]))
@@ -180,6 +190,7 @@ describe("user document", () => {
 		await expect(document.remove("a")).rejects.toThrow("No user document");
 		await expect(document.setNext("a", true)).rejects.toThrow("No user document");
 		await expect(document.setTheme("dusk")).rejects.toThrow("No user document");
+		await expect(document.setUsername("new-name")).rejects.toThrow("No user document");
 		await expect(document.refreshCatalog([])).rejects.toThrow("No user document");
 		expect(document.movies()).toEqual([]);
 		expect(document.watchNext()).toEqual([]);

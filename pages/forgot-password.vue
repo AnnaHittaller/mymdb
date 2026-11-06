@@ -50,19 +50,13 @@ async function onSubmit(event: FormSubmitEvent<ForgotPasswordSchema>) {
     state.success = false
 
     try {
-        // await resetPassword(event.data.email)
-        await sendPasswordResetEmail(auth!, event.data.email,
-            //Have to set the final url here to redurect users after resetting their passwords
-            {
-                // url: "https://mymdb-my-movie-watchlist.netlify.app"
-                url: "https://localhost:3000/login"
-            }
-        )
+        await sendPasswordResetEmail(auth!, event.data.email, {
+            url: `${window.location.origin}/login`,
+        })
         console.log("recover code comes here")
         state.loading = false
         state.email = undefined
         if (!state.error) {
-            // TODO: add check for existing user email - if found in database, show success, if not, show error
             state.success = true
             setTimeout(() => {
                 router.replace({ path: '/login' })
@@ -78,6 +72,5 @@ async function onSubmit(event: FormSubmitEvent<ForgotPasswordSchema>) {
 
 }
 //TODO: test password reset for users who registered with google
-//TODO: put URL in env
 //TODO: customise email templates and domain in Firebase
 </script>

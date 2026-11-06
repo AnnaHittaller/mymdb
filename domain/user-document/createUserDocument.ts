@@ -121,6 +121,11 @@ export function createUserDocument(store: UserDocumentStore) {
 				const current = requireDocument(document);
 				return { ...current, theme };
 			}),
+		setUsername: (username: string) =>
+			store.transact((document) => {
+				const current = requireDocument(document);
+				return { ...current, username };
+			}),
 		refreshCatalog: async (updates: CatalogUpdate[]) => {
 			const current = store.current();
 			if (!current) {
