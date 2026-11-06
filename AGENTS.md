@@ -15,3 +15,11 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 ### Theming
 
 Semantic colors and UI styling rules: `docs/agents/theming.md`. Authoritative tokens: `assets/css/tailwind.css` (THEME MAP).
+
+### Nuxt
+
+For **Nuxt v4**, use the framework documentation index for LLMs: [nuxt.com/llms.txt](https://nuxt.com/llms.txt).
+
+### Nuxt UI
+
+Agent skill for [Nuxt UI v4](https://ui.nuxt.com): `.agents/skills/nuxt-ui/SKILL.md` (reference docs under `.agents/skills/nuxt-ui/references/`). To refresh from upstream: `npx skills add https://ui.nuxt.com` (or copy from [nuxt/ui `v4` `skills/nuxt-ui`](https://github.com/nuxt/ui/tree/v4/skills/nuxt-ui)).
