@@ -12,7 +12,7 @@ const isHomePage = computed(() => {
     <div class="flex flex-col justify-start min-h-screen max-w-screen sm:flex-row-reverse sm:justify-end" v-auto-animate>
         <Header class="sm:hidden pt-8" />
         <main
-            class="relative max-h-full flex-grow max-sm:max-w-full max-sm:pb-14 sm:max-w-main"
+            class="relative min-w-0 max-h-full max-w-full flex-grow max-sm:pb-14"
             :class="{ 'p-0': isHomePage, 'p-8': !isHomePage }">
             <slot />
         </main>

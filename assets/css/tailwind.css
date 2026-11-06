@@ -127,10 +127,6 @@
 	--color-saffron-950: #411f07;
 }
 
-@utility max-w-main {
-	max-width: calc(100% - 6.5rem - 2rem);
-}
-
 @utility nav-sticky-mobile {
 	@media screen and (max-width: 639px) {
 		position: fixed;

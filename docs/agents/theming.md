@@ -17,7 +17,7 @@ The app runs in dark mode only (`colorMode.preference: 'dark'` in `nuxt.config.t
 | Page background | `bg-surface-page`, `text-fg-default` on `body` via `app.vue` |
 | Sidebar / mobile nav | `bg-surface-sidebar`, `shadow-surface-sidebar` |
 | Nav links | `nav-item`, `nav-item-icon`, `nav-item-label`; active `nav-item-active` (desktop accent tint) |
-| Main content width | `sm:max-w-main`, mobile `max-sm:pb-14` on `main` |
+| Main content width | `min-w-0 max-w-full flex-grow` on `main` (fills the row beside the sidebar), mobile `max-sm:pb-14` |
 | Mobile nav position | `nav-sticky-mobile` on `NavBar` |
 
 See THEME MAP in `tailwind.css` for the complete list (elevated surfaces, borders, poster placeholder, overlays, etc.).

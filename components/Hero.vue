@@ -7,7 +7,7 @@ const user = useCurrentUser();
 const { isInList, movies, add, remove, setNext } = useUserDocument();
 const { data: trendingMovies } = await useTrendingMovies();
 
-const backdropSizes = "(max-width: 639px) calc(100vw - 32px), calc(100vw - 136px - 32px)";
+const backdropSizes = "(max-width: 639px) calc(100vw - 2rem), calc(100vw - 7.25rem - 2rem)";
 
 const firstBackdrop = computed(() => trendingMovies.value?.[0]?.backdrop ?? "");
 
