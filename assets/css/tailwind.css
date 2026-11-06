@@ -133,7 +133,8 @@
 		bottom: 0;
 		left: 0;
 		width: 100%;
-		z-index: 1000;
+		/* Above in-page layers (hero arrows are z-10). Dialogs set their own z-index above this. */
+		z-index: 20;
 	}
 }
 

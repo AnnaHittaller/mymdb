@@ -30,6 +30,12 @@ export default defineAppConfig({
 				border: "border-border-default",
 			},
 		},
+		modal: {
+			slots: {
+				overlay: "z-[1100]",
+				content: "z-[1100]",
+			},
+		},
 		selectMenu: {
 			slots: {
 				content: "bg-surface-elevated",
