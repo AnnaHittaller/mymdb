@@ -1,7 +1,11 @@
 import { doc } from "firebase/firestore";
 import type { ComputedRef, InjectionKey } from "vue";
 import { useCurrentUser, useDocument, useFirestore } from "vuefire";
-import { createUserDocument } from "../domain/user-document/createUserDocument";
+import { CACHE_DURATION, CATALOG_SUMMARY_CHUNK } from "../constants/movie";
+import {
+	createUserDocument,
+	type CatalogUpdate,
+} from "../domain/user-document/createUserDocument";
 import { createVueFireUserDocumentStore } from "../domain/user-document/vueFireStore";
 import type { UserMovie } from "../types/movie";
 
@@ -37,6 +41,17 @@ export function provideUserDocument() {
 		store.dispose();
 	});
 
+	if (import.meta.client) {
+		watchCatalogRefresh(
+			() => {
+				version.value;
+				return user.value?.uid ?? null;
+			},
+			() => document.movies(),
+			(updates) => document.refreshCatalog(updates)
+		);
+	}
+
 	const api: UserDocumentApi = {
 		movies: computed(() => {
 			version.value;
@@ -61,6 +76,72 @@ export function provideUserDocument() {
 	};
 
 	provide(userDocumentKey, api);
+}
+
+const CATALOG_REFRESH_STORAGE_PREFIX = "mymdb:catalog-refresh:";
+
+function catalogRefreshKey(uid: string) {
+	return `${CATALOG_REFRESH_STORAGE_PREFIX}${uid}`;
+}
+
+function catalogRefreshIsFresh(uid: string) {
+	const raw = localStorage.getItem(catalogRefreshKey(uid));
+	const stamp = raw ? Number(raw) : Number.NaN;
+	return Number.isFinite(stamp) && Date.now() - stamp < CACHE_DURATION;
+}
+
+async function fetchCatalogSummaries(ids: string[]): Promise<CatalogUpdate[]> {
+	const updates: CatalogUpdate[] = [];
+	for (let index = 0; index < ids.length; index += CATALOG_SUMMARY_CHUNK) {
+		const chunk = ids.slice(index, index + CATALOG_SUMMARY_CHUNK);
+		const summaries = await $fetch<CatalogUpdate[]>("/api/movies/summaries", {
+			query: { ids: chunk.join(",") },
+		});
+		updates.push(...summaries);
+	}
+	return updates;
+}
+
+function watchCatalogRefresh(
+	userId: () => string | null,
+	movies: () => UserMovie[],
+	refreshCatalog: (updates: CatalogUpdate[]) => Promise<void>
+) {
+	const started = new Set<string>();
+	watch(
+		() => {
+			const uid = userId();
+			return uid && movies().length > 0 ? uid : null;
+		},
+		(uid) => {
+			if (!uid || started.has(uid) || catalogRefreshIsFresh(uid)) {
+				return;
+			}
+			started.add(uid);
+			void (async () => {
+				try {
+					const ids = movies().map((movie) => movie.id);
+					if (ids.length === 0 || userId() !== uid) {
+						started.delete(uid);
+						return;
+					}
+					const updates = await fetchCatalogSummaries(ids);
+					if (userId() !== uid) {
+						started.delete(uid);
+						return;
+					}
+					await refreshCatalog(updates);
+					if (userId() !== uid) {
+						return;
+					}
+					localStorage.setItem(catalogRefreshKey(uid), String(Date.now()));
+				} catch {
+					started.delete(uid);
+				}
+			})();
+		},
+		{ immediate: true }
+	);
 }
 
 export function useUserDocument() {

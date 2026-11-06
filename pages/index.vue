@@ -46,7 +46,6 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
 <!-- TODO
 
 delete sonner
-refresh movies and movie store (ratings and poster) when loading the app first
 search page and discover page: display icons for movieCards according to user's movies from useUserDocument
 create skeleton for swiper sliders and hero image / or loaders
 adding toast for movie page: list modifications

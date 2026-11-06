@@ -3,6 +3,47 @@ import type { UserDocumentData, UserDocumentStore } from "./types";
 
 const NO_USER_DOCUMENT = "No user document";
 
+export type CatalogUpdate = {
+	id: string;
+	title: string;
+	rating: number;
+	poster: string;
+};
+
+function displayedRating(rating: number): string {
+	return rating.toFixed(1);
+}
+
+function sameDisplay(movie: UserMovie, update: CatalogUpdate): boolean {
+	return (
+		movie.title === update.title &&
+		movie.poster === update.poster &&
+		displayedRating(movie.rating) === displayedRating(update.rating)
+	);
+}
+
+export function mergeCatalog(
+	movies: UserMovie[],
+	updates: CatalogUpdate[]
+): { movies: UserMovie[]; changed: boolean } {
+	const byId = new Map(updates.map((update) => [update.id, update]));
+	let changed = false;
+	const next = movies.map((movie) => {
+		const update = byId.get(movie.id);
+		if (!update || sameDisplay(movie, update)) {
+			return movie;
+		}
+		changed = true;
+		return {
+			...movie,
+			title: update.title,
+			rating: update.rating,
+			poster: update.poster,
+		};
+	});
+	return { movies: changed ? next : movies, changed };
+}
+
 function cloneMovies(movies: UserMovie[]): UserMovie[] {
 	return structuredClone(movies);
 }
@@ -80,6 +121,20 @@ export function createUserDocument(store: UserDocumentStore) {
 				const current = requireDocument(document);
 				return { ...current, theme };
 			}),
+		refreshCatalog: async (updates: CatalogUpdate[]) => {
+			const current = store.current();
+			if (!current) {
+				throw new Error(NO_USER_DOCUMENT);
+			}
+			if (!mergeCatalog(current.movies, updates).changed) {
+				return;
+			}
+			await store.transact((document) => {
+				const latest = requireDocument(document);
+				const merged = mergeCatalog(latest.movies, updates);
+				return merged.changed ? { ...latest, movies: merged.movies } : latest;
+			});
+		},
 		onChange: (listener: () => void) => {
 			listeners.add(listener);
 			return () => {

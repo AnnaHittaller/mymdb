@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createUserDocument } from "./createUserDocument";
+import { createUserDocument, type CatalogUpdate } from "./createUserDocument";
 import { createMemoryUserDocumentStore } from "./memoryStore";
 import type { UserDocumentData } from "./types";
 import type { UserMovie } from "../../types/movie";
@@ -128,6 +128,51 @@ describe("user document", () => {
 		expect(document.movies().map((entry) => entry.id).sort()).toEqual(["b", "c"]);
 	});
 
+	it("refreshes poster and rating and keeps list flags and timestamp", async () => {
+		const saved = movie("a", { next: true, seen: true, rating: 6.2 });
+		const document = createUserDocument(createMemoryUserDocumentStore(user([saved, movie("b")])));
+
+		await document.refreshCatalog([
+			{ id: "a", title: "Updated title", rating: 8.24, poster: "/updated.jpg" },
+			{ id: "missing", title: "Nope", rating: 1, poster: "/missing.jpg" },
+		]);
+
+		const updated = document.movies().find((entry) => entry.id === "a");
+		expect(updated).toMatchObject({
+			title: "Updated title",
+			rating: 8.24,
+			poster: "/updated.jpg",
+			next: true,
+			seen: true,
+		});
+		expect(updated?.timestamp).toEqual(saved.timestamp);
+		expect(document.movies().find((entry) => entry.id === "b")).toEqual(movie("b"));
+		expect(document.movies()).toHaveLength(2);
+	});
+
+	it("does not write when the visible rating is unchanged", async () => {
+		const starting = user([movie("a", { rating: 7.14, next: true })]);
+		const store = createMemoryUserDocumentStore(starting);
+		let transactions = 0;
+		const transact = store.transact.bind(store);
+		store.transact = (update) => {
+			transactions += 1;
+			return transact(update);
+		};
+		const document = createUserDocument(store);
+		const update: CatalogUpdate = {
+			id: "a",
+			title: "Movie a",
+			rating: 7.141,
+			poster: "/poster-a.jpg",
+		};
+
+		await document.refreshCatalog([update, { id: "missing", title: "Nope", rating: 1, poster: "/x.jpg" }]);
+
+		expect(transactions).toBe(0);
+		expect(document.movies()).toEqual(starting.movies);
+	});
+
 	it("rejects commands when there is no user document", async () => {
 		const document = createUserDocument(createMemoryUserDocumentStore(null));
 
@@ -135,6 +180,7 @@ describe("user document", () => {
 		await expect(document.remove("a")).rejects.toThrow("No user document");
 		await expect(document.setNext("a", true)).rejects.toThrow("No user document");
 		await expect(document.setTheme("dusk")).rejects.toThrow("No user document");
+		await expect(document.refreshCatalog([])).rejects.toThrow("No user document");
 		expect(document.movies()).toEqual([]);
 		expect(document.watchNext()).toEqual([]);
 		expect(document.theme()).toBe("");
