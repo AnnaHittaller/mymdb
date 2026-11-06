@@ -15,7 +15,7 @@ const navLinkActiveClass = 'nav-item-active'
                 <span class="nav-item-label">Home</span>
             </NuxtLink>
             <NuxtLink v-if="user" to="/my-movies" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
-                <UIcon name="i-heroicons-list-bullet-20-solid" class="nav-item-icon" />
+                <IconAddToList class="nav-item-icon" />
                 <span class="nav-item-label">My Lists</span>
             </NuxtLink>
             <NuxtLink v-if="user" to="/watch-next" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
