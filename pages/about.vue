@@ -22,11 +22,11 @@
                 that piqued your interest. </p>
         </div>
         <div class="flex gap-4 items-start">
-            <UIcon name="i-heroicons-star" class="mt-1 text-primary shrink-0" />
+            <UIcon name="i-heroicons-heart" class="mt-1 text-primary shrink-0" />
 
             <p>Feeling overwhelmed by your ever-growing "I want to watch this next" list? MyMDb’s got the solution! Simply
                 hit
-                the star, and
+                the heart, and
                 the
                 movie is on your radar for your next movie night. </p>
         </div>

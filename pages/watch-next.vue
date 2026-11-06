@@ -18,7 +18,7 @@ const filteredMovies = computed(() => {
 <template>
     <div>
         <div class="flex gap-4 items-center justify-start">
-            <Heading>Watch next</Heading>
+            <Heading>Favorites</Heading>
         </div>
         <UInput size="xl" placeholder="Filter for title..." v-model="searchTerm" name="search"
             :ui="{ base: 'text-xl placeholder:italic', trailing: 'pointer-events-none' }"
@@ -38,7 +38,7 @@ const filteredMovies = computed(() => {
             <p v-if="debouncedSearchTerm !== '' && filteredMovies.length === 0" class="text-xl">No
                 matching
                 results can be found.</p>
-            <p v-if="watchNext.length === 0">You have no movies on your watch next list.</p>
+            <p v-if="watchNext.length === 0">You have no movies in your favorites.</p>
             <div class="movie-grid " v-if="filteredMovies.length > 0">
                 <MovieCard :movie="movie" v-for="movie in filteredMovies" :key="movie.id" />
             </div>

@@ -23,7 +23,7 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
                 <UButton to="/search" label="Get movies" class="text-lg" />
             </div>
             <div class="flex justify-between items-center pr-8 pb-8 pt-4">
-                <Heading class="pl-8 pt-8">Watch next</Heading>
+                <Heading class="pl-8 pt-8">Favorites</Heading>
                 <UButton to="/watch-next" label="View All" v-if="watchNextMovies.length > 2" class="text-lg" />
             </div>
             <MovieSlider v-if="watchNextMovies" :movies="watchNextMovies" />
@@ -34,7 +34,7 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
             </div>
         </template>
         <div v-else class="flex flex-col items-start gap-4 px-8 pb-8">
-            <p class="text-lg">Sign in to keep your watchlist and watch next.</p>
+            <p class="text-lg">Sign in to keep your watchlist and favorites.</p>
             <div class="flex gap-4">
                 <UButton :to="{ path: '/login', query: { redirect: '/' } }" label="Sign in" class="text-lg" />
                 <UButton to="/register" label="Register" variant="outline" class="text-lg" />

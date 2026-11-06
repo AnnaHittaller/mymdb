@@ -35,12 +35,16 @@ const isInNextList = computed(() => {
     <div class="relative pt-2 px-2 group">
 
         <div v-auto-animate v-if="user && isInMovieList">
-            <UIcon name="i-heroicons-star"
-                class="z-20 text-2xl text-primary absolute -top-1 -right-1 transition scale-150 origin-center cursor-pointer sm:opacity-50 sm:hover:opacity-100"
-                v-if="!isInNextList" @click.stop="addToNextList" />
-            <UIcon name="i-heroicons-star-20-solid"
-                class="z-20 text-2xl scale-150 text-primary absolute -top-1 -right-1 transition origin-center cursor-pointer"
-                v-if="isInNextList" @click.stop="removeFromNextList" />
+            <button v-if="!isInNextList" type="button" aria-label="Add to favorites"
+                class="z-20 absolute -top-1 -right-1 origin-center scale-150 cursor-pointer border-0 bg-transparent p-0 leading-none text-primary transition sm:opacity-50 sm:hover:opacity-100"
+                @click.stop="addToNextList">
+                <UIcon name="i-heroicons-heart" class="text-2xl" />
+            </button>
+            <button v-if="isInNextList" type="button" aria-label="Remove from favorites"
+                class="z-20 absolute -top-1 -right-1 origin-center scale-150 cursor-pointer border-0 bg-transparent p-0 leading-none text-primary transition"
+                @click.stop="removeFromNextList">
+                <UIcon name="i-heroicons-heart-solid" class="text-2xl" />
+            </button>
         </div>
         <div v-auto-animate v-if="user && isInMovieList">
             <UIcon name="i-heroicons-x-circle"
@@ -56,9 +60,8 @@ const isInNextList = computed(() => {
                         {{ movie?.rating ? movie.rating.toFixed(1) : (movie?.vote_average ?
                             movie.vote_average.toFixed(1) : 'Ø') }}</div>
                     <img v-if="movie && (movie.poster || movie.poster_path)"
-                        :src="`${POSTER_IMAGE_URL}${movie.poster || movie.poster_path}`" :alt="movie.title"
-                        width="342" height="513" loading="lazy" decoding="async"
-                        class="object-cover w-full h-full aspect-[2/3]" />
+                        :src="`${POSTER_IMAGE_URL}${movie.poster || movie.poster_path}`" :alt="movie.title" width="342"
+                        height="513" loading="lazy" decoding="async" class="object-cover w-full h-full aspect-[2/3]" />
                 </div>
 
                 <p class="text-left text-lg">{{ movie?.title }}</p>

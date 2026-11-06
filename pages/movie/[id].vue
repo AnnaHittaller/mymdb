@@ -73,21 +73,24 @@ const removeFromNextList = async () => {
             <div class="flex flex-col gap-4 md:self-start md:w-[18rem] lg:w-sm md:shrink-0">
                 <div class="relative" v-auto-animate>
                     <div v-auto-animate="{ duration: 150 }" v-if="user && isInMovieList">
-                        <UIcon name="i-heroicons-star"
-                            class="z-20 text-2xl text-primary absolute -top-1 -right-1 transition scale-150 origin-center cursor-pointer"
-                            v-if="!isInNextList" @click.stop="addToNextList" />
-                        <UIcon name="i-heroicons-star-20-solid"
-                            class="z-20 text-2xl scale-150 text-primary absolute -top-1 -right-1 transition origin-center cursor-pointer"
-                            v-if="isInNextList" @click.stop="removeFromNextList" />
+                        <button v-if="!isInNextList" type="button" aria-label="Add to favorites"
+                            class="z-20 absolute -top-1 -right-1 origin-center scale-150 cursor-pointer border-0 bg-transparent p-0 leading-none text-primary transition"
+                            @click.stop="addToNextList">
+                            <UIcon name="i-heroicons-heart" class="text-2xl" />
+                        </button>
+                        <button v-if="isInNextList" type="button" aria-label="Remove from favorites"
+                            class="z-20 absolute -top-1 -right-1 origin-center scale-150 cursor-pointer border-0 bg-transparent p-0 leading-none text-primary transition"
+                            @click.stop="removeFromNextList">
+                            <UIcon name="i-heroicons-heart-solid" class="text-2xl" />
+                        </button>
                     </div>
-                    <img :src="`${POSTER_DETAIL_IMAGE_URL}${movie.poster_path}`" :alt="movie.title"
-                        width="780" height="1170" fetchpriority="high" decoding="async"
+                    <img :src="`${POSTER_DETAIL_IMAGE_URL}${movie.poster_path}`" :alt="movie.title" width="780"
+                        height="1170" fetchpriority="high" decoding="async"
                         class="w-full max-w-sm aspect-[2/3] object-cover" />
                 </div>
                 <div class="icon-group flex gap-4 w-full">
-                    <UButton v-if="!user" icon="i-heroicons-arrow-right-on-rectangle" color="primary"
-                        variant="outline" label="Sign in"
-                        class="flex gap-2 items-center justify-center text-lg" block
+                    <UButton v-if="!user" icon="i-heroicons-arrow-right-on-rectangle" color="primary" variant="outline"
+                        label="Sign in" class="flex gap-2 items-center justify-center text-lg" block
                         :to="{ path: '/login', query: { redirect: route.fullPath } }" />
                     <UButton v-else-if="!isInMovieList" icon="i-heroicons-list-bullet-20-solid" color="primary"
                         variant="outline" label="Add to my movies"
@@ -112,12 +115,12 @@ const removeFromNextList = async () => {
                 <div>Release date: {{ movie.release_date }}</div>
                 <div>Runtime: {{ movie.runtime }} min</div>
                 <div>Average rating: {{ movie.vote_average.toFixed(1) }}</div>
-                <Heading class="pt-4">Actors</Heading>
+                <Heading class="pt-4">Starring</Heading>
                 <div class="flex flex-wrap gap-x-6 gap-y-4 md:max-lg:gap-x-4">
                     <div v-for="actor in movie.credits.cast.slice(0, 5)" :key="actor.id"
                         class=" flex flex-col items-center text-center shrink-0 w-20 md:max-lg:w-[4.5rem]">
-                        <img v-if="actor.profile_path" :src="`${PROFILE_IMAGE_URL}${actor.profile_path}`" :alt="actor.name"
-                            width="185" height="278" loading="lazy" decoding="async"
+                        <img v-if="actor.profile_path" :src="`${PROFILE_IMAGE_URL}${actor.profile_path}`"
+                            :alt="actor.name" width="185" height="278" loading="lazy" decoding="async"
                             class="w-16 h-24 rounded-md object-cover" />
                         <p class="mt-2 text-sm font-medium">{{ actor.name }}</p>
                     </div>
@@ -135,4 +138,3 @@ const removeFromNextList = async () => {
         <p> {{ error }}</p>
     </div>
 </template>
-

@@ -158,10 +158,10 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 									v-if="isInList(String(item.id))"
 									type="button"
 									class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
-									:aria-label="inWatchNext(item) ? 'Remove from watch next' : 'Add to watch next'"
+									:aria-label="inWatchNext(item) ? 'Remove from favorites' : 'Add to favorites'"
 									@click="toggleWatchNext(item)"
 								>
-									<UIcon :name="inWatchNext(item) ? 'i-heroicons-star-20-solid' : 'i-heroicons-star'" class="size-6" />
+									<UIcon :name="inWatchNext(item) ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'" class="size-6" />
 								</button>
 							</div>
 						</div>

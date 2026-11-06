@@ -10,7 +10,7 @@
  * | Sidebar / mobile nav   | bg-surface-sidebar           | #151515                |
  * | Sidebar shadow         | shadow-surface-sidebar       | black glow             |
  * | Nav hover / active     | nav-item-active (desktop)    | accent @ ~10% mix      |
- * | Nav active + hover     | nav-item + nav-item-active   | icon/label primary-500 |
+ * | Nav active + hover     | nav-item + nav-item-active   | icon/label primary @75% |
  * | Nav icons (inactive)   | nav-item-icon                | fg-subtle              |
  * | Nav active (mobile)    | nav-item-active              | accent, no background  |
  * | Elevated surfaces      | bg-surface-elevated          | #404040 (neutral-700)  |
@@ -198,9 +198,9 @@
 		display: block;
 	}
 
-	/* Match Logo hover:bg-primary-500 while current route is active */
+	/* Match solid UButton hover:bg-primary/75: accent at 75% opacity */
 	&.nav-item-active:hover .nav-item-icon {
-		color: var(--color-primary-500);
+		color: color-mix(in srgb, var(--color-primary) 75%, transparent);
 	}
 
 	@media (width >= 40rem) {
@@ -227,7 +227,7 @@
 
 			&.nav-item-active .nav-item-icon,
 			&.nav-item-active .nav-item-label {
-				color: var(--color-primary-500);
+				color: color-mix(in srgb, var(--color-primary) 75%, transparent);
 			}
 		}
 	}
