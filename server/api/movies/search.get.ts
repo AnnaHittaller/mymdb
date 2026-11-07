@@ -8,10 +8,6 @@ type TmdbSearchResult = {
 	vote_average: number
 }
 
-type TmdbGenreList = {
-	genres: { id: number, name: string }[]
-}
-
 export default defineEventHandler(async (event) => {
 	try {
 		const query = getQuery(event)
@@ -22,21 +18,16 @@ export default defineEventHandler(async (event) => {
 			Authorization: `Bearer ${config.apiBearerToken}`,
 		}
 
-		const [response, genreList] = await Promise.all([
+		const [response, genreNames] = await Promise.all([
 			$fetch<{
 				results: TmdbSearchResult[]
 				total_pages: number
 			}>(
-				`${config.apiBaseUrl}/search/movie?query=${query.query}&include_adult=false&language=en-US&page=${page}`,
+				`${config.apiBaseUrl}/search/movie?query=${encodeURIComponent(String(query.query ?? ""))}&include_adult=false&language=en-US&page=${page}`,
 				{ method: 'GET', headers },
 			),
-			$fetch<TmdbGenreList>(`${config.apiBaseUrl}/genre/movie/list?language=en`, {
-				method: 'GET',
-				headers,
-			}).catch(() => ({ genres: [] })),
+			getMovieGenreNameMap(),
 		])
-
-		const genreNames = new Map(genreList.genres.map((genre) => [genre.id, genre.name]))
 
 		return {
 			results: response.results.map((item) => ({

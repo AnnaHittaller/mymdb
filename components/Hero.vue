@@ -68,7 +68,7 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 </script>
 
 <template>
-	<div class="p-4">
+	<div class="pb-4">
 		<UCarousel
 			v-if="trendingMovies?.length"
 			v-slot="{ item, index }"

@@ -22,10 +22,6 @@ const navLinkActiveClass = 'nav-item-active'
                 <UIcon name="i-heroicons-heart" class="nav-item-icon" />
                 <span class="nav-item-label">Favorites</span>
             </NuxtLink>
-            <NuxtLink v-if="user" to="/search" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
-                <UIcon name="i-heroicons-magnifying-glass-solid" class="nav-item-icon" />
-                <span class="nav-item-label">Search</span>
-            </NuxtLink>
             <NuxtLink v-if="user" to="/discover" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
                 <UIcon name="i-heroicons-fire" class="nav-item-icon" />
                 <span class="nav-item-label">Discover</span>

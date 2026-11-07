@@ -1,162 +1,114 @@
-<script setup>
+<script setup lang="ts">
+import type { SearchMovie } from "~/composables/useMovieSearch";
 
 definePageMeta({
-    middleware: "auth"
-})
+	middleware: "auth",
+});
 
-// // Search related data
-// const searchTerm = ref("")
-// const debouncedSearchTerm = refDebounced(searchTerm, 700)
+const route = useRoute();
 
-// let movies = ref([])
-// let currentPage = 1;
-// let originalSearchTerm = ref("")
+const q = computed(() => String(route.query.q ?? "").trim());
 
-// // Function to fetch movies for a given page
-// const fetchMoviesForPage = async (page) => {
-//     try {
-//         const { data, pending, error } = await useFetch(`/api/movies/search?query=${debouncedSearchTerm.value}&page=${page}`);
-//         return toRaw(data.value.results);
-//     } catch (error) {
-//         console.error('Error while fetching movies:', error);
-//         return [];
-//     }
-// };
+const page = ref(1);
+const movies = ref<SearchMovie[]>([]);
+const totalPages = ref(0);
 
-// Computed property to generate URL for fetching movies
-// const url = computed(() => {
-//     return `api/movies/search?query=${debouncedSearchTerm.value}&page=${currentPage}`;
-// });
+watch(q, () => {
+	page.value = 1;
+	movies.value = [];
+	totalPages.value = 0;
+});
 
-// Fetch movies when URL changes
-//const { data, pending, error } = await useFetch(url);
+const { data, status, error } = await useAsyncData(
+	"movie-search-results",
+	async () => {
+		const requestedQ = q.value;
+		if (!requestedQ) return null;
+		const requestedPage = page.value;
+		const response = await $fetch<{
+			results: SearchMovie[]
+			total_pages: number
+		}>("/api/movies/search", {
+			query: {
+				query: requestedQ,
+				page: requestedPage,
+			},
+		});
+		return {
+			results: response.results,
+			total_pages: response.total_pages,
+			requestedPage,
+			requestedQ,
+		};
+	},
+	{ watch: [q, page] },
+);
 
-// Store search term in history state
-// const updateHistoryState = () => {
-//     const state = {
-//         searchTerm: searchTerm.value,
-//         movies: JSON.stringify(movies.value), // Serialize the movies array
-//         currentPage: currentPage,
-//     };
-//     window.history.replaceState(state, '', '');
-// };
+watch(data, (payload) => {
+	if (!payload) {
+		if (!q.value) {
+			movies.value = [];
+			totalPages.value = 0;
+		}
+		return;
+	}
+	if (payload.requestedQ !== q.value || payload.requestedPage !== page.value) return;
 
-// clear movies array when there is no search term
-// watchEffect(() => {
-//     if (searchTerm.value === '') {
-//         movies.value = [];
-//     }
-// })
+	const visible = payload.results.filter((movie) => movie.poster);
+	totalPages.value = payload.total_pages;
 
-// Watch for changes in searchTerm
-// watchEffect(() => {
-//     //console.log("o",originalSearchTerm.value, "d", debouncedSearchTerm.value)
-//     //console.log(currentPage)
+	if (payload.requestedPage === 1) {
+		movies.value = visible;
+		return;
+	}
 
-//     const fetchData = async () => {
+	const seen = new Set(movies.value.map((movie) => movie.id));
+	movies.value = [
+		...movies.value,
+		...visible.filter((movie) => !seen.has(movie.id)),
+	];
+}, { immediate: true });
 
-//         if (debouncedSearchTerm.value && originalSearchTerm.value !== debouncedSearchTerm.value) {
-//             currentPage = 1;
-//             movies.value = []; // Reset movies when search term changes
-//             originalSearchTerm.value = debouncedSearchTerm.value; // Update originalSearchTerm
-//         }
+const pending = computed(() => status.value === "pending");
+const hasMore = computed(() => page.value < totalPages.value);
 
-//         // Check if searchTerm is empty before fetching movies
-//         if (debouncedSearchTerm.value.trim() !== '') {
-//             const fetchedMovies = [];
-//             for (let i = 1; i <= currentPage; i++) {
-//                 const moviesData = await fetchMoviesForPage(i);
-//                 fetchedMovies.push(...moviesData);
-//             }
-            
-//             if (debouncedSearchTerm.value && originalSearchTerm.value !== debouncedSearchTerm.value) {
-//                 movies.value = fetchedMovies;
-//             } else {
-//                 const existingMovieIds = movies.value.map(movie => movie.id);
-//                 const uniqueFetchedMovies = fetchedMovies.filter(movie => !existingMovieIds.includes(movie.id));
-//                 movies.value.push(...uniqueFetchedMovies);
-//             }
-//         }
-
-//     };
-
-//     fetchData();
-// });
-
-// Function to load more movies
-// const loadMoreMovies = async () => {
-//     currentPage++; // Increment currentPage when loading more movies
-//     const newMovies = await fetchMoviesForPage(currentPage);
-//     movies.value = [...movies.value, ...newMovies];
-// };
-
-// // Filter movies with poster
-// const moviesWithPoster = computed(() => {
-//     return movies.value.filter(movie => movie.poster !== null);
-// });
-
-// // Initialize search term and movies from history state
-// if (window.history.state && window.history.state.searchTerm) {
-//     searchTerm.value = window.history.state.searchTerm;
-//     originalSearchTerm.value = searchTerm.value;
-//     if (window.history.state.movies) {
-//         movies.value = JSON.parse(window.history.state.movies);
-//     }
-//     if (window.history.state.currentPage) {
-//         currentPage = window.history.state.currentPage;
-//     }
-// }
-
-// // Listen to popstate event to update search term and movies when user navigates back
-// window.addEventListener('popstate', () => {
-//     if (window.history.state && window.history.state.searchTerm) {
-//         searchTerm.value = window.history.state.searchTerm;
-//         if (window.history.state.movies) {
-//             movies.value = JSON.parse(window.history.state.movies);
-//         }
-//         if (window.history.state.currentPage) {
-//             currentPage = window.history.state.currentPage;
-//         }
-//     }
-// });
-
-// // Update history state when search term or page changes
-// watchEffect(() => {
-//     updateHistoryState();
-// });
-
+function loadMore() {
+	if (pending.value || !hasMore.value) return;
+	page.value += 1;
+}
 </script>
 
 <template>
-    <div>
-        <div class="flex flex-col gap-4 pb-8">
-            <Heading>Search</Heading>
-            <!-- <UInput size="xl" placeholder="Search..." v-model="searchTerm" name="search"
-                :ui="{ icon: { trailing: { pointer: '' } }, size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }"
-                class="relative">
-                <template #trailing>
-                    <UButton v-show="searchTerm !== ''" color="white" variant="link" icon="i-heroicons-x-mark-20-solid"
-                        :padded="false" @click="searchTerm = ''" class="pr-10" />
-                    <div
-                        class="bg-primary absolute right-0 top-0 h-full search-btn rounded-r-md flex items-center justify-center">
-                        <UIcon name="i-heroicons-magnifying-glass-20-solid" class="text-fg-on-accent text-xl " />
-                    </div>
-                </template>
-            </UInput>
-            <div class="flex gap-4 items-center">
-            </div>
-        </div>
-        <div class="flex flex-col items-stretch">
-            <Heading v-if="debouncedSearchTerm !== '' ">Results</Heading>
-            <p v-if="searchTerm !== '' && debouncedSearchTerm !== '' && moviesWithPoster && moviesWithPoster.length === 0"
-                class="text-xl">No
-                matching
-                results can be found.</p>
-            <div class="movie-grid " v-if="moviesWithPoster.length > 0">
-                <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
-            </div>
-            <UButton label="Load more" @click="loadMoreMovies" class="mt-14 mb-8 self-center" size="xl"
-                v-if="moviesWithPoster.length > 0 && data.total_pages > 1" /> -->
-        </div>
-    </div>
+	<div>
+		<div class="flex flex-col gap-4 pb-8">
+			<Heading v-if="q">Results for “{{ q }}”</Heading>
+			<Heading v-else>Search</Heading>
+			<p v-if="!q" class="text-lg text-fg-muted">
+				Use the search bar above to find movies.
+			</p>
+		</div>
+		<div v-if="q" class="flex flex-col items-stretch">
+			<p v-if="error && movies.length === 0" class="text-lg">
+				Couldn't load search results.
+			</p>
+			<p v-else-if="pending && movies.length === 0" class="text-lg">
+				Loading results…
+			</p>
+			<p v-else-if="movies.length === 0" class="text-lg">
+				No matching results can be found.
+			</p>
+			<div v-if="movies.length > 0" class="movie-grid">
+				<MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" />
+			</div>
+			<UButton
+				v-if="movies.length > 0 && hasMore"
+				label="Load more"
+				size="xl"
+				class="mt-14 mb-8 self-center"
+				:loading="pending && page > 1"
+				:disabled="pending"
+				@click="loadMore"
+			/>
+		</div>
+	</div>
 </template>
