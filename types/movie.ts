@@ -14,6 +14,7 @@ export interface UserMovie {
 	title: string;
 	rating: number;
 	poster: string;
+	genres?: string[];
 	seen: boolean;
 	next: boolean;
 	timestamp: Date;

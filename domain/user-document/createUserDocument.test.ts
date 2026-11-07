@@ -143,8 +143,8 @@ describe("user document", () => {
 		const document = createUserDocument(createMemoryUserDocumentStore(user([saved, movie("b")])));
 
 		await document.refreshCatalog([
-			{ id: "a", title: "Updated title", rating: 8.24, poster: "/updated.jpg" },
-			{ id: "missing", title: "Nope", rating: 1, poster: "/missing.jpg" },
+			{ id: "a", title: "Updated title", rating: 8.24, poster: "/updated.jpg", genres: [] },
+			{ id: "missing", title: "Nope", rating: 1, poster: "/missing.jpg", genres: [] },
 		]);
 
 		const updated = document.movies().find((entry) => entry.id === "a");
@@ -175,9 +175,13 @@ describe("user document", () => {
 			title: "Movie a",
 			rating: 7.141,
 			poster: "/poster-a.jpg",
+			genres: [],
 		};
 
-		await document.refreshCatalog([update, { id: "missing", title: "Nope", rating: 1, poster: "/x.jpg" }]);
+		await document.refreshCatalog([
+			update,
+			{ id: "missing", title: "Nope", rating: 1, poster: "/x.jpg", genres: [] },
+		]);
 
 		expect(transactions).toBe(0);
 		expect(document.movies()).toEqual(starting.movies);

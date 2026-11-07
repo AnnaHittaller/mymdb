@@ -44,6 +44,7 @@ const addToMovieList = async () => {
         title: current.title,
         rating: current.vote_average,
         poster: current.poster_path,
+        genres: current.genres.map((genre) => genre.name),
         seen: false,
         next: false,
         timestamp: new Date()

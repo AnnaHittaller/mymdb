@@ -5,7 +5,7 @@ type DiscoverMovie = {
 	popularity: number
 	poster: string | null
 	backdrop: string | null
-	genres: number[]
+	genres: string[]
 	rating: number
 }
 

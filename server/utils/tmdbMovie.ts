@@ -5,6 +5,7 @@ export type TmdbMovieDetails = {
 	title: string
 	vote_average?: number | null
 	poster_path?: string | null
+	genres?: { id: number, name: string }[]
 }
 
 export const fetchTmdbMovie = defineCachedFunction(

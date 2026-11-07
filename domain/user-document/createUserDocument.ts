@@ -8,17 +8,25 @@ export type CatalogUpdate = {
 	title: string;
 	rating: number;
 	poster: string;
+	genres: string[];
 };
 
 function displayedRating(rating: number): string {
 	return rating.toFixed(1);
 }
 
+function sameGenres(movie: UserMovie, update: CatalogUpdate): boolean {
+	const left = movie.genres ?? [];
+	const right = update.genres;
+	return left.length === right.length && left.every((genre, index) => genre === right[index]);
+}
+
 function sameDisplay(movie: UserMovie, update: CatalogUpdate): boolean {
 	return (
 		movie.title === update.title &&
 		movie.poster === update.poster &&
-		displayedRating(movie.rating) === displayedRating(update.rating)
+		displayedRating(movie.rating) === displayedRating(update.rating) &&
+		sameGenres(movie, update)
 	);
 }
 
@@ -39,6 +47,7 @@ export function mergeCatalog(
 			title: update.title,
 			rating: update.rating,
 			poster: update.poster,
+			genres: update.genres,
 		};
 	});
 	return { movies: changed ? next : movies, changed };

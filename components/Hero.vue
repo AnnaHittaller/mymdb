@@ -49,6 +49,7 @@ async function addToList(movie: TrendingMovie) {
 		title: movie.title,
 		rating: movie.vote_average,
 		poster: movie.poster ?? "",
+		...(movie.genres?.length ? { genres: movie.genres } : {}),
 		seen: false,
 		next: false,
 		timestamp: new Date(),

@@ -1,71 +1,159 @@
 <script setup lang="ts">
+import type { CatalogUpdate } from "~/domain/user-document/createUserDocument";
 import { POSTER_IMAGE_URL } from "~/constants/movie";
 
-const user = useCurrentUser()
-const { movies, isInList, remove, setNext } = useUserDocument()
+type MovieCardMovie = {
+	id: number | string;
+	title: string;
+	poster?: string | null;
+	poster_path?: string | null;
+	rating?: number;
+	vote_average?: number;
+	genres?: string[] | { name: string }[];
+};
 
-const props = defineProps({
-    movie: Object,
-})
-
-const { movie } = toRefs(props)
-const movieId = computed(() => movie?.value?.id.toString() || '')
-
-const addToNextList = async () => {
-    await setNext(movieId.value, true);
+function genreNamesFrom(movie: MovieCardMovie): string[] {
+	const genres = movie.genres;
+	if (!genres?.length) return [];
+	if (typeof genres[0] === "string") return genres as string[];
+	if (typeof genres[0] === "object" && genres[0] && "name" in genres[0]) {
+		return (genres as { name: string }[]).map((genre) => genre.name);
+	}
+	return [];
 }
 
-const removeFromNextList = async () => {
-    await setNext(movieId.value, false);
-}
+const props = defineProps<{
+	movie: MovieCardMovie;
+}>();
 
-const removeFromMovieList = async () => {
-    await remove(movieId.value)
-}
+const user = useCurrentUser();
+const { movies, isInList, add, remove, setNext } = useUserDocument();
+
+const movieId = computed(() => String(props.movie.id));
+
+const posterPath = computed(() => props.movie.poster || props.movie.poster_path || "");
+
+const ratingLabel = computed(() => {
+	const value = props.movie.rating ?? props.movie.vote_average;
+	if (value == null || Number.isNaN(value)) return "N/A";
+	return value.toFixed(1);
+});
+
+const resolvedGenres = ref<string[]>([]);
+
+const genreLabel = computed(() => {
+	const fromProps = genreNamesFrom(props.movie);
+	if (fromProps.length) return fromProps.join(" · ");
+	if (resolvedGenres.value.length) return resolvedGenres.value.join(" · ");
+	return "";
+});
+
+watch(
+	() => [props.movie.genres, movieId.value] as const,
+	async ([genres, id]) => {
+		if (genreNamesFrom({ ...props.movie, genres }).length) {
+			resolvedGenres.value = [];
+			return;
+		}
+		if (!/^\d+$/.test(id)) {
+			resolvedGenres.value = [];
+			return;
+		}
+		try {
+			const summaries = await $fetch<CatalogUpdate[]>("/api/movies/summaries", {
+				query: { ids: id },
+			});
+			resolvedGenres.value = summaries[0]?.genres ?? [];
+		} catch {
+			resolvedGenres.value = [];
+		}
+	},
+	{ immediate: true },
+);
 
 const isInMovieList = computed(() => isInList(movieId.value));
 
-const isInNextList = computed(() => {
-    return movies.value.some((entry) => entry.id === movieId.value && entry.next);
-});
+const isInNextList = computed(() =>
+	movies.value.some((entry) => entry.id === movieId.value && entry.next),
+);
 
+async function addToList() {
+	const m = props.movie;
+	const genres = genreNamesFrom(m);
+	const fromResolved = resolvedGenres.value;
+	await add({
+		id: movieId.value,
+		title: m.title,
+		rating: m.rating ?? m.vote_average ?? 0,
+		poster: posterPath.value,
+		...(genres.length ? { genres } : fromResolved.length ? { genres: fromResolved } : {}),
+		seen: false,
+		next: false,
+		timestamp: new Date(),
+	});
+}
+
+async function removeFromList() {
+	await remove(movieId.value);
+}
+
+async function toggleWatchNext() {
+	await setNext(movieId.value, !isInNextList.value);
+}
 </script>
 
 <template>
-    <div class="relative pt-2 px-2 group">
-
-        <div v-auto-animate v-if="user && isInMovieList">
-            <button v-if="!isInNextList" type="button" aria-label="Add to favorites"
-                class="z-20 absolute -top-1 -right-1 origin-center scale-150 cursor-pointer border-0 bg-transparent p-0 leading-none text-primary transition sm:opacity-50 sm:hover:opacity-100"
-                @click.stop="addToNextList">
-                <UIcon name="i-heroicons-heart" class="text-2xl" />
-            </button>
-            <button v-if="isInNextList" type="button" aria-label="Remove from favorites"
-                class="z-20 absolute -top-1 -right-1 origin-center scale-150 cursor-pointer border-0 bg-transparent p-0 leading-none text-primary transition"
-                @click.stop="removeFromNextList">
-                <UIcon name="i-heroicons-heart-solid" class="text-2xl" />
-            </button>
-        </div>
-        <div v-auto-animate v-if="user && isInMovieList">
-            <UIcon name="i-heroicons-x-circle"
-                class="z-20 text-2xl scale-150 text-primary sm:opacity-0 absolute top-8 -right-1 transition origin-center cursor-pointer sm:group-hover:opacity-100"
-                @click.stop="removeFromMovieList" />
-        </div>
-        <NuxtLink :to="`/movie/${movie?.id}`" class="relative">
-
-            <div class="flex flex-col gap-2 w-full justify-start items-start">
-                <div class="relative max-w-[250px] bg-surface-poster group">
-                    <div
-                        class="absolute left-0 top-0 z-20 origin-top-left bg-primary p-2 font-semibold text-fg-on-accent transition sm:scale-0 sm:opacity-0 sm:group-hover:scale-100 sm:group-hover:opacity-100">
-                        {{ movie?.rating ? movie.rating.toFixed(1) : (movie?.vote_average ?
-                            movie.vote_average.toFixed(1) : 'Ø') }}</div>
-                    <img v-if="movie && (movie.poster || movie.poster_path)"
-                        :src="`${POSTER_IMAGE_URL}${movie.poster || movie.poster_path}`" :alt="movie.title" width="342"
-                        height="513" loading="lazy" decoding="async" class="object-cover w-full h-full aspect-[2/3]" />
-                </div>
-
-                <p class="text-left text-lg">{{ movie?.title }}</p>
-            </div>
-        </NuxtLink>
-    </div>
+	<article
+		class="flex w-full flex-col gap-2 rounded-[12px] border border-fg-muted/40 bg-surface-overlay/70 p-3 backdrop-blur-md">
+		<NuxtLink :to="`/movie/${movie.id}`" class="relative block">
+			<img
+				v-if="posterPath"
+				:src="`${POSTER_IMAGE_URL}${posterPath}`"
+				:alt="movie.title"
+				width="342"
+				height="513"
+				loading="lazy"
+				decoding="async"
+				class="aspect-2/3 w-full rounded-lg object-cover">
+			<div
+				class="absolute right-1.5 top-1.5 inline-flex items-center justify-center gap-0.5 rounded bg-surface-overlay/50 px-1.5 py-0.5 text-fg-default backdrop-blur-sm">
+				<UIcon name="i-heroicons-star-20-solid" class="block size-3.5 shrink-0 text-rating" />
+				<span class="text-xs leading-none tabular-nums">{{ ratingLabel }}</span>
+			</div>
+		</NuxtLink>
+		<div class="flex min-w-0 flex-col gap-0.5">
+			<NuxtLink :to="`/movie/${movie.id}`" class="line-clamp-1 text-sm font-medium leading-tight text-fg-default">
+				{{ movie.title }}
+			</NuxtLink>
+			<p v-if="genreLabel" class="line-clamp-1 text-xs leading-tight text-fg-muted">
+				{{ genreLabel }}
+			</p>
+		</div>
+		<div v-if="user" class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3 text-fg-muted">
+			<button
+				v-if="!isInMovieList"
+				type="button"
+				class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
+				aria-label="Add to my movies"
+				@click="addToList">
+				<IconAddToList class="size-6" />
+			</button>
+			<button
+				v-else
+				type="button"
+				class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
+				aria-label="Remove from watchlist"
+				@click="removeFromList">
+				<UIcon name="i-heroicons-x-circle" class="size-6" />
+			</button>
+			<button
+				v-if="isInMovieList"
+				type="button"
+				class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
+				:aria-label="isInNextList ? 'Remove from favorites' : 'Add to favorites'"
+				@click="toggleWatchNext">
+				<UIcon :name="isInNextList ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'" class="size-6" />
+			</button>
+		</div>
+	</article>
 </template>

@@ -52,6 +52,7 @@ async function summaryFor(id: string): Promise<CatalogUpdate | null> {
 			title: movie.title,
 			rating: typeof movie.vote_average === 'number' ? movie.vote_average : 0,
 			poster: typeof movie.poster_path === 'string' ? movie.poster_path : '',
+			genres: (movie.genres ?? []).map((genre) => genre.name),
 		}
 	} catch {
 		return null

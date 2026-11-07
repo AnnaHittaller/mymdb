@@ -30,11 +30,15 @@ function toUserMovie(value: unknown): UserMovie | null {
 	if (typeof movie.title !== "string") {
 		return null;
 	}
+	const genres = Array.isArray(movie.genres)
+		? movie.genres.filter((genre): genre is string => typeof genre === "string")
+		: undefined;
 	return {
 		id: String(movie.id),
 		title: movie.title,
 		rating: typeof movie.rating === "number" ? movie.rating : 0,
 		poster: typeof movie.poster === "string" ? movie.poster : "",
+		...(genres?.length ? { genres } : {}),
 		seen: Boolean(movie.seen),
 		next: Boolean(movie.next),
 		timestamp: toDate(movie.timestamp),

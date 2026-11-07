@@ -31,7 +31,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="relative px-6">
     <div ref="scroller" class="movie-row scrollbar-none flex snap-x snap-mandatory gap-2.5 overflow-x-auto">
-      <div v-for="movie in movies" :key="movie.id" class="snap-start shrink-0 pt-3 pr-2">
+      <div v-for="movie in movies" :key="movie.id" class="w-[11rem] shrink-0 snap-start">
         <MovieCard :movie="movie" />
       </div>
     </div>
