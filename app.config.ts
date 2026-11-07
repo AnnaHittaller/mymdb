@@ -6,17 +6,19 @@ export default defineAppConfig({
 		},
 		button: {
 			slots: {
-				base: "font-extrabold cursor-pointer",
+				base: "rounded-lg font-extrabold cursor-pointer",
 			},
 		},
 		input: {
 			slots: {
 				root: "w-full",
+				base: "rounded-lg",
 			},
 		},
 		textarea: {
 			slots: {
 				root: "w-full",
+				base: "rounded-lg",
 			},
 		},
 		avatar: {

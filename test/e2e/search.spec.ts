@@ -42,7 +42,7 @@ test.describe("global search toolbar", () => {
 			timeout: 10_000,
 		});
 
-		const seeAll = page.getByRole("button", { name: "See all results" });
+		const seeAll = page.getByRole("button", { name: "See all" });
 		await expect(seeAll).toBeVisible({ timeout: 15_000 });
 		await seeAll.click();
 
@@ -70,13 +70,14 @@ test.describe("global search toolbar", () => {
 			timeout: 10_000,
 		});
 
-		const firstTitle = page
-			.getByRole("region", { name: "Search suggestions" })
+		const suggestions = page.getByRole("region", { name: "Search suggestions" });
+		const firstMovie = suggestions
 			.getByRole("button")
-			.filter({ hasNotText: "See all results" })
+			.filter({ hasNotText: /^See all$/ })
+			.filter({ hasNotText: /^matrix$/i })
 			.first();
-		await expect(firstTitle).toBeVisible({ timeout: 15_000 });
-		await firstTitle.click();
+		await expect(firstMovie).toBeVisible({ timeout: 15_000 });
+		await firstMovie.click();
 
 		await expect(page).toHaveURL(/\/movie\/\d+/, { timeout: 15_000 });
 	});

@@ -6,6 +6,13 @@ type TmdbSearchResult = {
 	backdrop_path: string | null
 	genre_ids: number[]
 	vote_average: number
+	release_date?: string
+}
+
+function releaseYearFrom(date: string | undefined | null): number | null {
+	if (!date || date.length < 4) return null
+	const year = Number.parseInt(date.slice(0, 4), 10);
+	return Number.isFinite(year) ? year : null
 }
 
 export default defineEventHandler(async (event) => {
@@ -41,6 +48,7 @@ export default defineEventHandler(async (event) => {
 					return name ? [name] : []
 				}),
 				rating: item.vote_average,
+				releaseYear: releaseYearFrom(item.release_date),
 			})),
 			total_pages: response.total_pages,
 		}
