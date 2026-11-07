@@ -12,7 +12,7 @@ const user = useCurrentUser()
 const { setUsername } = useUserDocument()
 
 const schema = z.object({
-    username: z.string().min(3, 'Must be at least 3 characters').max(30, "Too long - must be under 30 characters")
+    username: z.string({ error: 'Must be at least 3 characters' }).min(3, 'Must be at least 3 characters').max(30, 'Too long - must be under 30 characters')
 })
 
 type Schema = z.output<typeof schema>

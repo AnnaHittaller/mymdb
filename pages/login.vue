@@ -2,22 +2,26 @@
     <div class="max-w-[450px] w-full mx-auto">
         <Heading>Sign in</Heading>
         <UForm :schema="loginSchema" :state="state" class="space-y-6 w-full pt-8" @submit="onSubmit">
-            <UFormField label="Email " name="email" required size="lg" class="text-lg" :ui="{ label: 'text-lg' }">
-                <UInput v-model.trim="state.email" placeholder="Email" size="lg"
+            <UFormField label="Email " name="email" required size="lg" :ui="{ label: 'text-lg' }">
+                <UInput
+                    v-model.trim="state.email" placeholder="Email" size="lg"
                     :ui="{ base: 'text-lg placeholder:italic' }" />
             </UFormField>
 
             <UFormField label="Password " name="password" required size="lg" :ui="{ label: 'text-lg' }">
-                <UInput v-model="state.password" placeholder="Password" size="lg"
+                <UInput
+                    v-model="state.password" placeholder="Password" size="lg"
                     :ui="{ base: 'text-lg placeholder:italic' }" :type="inputType">
                     <template #trailing>
-                        <UIcon :name="inputType === 'password' ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'"
-                            @click="togglePasswordVisibility" class="cursor-pointer text-xl text-fg-muted" />
+                        <UIcon
+                            :name="inputType === 'password' ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'"
+                            class="cursor-pointer text-xl text-fg-muted" @click="togglePasswordVisibility" />
                     </template>
                 </UInput>
             </UFormField>
             <div class="w-max text-lg">
-                <NuxtLink to="./forgot-password"
+                <NuxtLink
+                    to="./forgot-password"
                     class="cursor-pointer text-primary hover:underline underline-offset-[5px]">
                     <p>Forgot your password?</p>
                 </NuxtLink>
@@ -28,7 +32,7 @@
                     Sign in
                 </UButton>
                 <USeparator label="OR" class="py-4" orientation="horizontal" />
-                <UButton type="button" class="text-lg" :loading="state.loading" @click="onGoogleButtonClick" block>
+                <UButton type="button" class="text-lg" :loading="state.loading" block @click="onGoogleButtonClick">
                     Sign in with Google
                 </UButton>
                 <p class="pt-2 text-center text-sm text-fg-subtle">{{ googleLinkHint }}</p>
@@ -43,9 +47,11 @@
                 </div>
             </div>
         </UForm>
-        <GoogleSignInGuideModal v-model:open="googleGuideOpen" :variant="googleGuideVariant" :loading="state.loading"
+        <GoogleSignInGuideModal
+            v-model:open="googleGuideOpen" :variant="googleGuideVariant" :loading="state.loading"
             @use-form-first="onGoogleGuideUseForm" @continue-google-only="runGoogleSignIn" />
-        <LinkGooglePasswordModal v-model:open="linkModalOpen" :email="linkModalEmail" :loading="linkModalLoading"
+        <LinkGooglePasswordModal
+            v-model:open="linkModalOpen" :email="linkModalEmail" :loading="linkModalLoading"
             @confirm="onLinkPasswordConfirm" @cancel="cancelLinkPassword" />
     </div>
 </template>

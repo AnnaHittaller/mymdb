@@ -45,7 +45,6 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
 
 <!-- TODO
 
-delete sonner
 search page and discover page: display icons for movieCards according to user's movies from useUserDocument
 create skeleton for swiper sliders and hero image / or loaders
 adding toast for movie page: list modifications

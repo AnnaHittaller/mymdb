@@ -29,8 +29,7 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui', 
-    '@vueuse/nuxt',
+    '@nuxt/ui',
     '@formkit/auto-animate/nuxt',
     'nuxt-vuefire',
   ],

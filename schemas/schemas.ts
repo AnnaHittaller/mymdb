@@ -2,26 +2,26 @@ import { z } from 'zod';
 
 // Login schema
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email'),
-  password: z.string().min(6, 'Must be at least 6 characters'),
+  email: z.email('Invalid email'),
+  password: z.string({ error: 'Must be at least 6 characters' }).min(6, 'Must be at least 6 characters'),
 });
 
 // Register schema
 export const registerSchema = z.object({
-  email: z.string().email('Invalid email'),
-  password: z.string().min(6, 'Must be at least 6 characters'),
-  username: z.string().min(3, 'Must be at least 3 characters').max(30, 'Too long - must be under 30 characters'),
+  email: z.email('Invalid email'),
+  password: z.string({ error: 'Must be at least 6 characters' }).min(6, 'Must be at least 6 characters'),
+  username: z.string({ error: 'Must be at least 3 characters' }).min(3, 'Must be at least 3 characters').max(30, 'Too long - must be under 30 characters'),
 });
 
 // Forgot Password schema
 export const forgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.email('Invalid email'),
 });
 
 // Contact schema 
 export const contactSchema = z.object({
-  subject: z.string().min(1, 'Subject is required'),
-  message: z.string().min(1, 'Message is required'),
+  subject: z.string({ error: 'Subject is required' }).min(1, 'Subject is required'),
+  message: z.string({ error: 'Message is required' }).min(1, 'Message is required'),
 });
 
 // Export types
