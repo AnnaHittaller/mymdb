@@ -13,24 +13,12 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
     <div class="max-w-full">
         <Hero />
         <template v-if="user">
-            <div class="flex justify-between items-center pr-8 pb-4 gap-8">
-                <Heading class="pl-8">My movies {{ user?.displayName }}</Heading>
-                <UButton to="/my-movies" label="View All" v-if="userMovies.length > 2" class="text-lg" />
-            </div>
-            <MovieSlider v-if="userMovies" :movies="userMovies" />
-            <div v-if="userMovies.length === 0" class="flex gap-4 max-sm:flex-col items-center max-sm:text-lg ">
-                <p class="px-8">Add some movies to your watchlist first.</p>
-                <UButton to="/search" label="Get movies" class="text-lg" />
-            </div>
-            <div class="flex justify-between items-center pr-8 pb-8 pt-4">
-                <Heading class="pl-8 pt-8">Favorites</Heading>
-                <UButton to="/watch-next" label="View All" v-if="watchNextMovies.length > 2" class="text-lg" />
-            </div>
-            <MovieSlider v-if="watchNextMovies" :movies="watchNextMovies" />
-            <div v-if="watchNextMovies.length === 0"
-                class="flex gap-4 max-sm:flex-col max-sm:text-lg items-center pb-8">
-                <p class="px-8">Add some movies to your watchlist first.</p>
-                <UButton to="/search" label="Get movies" class="text-lg" />
+            <div class="pb-8">
+                <Heading class="pt-4">Your lists</Heading>
+                <div class="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
+                    <MovieCollectionCard title="My movies" to="/my-movies" :movies="userMovies" />
+                    <MovieCollectionCard title="Favorites" to="/watch-next" :movies="watchNextMovies" />
+                </div>
             </div>
         </template>
         <div v-else class="flex flex-col items-start gap-4 px-8 pb-8">
@@ -46,7 +34,7 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
 <!-- TODO
 
 search page and discover page: display icons for movieCards according to user's movies from useUserDocument
-create skeleton for swiper sliders and hero image / or loaders
+create skeleton for hero image / or loaders
 adding toast for movie page: list modifications
 add filtering options for directors / actors in the discovery page 
 refactor for infinite scroll: search and discovery

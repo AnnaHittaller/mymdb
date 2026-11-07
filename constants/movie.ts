@@ -1,5 +1,8 @@
 export const POSTER_IMAGE_URL = "https://image.tmdb.org/t/p/w342";
 
+/** Suggestion flyout row thumbnails (small horizontal poster). */
+export const POSTER_SUGGESTION_IMAGE_URL = "https://image.tmdb.org/t/p/w154";
+
 /** Hero coverflow slides (up to ~300px CSS); w500 keeps 2× displays sharp. */
 export const POSTER_CAROUSEL_IMAGE_URL = "https://image.tmdb.org/t/p/w500";
 
