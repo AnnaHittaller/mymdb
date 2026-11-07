@@ -1,4 +1,5 @@
 import type { UserMovie } from "../../types/movie";
+import { formatMovieRating } from "../../utils/formatMovieRating";
 import type { UserDocumentData, UserDocumentStore } from "./types";
 
 const NO_USER_DOCUMENT = "No user document";
@@ -12,7 +13,7 @@ export type CatalogUpdate = {
 };
 
 function displayedRating(rating: number): string {
-	return rating.toFixed(1);
+	return formatMovieRating(rating);
 }
 
 function sameGenres(movie: UserMovie, update: CatalogUpdate): boolean {

@@ -2,6 +2,7 @@
 import { useCurrentUser } from "vuefire";
 import { BACKDROP_COMPACT_IMAGE_URL, BACKDROP_IMAGE_URL, POSTER_IMAGE_URL } from "~/constants/movie";
 import type { TrendingMovie } from "~/types/movie";
+import { formatMovieRating } from "~/utils/formatMovieRating";
 
 const user = useCurrentUser();
 const { isInList, movies, add, remove, setNext } = useUserDocument();
@@ -30,8 +31,7 @@ useHead(() => {
 });
 
 function ratingLabel(movie: TrendingMovie) {
-	if (!movie.vote_average) return "N/A";
-	return movie.vote_average.toFixed(1);
+	return formatMovieRating(movie.vote_average);
 }
 
 function yearLabel(movie: TrendingMovie) {

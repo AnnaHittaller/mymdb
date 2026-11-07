@@ -235,7 +235,7 @@
 	@media (width >= 40rem) {
 		flex-direction: column;
 		line-height: normal;
-		border-radius: 0.75rem;
+		border-radius: 0.5rem;
 		width: auto;
 		min-width: 4.75rem;
 		height: auto;
@@ -288,4 +288,10 @@
 	grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
 	row-gap: 2rem;
 	column-gap: 1rem;
+}
+
+/* Discover / filter controls — match select, selectMenu, inputMenu triggers */
+@utility discover-filter-control {
+	@apply rounded-lg bg-surface-page border border-border-default text-fg-default shadow-none ring-0 outline-none;
+	@apply focus:border-border-default focus:ring-0 focus-visible:border-border-default focus-visible:ring-0;
 }

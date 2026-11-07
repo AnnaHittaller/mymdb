@@ -16,21 +16,26 @@ export default defineEventHandler(async (event) => {
 	try {
 		const query = getQuery(event)
 		const config = useRuntimeConfig()
-		const page = query.page || 1
-		const rating = query.rating || 0
-		const genres = query.genres || ''
+		const params = buildTmdbDiscoverMovieParams({
+			page: String(query.page ?? 1),
+			rating: String(query.rating ?? 0),
+			genres: String(query.genres ?? ""),
+			withCast: String(query.with_cast ?? ""),
+			releaseYearGte: String(query.release_year_gte ?? 0),
+			releaseYearLte: String(query.release_year_lte ?? 0),
+		})
 		const headers = {
-			accept: 'application/json',
+			accept: "application/json",
 			Authorization: `Bearer ${config.apiBearerToken}`,
 		}
 
 		const [response, genreList] = await Promise.all([
 			$fetch<{ results: TmdbDiscoverResult[] }>(
-				`${config.apiBaseUrl}/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc&vote_average.gte=${rating}&with_genres=${genres}`,
-				{ method: 'GET', headers },
+				`${config.apiBaseUrl}/discover/movie?${params.toString()}`,
+				{ method: "GET", headers },
 			),
 			$fetch<TmdbGenreList>(`${config.apiBaseUrl}/genre/movie/list?language=en`, {
-				method: 'GET',
+				method: "GET",
 				headers,
 			}).catch(() => ({ genres: [] })),
 		])
@@ -52,7 +57,7 @@ export default defineEventHandler(async (event) => {
 	} catch {
 		throw createError({
 			statusCode: 404,
-			message: 'Error while discovering movies.',
+			message: "Error while discovering movies.",
 		})
 	}
 })

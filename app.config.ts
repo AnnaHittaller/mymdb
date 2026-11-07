@@ -21,6 +21,17 @@ export default defineAppConfig({
 				base: "rounded-lg",
 			},
 		},
+		select: {
+			slots: {
+				base: "discover-filter-control",
+				content: "bg-surface-nav-active border border-border-default",
+				trigger: "bg-surface-page",
+			},
+			defaultVariants: {
+				color: "neutral",
+				variant: "outline",
+			},
+		},
 		avatar: {
 			slots: {
 				root: "bg-surface-inset",
@@ -38,9 +49,27 @@ export default defineAppConfig({
 				content: "z-[1100]",
 			},
 		},
+		inputMenu: {
+			slots: {
+				root: "w-full",
+				base: "discover-filter-control w-full min-h-9 px-2.5 py-1.5 placeholder:text-fg-default !ring-1 ring-inset !ring-border-default focus-visible:!ring-border-default",
+				content: "bg-surface-nav-active border border-border-default",
+				trailing: "pe-2",
+			},
+			defaultVariants: {
+				color: "neutral",
+				variant: "outline",
+			},
+		},
 		selectMenu: {
 			slots: {
-				content: "bg-surface-elevated",
+				base: "discover-filter-control",
+				content: "bg-surface-nav-active border border-border-default",
+				placeholder: "text-fg-default",
+			},
+			defaultVariants: {
+				color: "neutral",
+				variant: "outline",
 			},
 			option: {
 				active: "bg-surface-nav-active",

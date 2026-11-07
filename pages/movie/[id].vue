@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { POSTER_DETAIL_IMAGE_URL, PROFILE_IMAGE_URL } from "~/constants/movie";
 import type { Movie } from "~/types/movie";
+import { formatMovieRating } from "~/utils/formatMovieRating";
 
 definePageMeta({
     layout: "default",
@@ -28,6 +29,10 @@ const similarFetch = useFetch(() => `/api/movies/similar?id=${movieId.value}`, {
 const [{ data, pending, error }, { data: similar }] = await Promise.all([movieFetch, similarFetch])
 
 const movie = computed(() => data.value)
+
+const averageRatingLabel = computed(() =>
+	movie.value ? formatMovieRating(movie.value.vote_average) : "N/A",
+)
 const moviesWithPoster = computed(() => similar.value ?? [])
 
 const isInMovieList = computed(() => isInList(movieId.value));
@@ -115,7 +120,7 @@ const removeFromNextList = async () => {
                 <Heading class="pt-4">Details</Heading>
                 <div>Release date: {{ movie.release_date }}</div>
                 <div>Runtime: {{ movie.runtime }} min</div>
-                <div>Average rating: {{ movie.vote_average.toFixed(1) }}</div>
+                <div>Average rating: {{ averageRatingLabel }}</div>
                 <Heading class="pt-4">Starring</Heading>
                 <div class="flex flex-wrap gap-x-6 gap-y-4 md:max-lg:gap-x-4">
                     <div v-for="actor in movie.credits.cast.slice(0, 5)" :key="actor.id"

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CatalogUpdate } from "~/domain/user-document/createUserDocument";
 import { POSTER_IMAGE_URL } from "~/constants/movie";
+import { formatMovieRating } from "~/utils/formatMovieRating";
 
 type MovieCardMovie = {
 	id: number | string;
@@ -33,11 +34,9 @@ const movieId = computed(() => String(props.movie.id));
 
 const posterPath = computed(() => props.movie.poster || props.movie.poster_path || "");
 
-const ratingLabel = computed(() => {
-	const value = props.movie.rating ?? props.movie.vote_average;
-	if (value == null || Number.isNaN(value)) return "N/A";
-	return value.toFixed(1);
-});
+const ratingLabel = computed(() =>
+	formatMovieRating(props.movie.rating ?? props.movie.vote_average),
+);
 
 const resolvedGenres = ref<string[]>([]);
 
@@ -117,8 +116,10 @@ async function toggleWatchNext() {
 				class="aspect-2/3 w-full rounded-lg object-cover">
 			<div
 				class="absolute right-1.5 top-1.5 inline-flex items-center justify-center gap-0.5 rounded bg-surface-overlay/50 px-1.5 py-0.5 text-fg-default backdrop-blur-sm">
-				<UIcon name="i-heroicons-star-20-solid" class="block size-3.5 shrink-0 text-rating" />
-				<span class="text-xs leading-none tabular-nums">{{ ratingLabel }}</span>
+				<UIcon
+					name="i-heroicons-star-20-solid"
+					class=" block size-3 shrink-0 text-rating" />
+				<span class="text-xs leading-none mt-0.5 tabular-nums">{{ ratingLabel }}</span>
 			</div>
 		</NuxtLink>
 		<div class="flex min-w-0 flex-col gap-0.5">
