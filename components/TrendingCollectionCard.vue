@@ -57,7 +57,7 @@ const emptyIcon = computed(() =>
 
 		<UIcon
 			name="i-heroicons-arrow-right"
-			class="order-3 hidden size-8 shrink-0 text-fg-subtle transition-colors group-hover:text-primary md:block"
+			class="order-3 hidden size-6 shrink-0 text-fg-subtle transition-colors group-hover:text-primary md:block"
 			aria-hidden="true" />
 	</NuxtLink>
 </template>

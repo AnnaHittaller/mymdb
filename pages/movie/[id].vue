@@ -71,6 +71,27 @@ const removeFromNextList = async () => {
     await setNext(movieId.value, false, "movie");
 }
 
+const {
+    modalOpen: trailerModalOpen,
+    activeTitle: trailerModalTitle,
+    activeTrailer,
+    loading: trailerLoading,
+    openTrailer,
+} = useTrailerPlayback();
+
+const hasTrailer = computed(() => Boolean(movie.value?.trailer));
+
+async function onWatchTrailer() {
+    const current = movie.value;
+    if (!current) return;
+    await openTrailer({
+        id: movieId.value,
+        mediaType: "movie",
+        title: current.title,
+        trailer: current.trailer,
+    });
+}
+
 // TODO: add directors, producers and music composers
 </script>
 
@@ -97,6 +118,17 @@ const removeFromNextList = async () => {
                         height="1170" fetchpriority="high" decoding="async"
                         class="w-full max-w-sm aspect-[2/3] object-cover" />
                 </div>
+                <WatchTrailerButton
+                    v-if="hasTrailer"
+                    :id="movieId"
+                    media-type="movie"
+                    :title="movie.title"
+                    :trailer="movie.trailer"
+                    :loading="trailerLoading"
+                    block
+                    size="lg"
+                    class="text-lg"
+                    @play="onWatchTrailer" />
                 <div class="icon-group flex gap-4 w-full">
                     <UButton v-if="!user" icon="i-heroicons-arrow-right-on-rectangle" color="primary" variant="outline"
                         label="Sign in" class="flex gap-2 items-center justify-center text-lg" block
@@ -146,6 +178,10 @@ const removeFromNextList = async () => {
                 :movie="item"
                 media-type="movie" />
         </div>
+        <TrailerModal
+            v-model:open="trailerModalOpen"
+            :title="trailerModalTitle"
+            :trailer="activeTrailer" />
     </div>
     <div v-else>
         <p> {{ error }}</p>

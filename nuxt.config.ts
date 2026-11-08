@@ -8,6 +8,19 @@ const firebaseEmulatorsActive =
   Boolean(process.env.FIRESTORE_EMULATOR_HOST) ||
   Boolean(process.env.FIREBASE_AUTH_EMULATOR_HOST)
 
+const productionTrailerCsp = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+  "frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com",
+  "img-src 'self' data: blob: https://image.tmdb.org https://i.ytimg.com https://*.googleusercontent.com",
+  "font-src 'self' data:",
+  "style-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline'",
+  "connect-src 'self' https://api.themoviedb.org https://*.googleapis.com https://*.firebaseio.com https://*.google.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com",
+].join('; ')
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   spaLoadingTemplate: false,
@@ -75,6 +88,16 @@ export default defineNuxtConfig({
      public: {},
    },
   compatibilityDate: '2026-10-25',
+
+  routeRules: process.env.NODE_ENV === 'production'
+    ? {
+        '/**': {
+          headers: {
+            'Content-Security-Policy': productionTrailerCsp,
+          },
+        },
+      }
+    : {},
 
   hooks: {
     async 'imports:extend'(imports) {

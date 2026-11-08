@@ -1,4 +1,5 @@
 import type { MediaType } from "./catalog";
+import type { TrailerRef } from "./trailer";
 
 export interface TrendingMovie {
 	id: number;
@@ -51,6 +52,7 @@ export interface Movie {
 	vote_average: number;
 	vote_count: number;
 	credits: Credits;
+	trailer?: TrailerRef | null;
 }
 
 export interface Credits {

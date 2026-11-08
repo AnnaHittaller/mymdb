@@ -12,7 +12,7 @@ export const fetchTmdbMovie = defineCachedFunction(
 	async (id: string) => {
 		const config = useRuntimeConfig()
 		return await $fetch<TmdbMovieDetails>(
-			`${config.apiBaseUrl}/movie/${id}?append_to_response=credits&language=en-US&page=1`,
+			`${config.apiBaseUrl}/movie/${id}?append_to_response=credits,videos&language=en-US&page=1`,
 			{
 				method: 'GET',
 				headers: {
