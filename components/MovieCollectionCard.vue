@@ -40,47 +40,28 @@ const isEmpty = computed(() => props.movies.length === 0);
 		:to="to"
 		class="group flex w-full items-center gap-3 rounded-[12px] border border-border-default bg-surface-overlay/70 p-2 backdrop-blur-md transition-colors hover:border-primary md:gap-4">
 		<!-- Posters: right on mobile, left on desktop -->
-		<div
-			class="order-2 shrink-0 md:order-1"
-			:class="isEmpty ? 'size-12 md:size-[4.25rem]' : 'md:w-[4.25rem]'">
+		<div class="order-2 shrink-0 md:order-1">
 			<div
 				v-if="isEmpty"
-				class="flex size-full items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster"
+				class="flex aspect-2/3 w-12 items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster lg:w-14"
 				aria-hidden="true">
 				<UIcon name="i-heroicons-film-20-solid" class="size-6 text-fg-muted opacity-60 md:size-8" />
 			</div>
-			<template v-else>
-				<div class="flex gap-1 md:hidden">
-					<div
-						v-for="movie in previewPosters"
-						:key="movie.id"
-						class="relative size-10 shrink-0 overflow-hidden rounded-[4px] bg-surface-poster">
-						<img
-							:src="`${POSTER_SUGGESTION_IMAGE_URL}${movie.poster}`"
-							:alt="''"
-							width="154"
-							height="231"
-							loading="lazy"
-							decoding="async"
-							class="size-full object-cover">
-					</div>
+			<div v-else class="flex gap-1">
+				<div
+					v-for="movie in previewPosters"
+					:key="movie.id"
+					class="relative aspect-2/3 w-12 shrink-0 overflow-hidden rounded-[4px] bg-surface-poster lg:w-14">
+					<img
+						:src="`${POSTER_SUGGESTION_IMAGE_URL}${movie.poster}`"
+						:alt="''"
+						width="154"
+						height="231"
+						loading="lazy"
+						decoding="async"
+						class="size-full object-cover">
 				</div>
-				<div class="hidden grid-cols-2 gap-1 md:grid">
-					<div
-						v-for="movie in previewPosters"
-						:key="movie.id"
-						class="relative size-8 overflow-hidden rounded-[4px] bg-surface-poster">
-						<img
-							:src="`${POSTER_SUGGESTION_IMAGE_URL}${movie.poster}`"
-							:alt="''"
-							width="154"
-							height="231"
-							loading="lazy"
-							decoding="async"
-							class="size-full object-cover">
-					</div>
-				</div>
-			</template>
+			</div>
 		</div>
 
 		<div class="order-1 min-w-0 flex-1 md:order-2">
