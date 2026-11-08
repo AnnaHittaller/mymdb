@@ -7,11 +7,28 @@ definePageMeta({
 
 const user = useCurrentUser()
 const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
+const { data: trendingMovies } = useTrendingCatalog('movie', { server: true })
+const { data: trendingShows } = useTrendingCatalog('tv', { server: true })
 </script>
 
 <template>
     <div class="max-w-full">
         <Hero />
+        <div class="pb-8">
+            <Heading class="pt-4">Trending</Heading>
+            <div class="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
+                <TrendingCollectionCard
+                    title="Trending movies"
+                    to="/trending/movies"
+                    media-type="movie"
+                    :items="trendingMovies ?? []" />
+                <TrendingCollectionCard
+                    title="Trending shows"
+                    to="/trending/shows"
+                    media-type="tv"
+                    :items="trendingShows ?? []" />
+            </div>
+        </div>
         <template v-if="user">
             <div class="pb-8">
                 <Heading class="pt-4">Your lists</Heading>
@@ -30,19 +47,3 @@ const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
         </div>
     </div>
 </template>
-
-<!-- TODO
-
-search page and discover page: display icons for movieCards according to user's movies from useUserDocument
-create skeleton for hero image / or loaders
-adding toast for movie page: list modifications
-add filtering options for directors / actors in the discovery page 
-refactor for infinite scroll: search and discovery
-create separate file for movie functions
-make movie props keep the original names overall to avoid naming conflicts
-
-filtering in watchlist/next list by genre
-adding trailers and/or screenshots
-including series too
-
--->

@@ -240,8 +240,9 @@ function goToSearch() {
 	void navigateAfterFlyoutDismiss({ path: "/search", query: { q: trimmed } });
 }
 
-function goToMovie(id: number) {
-	void navigateAfterFlyoutDismiss(`/movie/${id}`);
+function goToTitle(id: number, mediaType: SearchMovie["mediaType"]) {
+	const path = mediaType === "tv" ? `/show/${id}` : `/movie/${id}`;
+	void navigateAfterFlyoutDismiss(path);
 }
 
 function onSelectRecent(query: string) {
@@ -323,8 +324,8 @@ function onInputKeydown(event: KeyboardEvent) {
 								v-model="draft"
 								type="text"
 								name="global-search"
-								placeholder="Search movies..."
-								aria-label="Search movies"
+								placeholder="Search movies and shows..."
+								aria-label="Search movies and shows"
 								autocomplete="off"
 								enterkeyhint="search"
 								:aria-expanded="popoverOpen"
@@ -377,7 +378,7 @@ function onInputKeydown(event: KeyboardEvent) {
 							@pointerenter="onFlyoutPointerEnter"
 							@pointerleave="onFlyoutPointerLeave"
 							@select-recent="onSelectRecent"
-							@select-movie="goToMovie"
+							@select-title="goToTitle"
 							@see-all="goToSearch" />
 					</template>
 				</UPopover>

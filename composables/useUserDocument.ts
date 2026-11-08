@@ -7,16 +7,18 @@ import {
 	type CatalogUpdate,
 } from "../domain/user-document/createUserDocument";
 import { createVueFireUserDocumentStore } from "../domain/user-document/vueFireStore";
+import type { MediaType } from "../types/catalog";
 import type { UserMovie } from "../types/movie";
+import { catalogKey, defaultMediaType } from "../utils/catalogKey";
 
 type UserDocumentApi = {
 	movies: ComputedRef<UserMovie[]>;
 	watchNext: ComputedRef<UserMovie[]>;
 	theme: ComputedRef<string>;
-	isInList: (id: string) => boolean;
+	isInList: (id: string, mediaType?: MediaType) => boolean;
 	add: (movie: UserMovie) => Promise<void>;
-	remove: (id: string) => Promise<void>;
-	setNext: (id: string, next: boolean) => Promise<void>;
+	remove: (id: string, mediaType?: MediaType) => Promise<void>;
+	setNext: (id: string, next: boolean, mediaType?: MediaType) => Promise<void>;
 	setTheme: (theme: string) => Promise<void>;
 	setUsername: (username: string) => Promise<void>;
 };
@@ -66,13 +68,14 @@ export function provideUserDocument() {
 			version.value;
 			return document.theme();
 		}),
-		isInList: (id: string) => {
+		isInList: (id: string, mediaType?: MediaType) => {
 			version.value;
-			return document.isInList(id);
+			return document.isInList(id, mediaType);
 		},
 		add: (movie: UserMovie) => document.add(movie),
-		remove: (id: string) => document.remove(id),
-		setNext: (id: string, next: boolean) => document.setNext(id, next),
+		remove: (id: string, mediaType?: MediaType) => document.remove(id, mediaType),
+		setNext: (id: string, next: boolean, mediaType?: MediaType) =>
+			document.setNext(id, next, mediaType),
 		setTheme: (theme: string) => document.setTheme(theme),
 		setUsername: (username: string) => document.setUsername(username),
 	};
@@ -92,12 +95,15 @@ function catalogRefreshIsFresh(uid: string) {
 	return Number.isFinite(stamp) && Date.now() - stamp < CACHE_DURATION;
 }
 
-async function fetchCatalogSummaries(ids: string[]): Promise<CatalogUpdate[]> {
+async function fetchCatalogSummaries(movies: UserMovie[]): Promise<CatalogUpdate[]> {
 	const updates: CatalogUpdate[] = [];
-	for (let index = 0; index < ids.length; index += CATALOG_SUMMARY_CHUNK) {
-		const chunk = ids.slice(index, index + CATALOG_SUMMARY_CHUNK);
-		const summaries = await $fetch<CatalogUpdate[]>("/api/movies/summaries", {
-			query: { ids: chunk.join(",") },
+	for (let index = 0; index < movies.length; index += CATALOG_SUMMARY_CHUNK) {
+		const chunk = movies.slice(index, index + CATALOG_SUMMARY_CHUNK);
+		const entries = chunk
+			.map((movie) => catalogKey(movie.id, defaultMediaType(movie.mediaType)))
+			.join(",");
+		const summaries = await $fetch<CatalogUpdate[]>("/api/catalog/summaries", {
+			query: { entries },
 		});
 		updates.push(...summaries);
 	}
@@ -122,12 +128,12 @@ function watchCatalogRefresh(
 			started.add(uid);
 			void (async () => {
 				try {
-					const ids = movies().map((movie) => movie.id);
-					if (ids.length === 0 || userId() !== uid) {
+					const list = movies();
+					if (list.length === 0 || userId() !== uid) {
 						started.delete(uid);
 						return;
 					}
-					const updates = await fetchCatalogSummaries(ids);
+					const updates = await fetchCatalogSummaries(list);
 					if (userId() !== uid) {
 						started.delete(uid);
 						return;

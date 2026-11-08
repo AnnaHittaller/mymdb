@@ -6,9 +6,11 @@ import {
 	PERSON_SEARCH_DEBOUNCE_MS,
 	PERSON_SEARCH_MIN_LENGTH,
 } from "~/composables/usePersonSearch";
+import type { MediaType } from "~/types/catalog";
 
-type DiscoverMovie = {
+type DiscoverTitle = {
 	id: number
+	mediaType: MediaType
 	title: string
 	popularity: number
 	poster: string | null
@@ -64,13 +66,14 @@ const yearChoices = Array.from({ length: currentYear - 1899 }, (_, index) => {
 const yearFromItems = [{ label: "From (any year)", value: 0 }, ...yearChoices]
 const yearToItems = [{ label: "To (any year)", value: 0 }, ...yearChoices]
 
+const media = ref<MediaType>("movie")
 const page = ref(1)
 const rating = ref(0)
 const genreIds = ref<number[]>([])
 const releaseYearFrom = ref(0)
 const releaseYearTo = ref(0)
 const castPeople = ref<CastPerson[]>([])
-const movies = ref<DiscoverMovie[]>([])
+const movies = ref<DiscoverTitle[]>([])
 const hasMore = ref(false)
 
 const castSearchTerm = ref("")
@@ -79,7 +82,10 @@ const castSuggestionItems = ref<CastMenuItem[]>([])
 const castInputKey = ref(0)
 let castSearchAbort: AbortController | null = null
 
-const { data: genreList } = await useFetch<GenreList>("/api/movies/genres")
+const genreUrl = computed(() => (media.value === "tv" ? "/api/tv/genres" : "/api/movies/genres"))
+const { data: genreList, refresh: refreshGenres } = await useFetch<GenreList>(() => genreUrl.value, {
+	watch: [genreUrl],
+})
 const genreItems = computed(() =>
 	(genreList.value?.genres ?? []).map((genre) => ({ label: genre.name, value: genre.id })),
 )
@@ -146,6 +152,25 @@ const filterChips = computed<FilterChip[]>(() => {
 	return chips
 })
 
+const discoverHeading = computed(() =>
+	media.value === "tv" ? "Discover new shows" : "Discover new movies",
+)
+
+const castHint = computed(() =>
+	media.value === "tv"
+		? "Shows starring all selected actors."
+		: "Movies starring all selected actors.",
+)
+
+watch(media, async (next, prev) => {
+	if (next === prev) return
+	clearFilters()
+	page.value = 1
+	movies.value = []
+	hasMore.value = false
+	await refreshGenres()
+})
+
 watch([rating, genreKey, castKey, yearKey], () => {
 	page.value = 1
 	movies.value = []
@@ -175,17 +200,23 @@ watch(debouncedCastSearch, async (term) => {
 	}
 })
 
+const discoverKey = computed(
+	() => `${media.value}|${page.value}|${rating.value}|${genreKey.value}|${castKey.value}|${yearKey.value}`,
+)
+
 const { data, status, error } = await useAsyncData(
-	"discover-movies",
+	() => `discover-${discoverKey.value}`,
 	async () => {
+		const requestedMedia = media.value
 		const requestedPage = page.value
 		const requestedRating = rating.value
 		const requestedGenres = genreKey.value
 		const requestedCast = castKey.value
 		const requestedYears = yearKey.value
 		const { from, to } = releaseYears.value
-		const results = await $fetch<DiscoverMovie[]>("/api/movies/discover", {
+		const results = await $fetch<DiscoverTitle[]>("/api/catalog/discover", {
 			query: {
+				media: requestedMedia,
 				page: requestedPage,
 				rating: requestedRating,
 				genres: requestedGenres,
@@ -196,6 +227,7 @@ const { data, status, error } = await useAsyncData(
 		})
 		return {
 			results,
+			requestedMedia,
 			requestedPage,
 			requestedRating,
 			requestedGenres,
@@ -203,13 +235,14 @@ const { data, status, error } = await useAsyncData(
 			requestedYears,
 		}
 	},
-	{ watch: [page, rating, genreKey, castKey, yearKey] },
+	{ watch: [media, page, rating, genreKey, castKey, yearKey] },
 )
 
 watch(data, (payload) => {
 	if (!payload) return
 	if (
-		payload.requestedPage !== page.value
+		payload.requestedMedia !== media.value
+		|| payload.requestedPage !== page.value
 		|| payload.requestedRating !== rating.value
 		|| payload.requestedGenres !== genreKey.value
 		|| payload.requestedCast !== castKey.value
@@ -219,13 +252,17 @@ watch(data, (payload) => {
 	hasMore.value = payload.results.length >= 20
 	if (payload.requestedPage === 1) {
 		movies.value = visible
-		return
+	} else {
+		const seen = new Set(movies.value.map((movie) => `${movie.mediaType}-${movie.id}`))
+		movies.value = [...movies.value, ...visible.filter((movie) => !seen.has(`${movie.mediaType}-${movie.id}`))]
 	}
-	const seen = new Set(movies.value.map((movie) => movie.id))
-	movies.value = [...movies.value, ...visible.filter((movie) => !seen.has(movie.id))]
 }, { immediate: true })
 
 const pending = computed(() => status.value === "pending")
+
+const awaitingResults = computed(
+	() => movies.value.length === 0 && (pending.value || status.value === "idle"),
+)
 
 function onCastPick(value: number | undefined) {
 	if (value == null) return
@@ -286,8 +323,9 @@ function loadMore() {
 <template>
 	<div>
 		<div class="flex flex-col gap-4 pb-8">
-			<Heading>Discover new movies</Heading>
+			<Heading>{{ discoverHeading }}</Heading>
 			<div class="flex flex-wrap gap-4 items-center">
+				<DiscoverMediaToggle v-model="media" />
 				<USelect
 					v-model="rating"
 					:items="ratingItems"
@@ -333,17 +371,21 @@ function loadMore() {
 					:remove-label="chip.removeLabel"
 					@remove="removeFilterChip(chip.id)" />
 				<p v-if="castPeople.length > 1" class="w-full text-sm text-fg-muted">
-					Movies starring all selected actors.
+					{{ castHint }}
 				</p>
 				<UButton label="Clear" variant="outline" class="ml-auto sm:ml-0" @click="clearFilters" />
 			</div>
 		</div>
 		<div class="flex flex-col items-stretch">
-			<p v-if="error && movies.length === 0" class="text-lg">Couldn't load movies.</p>
-			<p v-else-if="pending && movies.length === 0" class="text-lg">Loading movies…</p>
-			<p v-else-if="movies.length === 0" class="text-lg">No movies match these filters.</p>
+			<p v-if="error && movies.length === 0 && !awaitingResults" class="text-lg">Couldn't load titles.</p>
+			<p v-else-if="awaitingResults" class="text-lg">Loading…</p>
+			<p v-else-if="movies.length === 0" class="text-lg">No titles match these filters.</p>
 			<div v-if="movies.length > 0" class="movie-grid">
-				<MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" />
+				<MovieCard
+					v-for="movie in movies"
+					:key="`${movie.mediaType}-${movie.id}`"
+					:movie="movie"
+					:media-type="movie.mediaType" />
 			</div>
 			<UButton
 				v-if="movies.length > 0 && hasMore"

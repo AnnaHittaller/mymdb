@@ -3,7 +3,7 @@
 provideUserDocument()
 
 // Start trending with the session. server: false so other pages are not held for this request.
-useTrendingMovies({ lazy: true, server: false })
+useTrendingHero({ lazy: true, server: false })
 
 useHead({
     bodyAttrs: {
@@ -11,7 +11,7 @@ useHead({
     },
     title: 'MyMDb',
     meta: [
-        { name: 'description', content: 'Keep your movie must-watch list always up-to-date.' }
+        { name: 'description', content: 'Keep your movie and show must-watch list always up-to-date.' }
     ],
 })
 

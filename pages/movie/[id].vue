@@ -35,17 +35,20 @@ const averageRatingLabel = computed(() =>
 )
 const moviesWithPoster = computed(() => similar.value ?? [])
 
-const isInMovieList = computed(() => isInList(movieId.value));
+const isInMovieList = computed(() => isInList(movieId.value, "movie"));
 
-const isInNextList = computed(() => {
-    return movies.value.some((entry) => entry.id === movieId.value && entry.next);
-});
+const isInNextList = computed(() =>
+	movies.value.some(
+		(entry) => entry.id === movieId.value && entry.next && (entry.mediaType ?? "movie") === "movie",
+	),
+);
 
 const addToMovieList = async () => {
     const current = movie.value
     if (!current) return
     await add({
         id: movieId.value,
+        mediaType: "movie",
         title: current.title,
         rating: current.vote_average,
         poster: current.poster_path,
@@ -57,15 +60,15 @@ const addToMovieList = async () => {
 };
 
 const removeFromMovieList = async () => {
-    await remove(movieId.value)
+    await remove(movieId.value, "movie")
 }
 
 const addToNextList = async () => {
-    await setNext(movieId.value, true);
+    await setNext(movieId.value, true, "movie");
 }
 
 const removeFromNextList = async () => {
-    await setNext(movieId.value, false);
+    await setNext(movieId.value, false, "movie");
 }
 
 // TODO: add directors, producers and music composers
@@ -137,7 +140,11 @@ const removeFromNextList = async () => {
         <Heading class="pt-4">More like this</Heading>
 
         <div class="movie-grid " v-if="moviesWithPoster.length > 0">
-            <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
+            <MovieCard
+                v-for="item in moviesWithPoster"
+                :key="`movie-${item.id}`"
+                :movie="item"
+                media-type="movie" />
         </div>
     </div>
     <div v-else>

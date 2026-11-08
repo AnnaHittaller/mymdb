@@ -12,7 +12,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	selectRecent: [query: string];
-	selectMovie: [id: number];
+	selectTitle: [id: number, mediaType: SearchMovie["mediaType"]];
 	seeAll: [];
 }>();
 </script>
@@ -55,7 +55,7 @@ const emit = defineEmits<{
 				:class="recents.length > 0 ? '' : 'sm:col-span-full'">
 				<div class="mb-2 flex min-h-8 items-center justify-between gap-2 sm:min-h-9">
 					<p class="shrink-0 text-xs font-medium tracking-wide text-fg-muted uppercase">
-						Movies
+						Titles
 					</p>
 					<UButton
 						label="See all"
@@ -77,10 +77,10 @@ const emit = defineEmits<{
 					v-else-if="movies.length > 0"
 					class="flex flex-col gap-1.5 sm:grid sm:grid-cols-2 sm:gap-2"
 					role="list">
-					<div v-for="movie in movies" :key="movie.id" role="listitem">
+					<div v-for="movie in movies" :key="`${movie.mediaType}-${movie.id}`" role="listitem">
 						<SearchSuggestionMovieCard
 							:movie="movie"
-							@select="emit('selectMovie', movie.id)" />
+							@select="emit('selectTitle', movie.id, movie.mediaType)" />
 					</div>
 				</div>
 				<p

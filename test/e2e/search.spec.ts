@@ -34,7 +34,7 @@ test.describe("global search toolbar", () => {
 	test("suggestions, see all, and results page", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
 
-		const searchInput = page.getByRole("searchbox", { name: "Search movies" });
+		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
 		await expect(searchInput).toBeVisible({ timeout: 15_000 });
 
 		await searchInput.fill("matrix");
@@ -54,7 +54,7 @@ test.describe("global search toolbar", () => {
 	test("submit via Enter navigates to search", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
 
-		const searchInput = page.getByRole("searchbox", { name: "Search movies" });
+		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
 		await searchInput.fill("inception");
 		await searchInput.press("Enter");
 
@@ -64,7 +64,7 @@ test.describe("global search toolbar", () => {
 	test("suggestion title opens movie detail", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
 
-		const searchInput = page.getByRole("searchbox", { name: "Search movies" });
+		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
 		await searchInput.fill("matrix");
 		await expect(page.getByRole("region", { name: "Search suggestions" })).toBeVisible({
 			timeout: 10_000,

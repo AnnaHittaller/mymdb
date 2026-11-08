@@ -1,4 +1,6 @@
+import type { MediaType } from "../../types/catalog";
 import type { UserMovie } from "../../types/movie";
+import { catalogKey, defaultMediaType } from "../../utils/catalogKey";
 import { formatMovieRating } from "../../utils/formatMovieRating";
 import type { UserDocumentData, UserDocumentStore } from "./types";
 
@@ -6,11 +8,24 @@ const NO_USER_DOCUMENT = "No user document";
 
 export type CatalogUpdate = {
 	id: string;
+	mediaType?: MediaType;
 	title: string;
 	rating: number;
 	poster: string;
 	genres: string[];
 };
+
+function entryKey(movie: Pick<UserMovie, "id" | "mediaType">): string {
+	return catalogKey(movie.id, defaultMediaType(movie.mediaType));
+}
+
+function matchesEntry(
+	movie: UserMovie,
+	id: string,
+	mediaType?: MediaType,
+): boolean {
+	return entryKey(movie) === catalogKey(id, defaultMediaType(mediaType ?? movie.mediaType));
+}
 
 function displayedRating(rating: number): string {
 	return formatMovieRating(rating);
@@ -35,10 +50,12 @@ export function mergeCatalog(
 	movies: UserMovie[],
 	updates: CatalogUpdate[]
 ): { movies: UserMovie[]; changed: boolean } {
-	const byId = new Map(updates.map((update) => [update.id, update]));
+	const byKey = new Map(
+		updates.map((update) => [catalogKey(update.id, defaultMediaType(update.mediaType)), update]),
+	);
 	let changed = false;
 	const next = movies.map((movie) => {
-		const update = byId.get(movie.id);
+		const update = byKey.get(entryKey(movie));
 		if (!update || sameDisplay(movie, update)) {
 			return movie;
 		}
@@ -96,33 +113,40 @@ export function createUserDocument(store: UserDocumentStore) {
 		movies: () => cloneMovies(snapshot?.movies ?? []),
 		watchNext: () => watchNextOf(snapshot?.movies ?? []),
 		theme: () => snapshot?.theme ?? "",
-		isInList: (id: string) => (snapshot?.movies ?? []).some((movie) => movie.id === id),
+		isInList: (id: string, mediaType?: MediaType) =>
+			(snapshot?.movies ?? []).some((movie) => matchesEntry(movie, id, mediaType)),
 		add: (movie: UserMovie) =>
 			store.transact((document) => {
 				const current = requireDocument(document);
-				if (current.movies.some((entry) => entry.id === movie.id)) {
+				const normalized: UserMovie = {
+					...movie,
+					mediaType: defaultMediaType(movie.mediaType),
+				};
+				if (current.movies.some((entry) => entryKey(entry) === entryKey(normalized))) {
 					return current;
 				}
-				return { ...current, movies: [...current.movies, movie] };
+				return { ...current, movies: [...current.movies, normalized] };
 			}),
-		remove: (id: string) =>
+		remove: (id: string, mediaType?: MediaType) =>
 			store.transact((document) => {
 				const current = requireDocument(document);
 				return {
 					...current,
-					movies: current.movies.filter((movie) => movie.id !== id),
+					movies: current.movies.filter((movie) => !matchesEntry(movie, id, mediaType)),
 				};
 			}),
-		setNext: (id: string, next: boolean) =>
+		setNext: (id: string, next: boolean, mediaType?: MediaType) =>
 			store.transact((document) => {
 				const current = requireDocument(document);
-				if (!current.movies.some((movie) => movie.id === id)) {
+				if (!current.movies.some((movie) => matchesEntry(movie, id, mediaType))) {
 					return current;
 				}
 				return {
 					...current,
 					movies: current.movies.map((movie) =>
-						movie.id === id ? { ...movie, next, timestamp: new Date() } : movie
+						matchesEntry(movie, id, mediaType)
+							? { ...movie, next, timestamp: new Date() }
+							: movie,
 					),
 				};
 			}),

@@ -330,7 +330,7 @@
 
 /* Discover filter triggers — slot classes from constants/discoverFilterUi.ts → app.config.ts */
 @utility discover-filter-control {
-	@apply relative inline-flex w-full min-w-0 items-center gap-1.5 border border-border-default !bg-default text-fg-default shadow-none outline-none ring-0 transition-colors;
+	@apply relative inline-flex w-full min-w-0 cursor-pointer items-center gap-1.5 border border-border-default !bg-default text-fg-default shadow-none outline-none ring-0 transition-colors;
 	@apply hover:!bg-elevated;
 	@apply focus:border-border-default focus:outline-none focus:ring-0;
 	@apply focus-within:border-border-default focus-within:outline-none focus-within:ring-0;
@@ -339,6 +339,6 @@
 }
 
 @utility discover-filter-input {
-	@apply min-w-0 w-full flex-1 border-0 bg-transparent shadow-none outline-none ring-0;
+	@apply min-w-0 w-full flex-1 cursor-text border-0 bg-transparent shadow-none outline-none ring-0;
 	@apply focus:ring-0 focus-visible:ring-0;
 }

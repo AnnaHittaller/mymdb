@@ -28,7 +28,7 @@ const { data, status, error } = await useAsyncData(
 		const response = await $fetch<{
 			results: SearchMovie[]
 			total_pages: number
-		}>("/api/movies/search", {
+		}>("/api/catalog/search", {
 			query: {
 				query: requestedQ,
 				page: requestedPage,
@@ -62,10 +62,10 @@ watch(data, (payload) => {
 		return;
 	}
 
-	const seen = new Set(movies.value.map((movie) => movie.id));
+	const seen = new Set(movies.value.map((movie) => `${movie.mediaType}-${movie.id}`));
 	movies.value = [
 		...movies.value,
-		...visible.filter((movie) => !seen.has(movie.id)),
+		...visible.filter((movie) => !seen.has(`${movie.mediaType}-${movie.id}`)),
 	];
 }, { immediate: true });
 
@@ -84,7 +84,7 @@ function loadMore() {
 			<Heading v-if="q">Results for “{{ q }}”</Heading>
 			<Heading v-else>Search</Heading>
 			<p v-if="!q" class="text-lg text-fg-muted">
-				Use the search bar above to find movies.
+				Use the search bar above to find movies and shows.
 			</p>
 		</div>
 		<div v-if="q" class="flex flex-col items-stretch">
@@ -98,7 +98,12 @@ function loadMore() {
 				No matching results can be found.
 			</p>
 			<div v-if="movies.length > 0" class="movie-grid">
-				<MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" />
+				<MovieCard
+					v-for="movie in movies"
+					:key="`${movie.mediaType}-${movie.id}`"
+					:movie="movie"
+					:media-type="movie.mediaType"
+					show-media-type />
 			</div>
 			<UButton
 				v-if="movies.length > 0 && hasMore"

@@ -7,6 +7,7 @@ import type { UserMovie } from "../../types/movie";
 function movie(id: string, overrides: Partial<UserMovie> = {}): UserMovie {
 	return {
 		id,
+		mediaType: "movie" as const,
 		title: `Movie ${id}`,
 		rating: 7,
 		poster: `/poster-${id}.jpg`,
@@ -58,6 +59,22 @@ describe("user document", () => {
 		expect(document.isInList("a")).toBe(true);
 		expect(document.movies()).toEqual([movie("a")]);
 		expect(seen).toEqual([["a"]]);
+	});
+
+	it("treats the same numeric id as different entries for movie vs tv", async () => {
+		const document = createUserDocument(createMemoryUserDocumentStore(user()));
+		await document.add(movie("42", { title: "Film 42" }));
+		await document.add({
+			...movie("42", { title: "Show 42" }),
+			mediaType: "tv",
+		});
+
+		expect(document.movies()).toHaveLength(2);
+		expect(document.isInList("42", "movie")).toBe(true);
+		expect(document.isInList("42", "tv")).toBe(true);
+		await document.remove("42", "movie");
+		expect(document.isInList("42", "movie")).toBe(false);
+		expect(document.isInList("42", "tv")).toBe(true);
 	});
 
 	it("does not duplicate a movie that is already in the list", async () => {

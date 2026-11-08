@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { refDebounced } from "@vueuse/core";
 import type { UserMovie } from "~/types/movie";
+import { defaultMediaType } from "~/utils/catalogKey";
 
 definePageMeta({
 	middleware: "auth",
@@ -41,7 +42,12 @@ const filteredMovies = computed(() => {
                 results can be found.</p>
             <p v-if="watchNext.length === 0">You have no movies in your favorites.</p>
             <div class="movie-grid " v-if="filteredMovies.length > 0">
-                <MovieCard :movie="movie" v-for="movie in filteredMovies" :key="movie.id" />
+                <MovieCard
+                    v-for="movie in filteredMovies"
+                    :key="`${defaultMediaType(movie.mediaType)}-${movie.id}`"
+                    :movie="movie"
+                    :media-type="defaultMediaType(movie.mediaType)"
+                    show-media-type />
             </div>
         </div>
     </div>

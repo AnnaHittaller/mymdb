@@ -1,5 +1,8 @@
+import type { MediaType } from "~/types/catalog";
+
 export type SearchMovie = {
 	id: number
+	mediaType: MediaType
 	title: string
 	popularity: number
 	poster: string | null
@@ -16,7 +19,7 @@ export type MovieSearchResponse = {
 
 export const MOVIE_SEARCH_MIN_LENGTH = 3
 export const MOVIE_SEARCH_DEBOUNCE_MS = 500
-/** Max movie rows in the suggestions flyout (API page 1 slice). */
+/** Max rows in the suggestions flyout (API page 1 slice). */
 export const SUGGESTION_MAX = 5
 
 export async function fetchMovieSearchPage(
@@ -25,7 +28,7 @@ export async function fetchMovieSearchPage(
 	signal?: AbortSignal,
 ): Promise<MovieSearchResponse> {
 	const trimmed = query.trim()
-	return await $fetch<MovieSearchResponse>("/api/movies/search", {
+	return await $fetch<MovieSearchResponse>("/api/catalog/search", {
 		query: {
 			query: trimmed,
 			page,

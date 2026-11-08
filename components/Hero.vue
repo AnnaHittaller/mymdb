@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { useCurrentUser } from "vuefire";
 import { BACKDROP_COMPACT_IMAGE_URL, BACKDROP_IMAGE_URL, POSTER_IMAGE_URL } from "~/constants/movie";
-import type { TrendingMovie } from "~/types/movie";
+import type { MediaType } from "~/types/catalog";
+import type { TrendingItem } from "~/types/catalog";
+import { catalogDetailPath } from "~/utils/catalogPath";
+import { defaultMediaType } from "~/utils/catalogKey";
 import { formatMovieRating } from "~/utils/formatMovieRating";
 
 const user = useCurrentUser();
 const { isInList, movies, add, remove, setNext } = useUserDocument();
-const { data: trendingMovies } = await useTrendingMovies();
+const { data: trendingItems } = await useTrendingHero();
 
 const backdropSizes = "(max-width: 639px) calc(100vw - 2rem), calc(100vw - 7.25rem - 2rem)";
 
-const firstBackdrop = computed(() => trendingMovies.value?.[0]?.backdrop ?? "");
+const firstBackdrop = computed(() => trendingItems.value?.[0]?.backdrop ?? "");
 
 function backdropSrcSet(path: string) {
 	return `${BACKDROP_COMPACT_IMAGE_URL}${path} 780w, ${BACKDROP_IMAGE_URL}${path} 1280w`;
@@ -30,38 +33,49 @@ useHead(() => {
 	};
 });
 
-function ratingLabel(movie: TrendingMovie) {
-	return formatMovieRating(movie.vote_average);
+function ratingLabel(item: TrendingItem) {
+	return formatMovieRating(item.rating);
 }
 
-function yearLabel(movie: TrendingMovie) {
-	return movie.release_date?.slice(0, 4) ?? "";
+function yearLabel(item: TrendingItem) {
+	return item.releaseDate?.slice(0, 4) ?? (item.releaseYear ? String(item.releaseYear) : "");
 }
 
-function inWatchNext(movie: TrendingMovie) {
-	const id = String(movie.id);
-	return movies.value.some((entry) => entry.id === id && entry.next);
+function itemMediaType(item: TrendingItem): MediaType {
+	return defaultMediaType(item.mediaType);
 }
 
-async function addToList(movie: TrendingMovie) {
+function inWatchNext(item: TrendingItem) {
+	return movies.value.some(
+		(entry) =>
+			entry.id === String(item.id)
+			&& defaultMediaType(entry.mediaType) === itemMediaType(item)
+			&& entry.next,
+	);
+}
+
+async function addToList(item: TrendingItem) {
+	const mediaType = itemMediaType(item);
 	await add({
-		id: String(movie.id),
-		title: movie.title,
-		rating: movie.vote_average,
-		poster: movie.poster ?? "",
-		...(movie.genres?.length ? { genres: movie.genres } : {}),
+		id: String(item.id),
+		mediaType,
+		title: item.title,
+		rating: item.rating,
+		poster: item.poster ?? "",
+		...(item.genres?.length ? { genres: item.genres } : {}),
 		seen: false,
 		next: false,
 		timestamp: new Date(),
 	});
 }
 
-async function removeFromList(movie: TrendingMovie) {
-	await remove(String(movie.id));
+async function removeFromList(item: TrendingItem) {
+	await remove(String(item.id), itemMediaType(item));
 }
 
-async function toggleWatchNext(movie: TrendingMovie) {
-	await setNext(String(movie.id), !inWatchNext(movie));
+async function toggleWatchNext(item: TrendingItem) {
+	const mediaType = itemMediaType(item);
+	await setNext(String(item.id), !inWatchNext(item), mediaType);
 }
 
 const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full border border-primary bg-surface-overlay/80 p-0 text-primary hover:bg-surface-overlay sm:size-10";
@@ -70,7 +84,7 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 <template>
 	<div class="pb-4">
 		<UCarousel
-			v-if="trendingMovies?.length"
+			v-if="trendingItems?.length"
 			v-slot="{ item, index }"
 			class="@container"
 			fade
@@ -81,7 +95,7 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 			:prev="{ variant: 'ghost', color: 'neutral', ui: { leadingIcon: 'size-6' } }"
 			:next="{ variant: 'ghost', color: 'neutral', ui: { leadingIcon: 'size-6' } }"
 			:autoplay="{ delay: 8000, stopOnMouseEnter: true, stopOnInteraction: false }"
-			:items="trendingMovies"
+			:items="trendingItems"
 			:ui="{
 				container: 'items-stretch',
 				item: 'flex basis-full',
@@ -106,7 +120,7 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 				<div class="@container relative z-10 flex w-full justify-center">
 					<div
 						class="flex w-full flex-col items-center gap-4 rounded-[12px] border border-border-default bg-surface-overlay/70 p-4 backdrop-blur-md @min-[400px]:w-[min(100%,600px,max(400px,66.67%))] @min-[400px]:flex-row @min-[400px]:items-stretch">
-						<NuxtLink :to="`/movie/${item.id}`" class="relative shrink-0 self-center">
+						<NuxtLink :to="catalogDetailPath(item.id, itemMediaType(item))" class="relative shrink-0 self-center">
 							<img
 								v-if="item.poster"
 								:src="`${POSTER_IMAGE_URL}${item.poster}`"
@@ -119,7 +133,7 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 								class="aspect-[2/3] w-[7.5rem] rounded-lg object-cover">
 						</NuxtLink>
 						<div class="flex min-w-0 flex-1 flex-col gap-2 text-fg-default">
-							<NuxtLink :to="`/movie/${item.id}`" class="flex flex-col gap-2">
+							<NuxtLink :to="catalogDetailPath(item.id, itemMediaType(item))" class="flex flex-col gap-2">
 								<span class="flex flex-col gap-0.5">
 									<span class="text-lg uppercase leading-tight">{{ item.title }}</span>
 									<span v-if="item.genres?.length" class="text-sm leading-tight text-fg-muted">{{
@@ -128,17 +142,19 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 								<span>
 									<UIcon name="i-heroicons-star-20-solid" class="mr-1 align-[-0.15em] text-rating" />
 									{{ ratingLabel(item) }}<span v-if="yearLabel(item)" class="text-fg-muted"> · {{
-										yearLabel(item) }}</span>
+										yearLabel(item) }}</span><span class="text-fg-muted"> · </span><CatalogMediaBadge
+										embedded
+										:media-type="itemMediaType(item)" />
 								</span>
 								<span class="line-clamp-3 min-h-[4.5rem] leading-6">{{ item.overview }}</span>
 							</NuxtLink>
 							<div v-if="user"
 								class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3 text-fg-subtle">
 								<button
-									v-if="!isInList(String(item.id))"
+									v-if="!isInList(String(item.id), itemMediaType(item))"
 									type="button"
 									class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
-									aria-label="Add to my movies"
+									aria-label="Add to my list"
 									@click="addToList(item)">
 									<IconAddToList class="size-6" />
 								</button>
@@ -151,7 +167,7 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 									<UIcon name="i-heroicons-x-circle" class="size-6" />
 								</button>
 								<button
-									v-if="isInList(String(item.id))"
+									v-if="isInList(String(item.id), itemMediaType(item))"
 									type="button"
 									class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
 									:aria-label="inWatchNext(item) ? 'Remove from favorites' : 'Add to favorites'"

@@ -38,6 +38,7 @@ export default defineCachedEventHandler(async (event) => {
 			.filter((item) => item.poster_path)
 			.map((item) => ({
 				id: item.id,
+				mediaType: 'movie' as const,
 				title: item.title,
 				poster: item.poster_path,
 				rating: item.vote_average,

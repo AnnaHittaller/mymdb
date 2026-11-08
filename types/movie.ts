@@ -1,3 +1,5 @@
+import type { MediaType } from "./catalog";
+
 export interface TrendingMovie {
 	id: number;
 	title: string;
@@ -11,6 +13,7 @@ export interface TrendingMovie {
 
 export interface UserMovie {
 	id: string;
+	mediaType?: MediaType;
 	title: string;
 	rating: number;
 	poster: string;
