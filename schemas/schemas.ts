@@ -24,8 +24,17 @@ export const contactSchema = z.object({
   message: z.string({ error: 'Message is required' }).min(1, 'Message is required'),
 });
 
+// Search page (explicit submit)
+export const searchQuerySchema = z.object({
+  query: z
+    .string({ error: 'Enter at least 2 characters' })
+    .trim()
+    .min(2, 'Enter at least 2 characters'),
+});
+
 // Export types
 export type LoginSchema = z.infer<typeof loginSchema>;
 export type RegisterSchema = z.infer<typeof registerSchema>;
 export type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
 export type ContactSchema = z.infer<typeof contactSchema>;
+export type SearchQuerySchema = z.infer<typeof searchQuerySchema>;

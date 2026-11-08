@@ -23,7 +23,7 @@ async function registerAndLandHome(
 	return { email, password };
 }
 
-test.describe("global search toolbar", () => {
+test.describe("search page", () => {
 	test.beforeEach(({}, testInfo) => {
 		testInfo.skip(
 			!process.env.NUXT_API_BEARER_TOKEN,
@@ -31,20 +31,20 @@ test.describe("global search toolbar", () => {
 		);
 	});
 
-	test("suggestions, see all, and results page", async ({ page, goto }) => {
+	test("toolbar search icon opens search page", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
 
+		await page.getByRole("link", { name: "Search movies and shows" }).click();
+		await expect(page).toHaveURL("/search", { timeout: 15_000 });
+		await expect(page.getByRole("heading", { name: "Search" })).toBeVisible();
+	});
+
+	test("debounced query loads results", async ({ page, goto }) => {
+		await registerAndLandHome(page, goto);
+		await goto("/search", { waitUntil: "hydration" });
+
 		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
-		await expect(searchInput).toBeVisible({ timeout: 15_000 });
-
 		await searchInput.fill("matrix");
-		await expect(page.getByRole("region", { name: "Search suggestions" })).toBeVisible({
-			timeout: 10_000,
-		});
-
-		const seeAll = page.getByRole("button", { name: "See all" });
-		await expect(seeAll).toBeVisible({ timeout: 15_000 });
-		await seeAll.click();
 
 		await expect(page).toHaveURL(/\/search\?q=matrix/, { timeout: 15_000 });
 		await expect(page.getByRole("heading", { name: /Results for/i })).toBeVisible();
@@ -53,6 +53,7 @@ test.describe("global search toolbar", () => {
 
 	test("submit via Enter navigates to search", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
+		await goto("/search", { waitUntil: "hydration" });
 
 		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
 		await searchInput.fill("inception");
@@ -61,24 +62,26 @@ test.describe("global search toolbar", () => {
 		await expect(page).toHaveURL(/\/search\?q=inception/, { timeout: 15_000 });
 	});
 
-	test("suggestion title opens movie detail", async ({ page, goto }) => {
+	test("two characters submit on Enter", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
+		await goto("/search", { waitUntil: "hydration" });
 
 		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
-		await searchInput.fill("matrix");
-		await expect(page.getByRole("region", { name: "Search suggestions" })).toBeVisible({
-			timeout: 10_000,
-		});
+		await searchInput.fill("ab");
+		await searchInput.press("Enter");
 
-		const suggestions = page.getByRole("region", { name: "Search suggestions" });
-		const firstMovie = suggestions
-			.getByRole("button")
-			.filter({ hasNotText: /^See all$/ })
-			.filter({ hasNotText: /^matrix$/i })
-			.first();
-		await expect(firstMovie).toBeVisible({ timeout: 15_000 });
-		await firstMovie.click();
+		await expect(page).toHaveURL(/\/search\?q=ab/, { timeout: 15_000 });
+	});
 
-		await expect(page).toHaveURL(/\/movie\/\d+/, { timeout: 15_000 });
+	test("one character submit shows validation error", async ({ page, goto }) => {
+		await registerAndLandHome(page, goto);
+		await goto("/search", { waitUntil: "hydration" });
+
+		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
+		await searchInput.fill("a");
+		await searchInput.press("Enter");
+
+		await expect(page).toHaveURL("/search", { timeout: 5_000 });
+		await expect(page.getByText("Enter at least 2 characters")).toBeVisible();
 	});
 });

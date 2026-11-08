@@ -17,7 +17,8 @@ The app runs in dark mode only (`colorMode.preference: 'dark'` in `nuxt.config.t
 | Page background | `bg-surface-page`, `text-fg-default` on `body` via `app.vue` |
 | Sidebar / mobile nav | `bg-surface-overlay`, `shadow-surface-overlay` (same token as overlay panels) |
 | Discover filters (`USelect` / `USelectMenu` / `UInputMenu`) | Triggers + dropdowns: **[constants/discoverFilterUi.ts](../../constants/discoverFilterUi.ts)** → **`app.config.ts`** (`discover-filter-control`, `discoverMenuSlots`, …). Menus use Portal — keep theme global, not `UTheme`-only. |
-| Nav links | `nav-item`, `nav-item-icon`, `nav-item-label`; active `nav-item-active` (desktop accent tint) |
+| Nav links | `nav-item` (square column, all breakpoints); mobile active = primary only; hover = accent tint |
+| Toolbar search | `nav-item-icon-button` (`text-current` icon; hover = nav-style tint + primary) |
 | Main content width | `min-w-0 max-w-full flex-grow` on `main` (fills the row beside the sidebar), mobile `max-sm:pb-14` |
 | Mobile nav position | `nav-sticky-mobile` on `NavBar` |
 

@@ -1,7 +1,7 @@
 const RECENT_SEARCHES_KEY = "mymdb-recent-searches";
-export const RECENT_SEARCHES_MAX = 5;
-export const RECENT_SEARCHES_MOBILE_DISPLAY = 3;
-export const RECENT_SEARCHES_DESKTOP_DISPLAY = 5;
+export const RECENT_SEARCHES_MAX = 10;
+export const RECENT_SEARCHES_MOBILE_DISPLAY = 5;
+export const RECENT_SEARCHES_DESKTOP_DISPLAY = 10;
 
 function readFromStorage(): string[] {
 	if (!import.meta.client) return [];

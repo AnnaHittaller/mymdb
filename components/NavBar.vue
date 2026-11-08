@@ -6,7 +6,7 @@ const navLinkActiveClass = 'nav-item-active'
 </script>
 
 <template>
-    <aside class="flex shrink-0 items-center bg-surface-overlay px-4 py-4 shadow-surface-overlay sm:items-start">
+    <aside class="flex shrink-0 items-center bg-surface-overlay px-4 py-4 shadow-surface-overlay sm:items-start sm:px-2">
         <nav
             class="flex w-full items-center justify-around sm:sticky sm:top-4 sm:flex-col sm:items-center sm:justify-start sm:gap-6">
             <Logo class="m-0 flex max-sm:hidden" />

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SearchMovie } from "~/composables/useMovieSearch";
+import SearchSuggestionMovieCard from "./SearchSuggestionMovieCard.archived.vue";
 
 const props = defineProps<{
 	flyoutId: string;
