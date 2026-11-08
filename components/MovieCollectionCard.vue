@@ -38,7 +38,7 @@ const isEmpty = computed(() => props.movies.length === 0);
 <template>
 	<NuxtLink
 		:to="to"
-		class="group flex w-full items-center gap-3 rounded-[12px] border border-fg-muted/40 bg-surface-overlay/70 p-2 backdrop-blur-md transition-colors hover:border-primary md:gap-4">
+		class="group flex w-full items-center gap-3 rounded-[12px] border border-border-default bg-surface-overlay/70 p-2 backdrop-blur-md transition-colors hover:border-primary md:gap-4">
 		<!-- Posters: right on mobile, left on desktop -->
 		<div
 			class="order-2 shrink-0 md:order-1"
@@ -91,8 +91,8 @@ const isEmpty = computed(() => props.movies.length === 0);
 		</div>
 
 		<UIcon
-			name="i-heroicons-arrow-right-circle"
-			class="order-3 hidden size-8 shrink-0 text-fg-muted transition-colors group-hover:text-primary md:block"
+			name="i-heroicons-arrow-right"
+			class="order-3 hidden size-8 shrink-0 text-fg-subtle transition-colors group-hover:text-primary md:block"
 			aria-hidden="true" />
 	</NuxtLink>
 </template>

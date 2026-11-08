@@ -64,7 +64,7 @@ async function toggleWatchNext(movie: TrendingMovie) {
 	await setNext(String(movie.id), !inWatchNext(movie));
 }
 
-const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full border border-primary bg-surface-sidebar/80 p-0 text-primary hover:bg-surface-sidebar sm:size-10";
+const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full border border-primary bg-surface-overlay/80 p-0 text-primary hover:bg-surface-overlay sm:size-10";
 </script>
 
 <template>
@@ -88,9 +88,9 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 				viewport: 'min-h-[350px] overflow-hidden rounded-[12px] [transform:translateZ(0)]',
 				prev: `start-4 top-1/2 -translate-y-1/2 sm:start-4 @max-[447px]:start-1/2 @max-[447px]:end-auto @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-8 @max-[447px]:translate-x-[calc(-100%-12px)] @max-[447px]:translate-y-0 ${arrowClass}`,
 				next: `end-4 top-1/2 -translate-y-1/2 sm:end-4 @max-[447px]:end-auto @max-[447px]:start-1/2 @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-8 @max-[447px]:translate-x-[12px] @max-[447px]:translate-y-0 ${arrowClass}`,
-			}"
-		>
-			<div class="relative flex h-full min-h-[350px] w-full flex-1 items-center justify-center px-6 py-[40px] @max-[447px]:py-[60px]">
+			}">
+			<div
+				class="relative flex h-full min-h-[350px] w-full flex-1 items-center justify-center px-6 py-[40px] @max-[447px]:py-[60px]">
 				<img
 					v-if="item.backdrop"
 					:src="`${BACKDROP_IMAGE_URL}${item.backdrop}`"
@@ -102,12 +102,10 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 					:fetchpriority="index === 0 ? 'high' : 'low'"
 					:loading="index === 0 ? 'eager' : 'lazy'"
 					decoding="async"
-					class="absolute inset-0 h-full w-full object-cover"
-				>
+					class="absolute inset-0 h-full w-full object-cover">
 				<div class="@container relative z-10 flex w-full justify-center">
 					<div
-						class="flex w-full flex-col items-center gap-4 rounded-[12px] border border-fg-muted/40 bg-surface-overlay/70 p-4 backdrop-blur-md @min-[400px]:w-[min(100%,600px,max(400px,66.67%))] @min-[400px]:flex-row @min-[400px]:items-stretch"
-					>
+						class="flex w-full flex-col items-center gap-4 rounded-[12px] border border-border-default bg-surface-overlay/70 p-4 backdrop-blur-md @min-[400px]:w-[min(100%,600px,max(400px,66.67%))] @min-[400px]:flex-row @min-[400px]:items-stretch">
 						<NuxtLink :to="`/movie/${item.id}`" class="relative shrink-0 self-center">
 							<img
 								v-if="item.poster"
@@ -118,29 +116,30 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 								:fetchpriority="index === 0 ? 'auto' : 'low'"
 								:loading="index === 0 ? 'eager' : 'lazy'"
 								decoding="async"
-								class="aspect-[2/3] w-[7.5rem] rounded-lg object-cover"
-							>
+								class="aspect-[2/3] w-[7.5rem] rounded-lg object-cover">
 						</NuxtLink>
 						<div class="flex min-w-0 flex-1 flex-col gap-2 text-fg-default">
 							<NuxtLink :to="`/movie/${item.id}`" class="flex flex-col gap-2">
 								<span class="flex flex-col gap-0.5">
 									<span class="text-lg uppercase leading-tight">{{ item.title }}</span>
-									<span v-if="item.genres?.length" class="text-sm leading-tight text-fg-muted">{{ item.genres.join(" · ") }}</span>
+									<span v-if="item.genres?.length" class="text-sm leading-tight text-fg-muted">{{
+										item.genres.join(" · ") }}</span>
 								</span>
 								<span>
 									<UIcon name="i-heroicons-star-20-solid" class="mr-1 align-[-0.15em] text-rating" />
-									{{ ratingLabel(item) }}<span v-if="yearLabel(item)" class="text-fg-muted"> · {{ yearLabel(item) }}</span>
+									{{ ratingLabel(item) }}<span v-if="yearLabel(item)" class="text-fg-muted"> · {{
+										yearLabel(item) }}</span>
 								</span>
 								<span class="line-clamp-3 min-h-[4.5rem] leading-6">{{ item.overview }}</span>
 							</NuxtLink>
-							<div v-if="user" class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3 text-fg-muted">
+							<div v-if="user"
+								class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3 text-fg-subtle">
 								<button
 									v-if="!isInList(String(item.id))"
 									type="button"
 									class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
 									aria-label="Add to my movies"
-									@click="addToList(item)"
-								>
+									@click="addToList(item)">
 									<IconAddToList class="size-6" />
 								</button>
 								<button
@@ -148,8 +147,7 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 									type="button"
 									class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
 									aria-label="Remove from watchlist"
-									@click="removeFromList(item)"
-								>
+									@click="removeFromList(item)">
 									<UIcon name="i-heroicons-x-circle" class="size-6" />
 								</button>
 								<button
@@ -157,9 +155,9 @@ const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full borde
 									type="button"
 									class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
 									:aria-label="inWatchNext(item) ? 'Remove from favorites' : 'Add to favorites'"
-									@click="toggleWatchNext(item)"
-								>
-									<UIcon :name="inWatchNext(item) ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'" class="size-6" />
+									@click="toggleWatchNext(item)">
+									<UIcon :name="inWatchNext(item) ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
+										class="size-6" />
 								</button>
 							</div>
 						</div>

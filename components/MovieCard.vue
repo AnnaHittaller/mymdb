@@ -103,7 +103,7 @@ async function toggleWatchNext() {
 
 <template>
 	<article
-		class="flex w-full flex-col gap-2 rounded-[12px] border border-fg-muted/40 bg-surface-overlay/70 p-3 backdrop-blur-md">
+		class="flex w-full flex-col gap-2 rounded-[12px] border border-border-default bg-surface-overlay p-3 backdrop-blur-md">
 		<NuxtLink :to="`/movie/${movie.id}`" class="relative block">
 			<img
 				v-if="posterPath"
@@ -130,7 +130,7 @@ async function toggleWatchNext() {
 				{{ genreLabel }}
 			</p>
 		</div>
-		<div v-if="user" class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3 text-fg-muted">
+		<div v-if="user" class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3 text-fg-subtle">
 			<button
 				v-if="!isInMovieList"
 				type="button"

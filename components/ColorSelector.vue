@@ -27,7 +27,7 @@ const updateColor = async (color: string) => {
                 <input type="radio" :id="color.value" :value="color.value" v-model="selectedColor"
                     @change="updateColor(color.value)" class="hidden" />
                 <UBadge color="neutral" variant="solid" size="lg"
-                    :class="[color.class, 'rounded-lg cursor-pointer text-lg transition-colors duration-200', color.value === theme ? 'ring-2 ring-primary ring-offset-4 ring-offset-surface-nav-active' : '']">
+                    :class="[color.class, 'rounded-lg cursor-pointer text-lg transition-colors duration-200', color.value === theme ? 'ring-2 ring-primary ring-offset-4 ring-offset-surface-page' : '']">
                     {{ color.label }}
                 </UBadge>
             </label>

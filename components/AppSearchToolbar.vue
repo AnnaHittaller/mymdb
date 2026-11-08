@@ -68,7 +68,7 @@ const flyoutHasBody = computed(
 const popoverOpen = computed(() => flyoutOpen.value && flyoutHasBody.value);
 
 const popoverContentUi
-	= "w-(--reka-popover-trigger-width) max-w-[calc(100vw-2rem)] origin-top overflow-hidden rounded-xl border border-fg-muted/25 bg-surface-inset p-0 shadow-surface-sidebar ring-0 data-[state=closed]:pointer-events-none data-[state=open]:animate-search-flyout-open! data-[state=closed]:animate-search-flyout-close!";
+	= "w-(--reka-popover-trigger-width) max-w-[calc(100vw-2rem)] origin-top overflow-hidden rounded-xl border border-border-default bg-surface-popover p-0 shadow-surface-overlay ring-0 data-[state=closed]:pointer-events-none data-[state=open]:animate-search-flyout-open! data-[state=closed]:animate-search-flyout-close!";
 
 function openFlyoutWhenAllowed() {
 	if (!allowFlyoutAutoOpen.value) return;

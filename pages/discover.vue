@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { refDebounced } from "@vueuse/core";
+import { castActorInputUi } from "~/constants/discoverFilterUi";
 import {
 	fetchPersonSuggestions,
 	PERSON_SEARCH_DEBOUNCE_MS,
@@ -36,15 +37,9 @@ type FilterChip = {
 	removeLabel: string
 }
 
-const filterControl = {
-	color: "neutral" as const,
-	variant: "outline" as const,
-}
+const filterMenuControl = { highlightOnHover: true }
 
-const castInputUi = {
-	root: "w-full",
-	base: "discover-filter-control w-full min-h-9 px-2.5 py-1.5 placeholder:text-fg-default !ring-1 ring-inset !ring-border-default focus-visible:!ring-border-default data-[state=open]:!ring-border-default",
-}
+const filterFieldClass = "w-full sm:w-48"
 
 definePageMeta({
 	middleware: "auth",
@@ -295,48 +290,40 @@ function loadMore() {
 			<div class="flex flex-wrap gap-4 items-center">
 				<USelect
 					v-model="rating"
-					v-bind="filterControl"
 					:items="ratingItems"
-					class="discover-filter w-full sm:w-48"
-				/>
+					:class="filterFieldClass" />
 				<USelectMenu
 					v-model="genreIds"
-					v-bind="filterControl"
+					v-bind="filterMenuControl"
 					:items="genreItems"
 					value-key="value"
 					multiple
 					placeholder="Any Genres"
-					class="discover-filter w-full sm:w-48"
-				>
+					:class="filterFieldClass">
 					<template #default>
 						<span class="truncate text-fg-default">Any Genres</span>
 					</template>
 				</USelectMenu>
 				<USelect
 					v-model="releaseYearFrom"
-					v-bind="filterControl"
 					:items="yearFromItems"
-					class="discover-filter w-full sm:w-48"
-				/>
+					:class="filterFieldClass" />
 				<USelect
 					v-model="releaseYearTo"
-					v-bind="filterControl"
 					:items="yearToItems"
-					class="discover-filter w-full sm:w-48"
-				/>
+					:class="filterFieldClass" />
 				<UInputMenu
 					:key="castInputKey"
 					v-model:search-term="castSearchTerm"
 					:model-value="undefined"
-					v-bind="filterControl"
+					v-bind="filterMenuControl"
 					:items="castSuggestionItems"
 					ignore-filter
 					value-key="value"
-					placeholder="Search actors…"
-					class="discover-filter w-full sm:w-48"
-					:ui="castInputUi"
-					@update:model-value="onCastPick"
-				/>
+					placeholder="Search actors"
+					:class="filterFieldClass"
+					:ui="castActorInputUi"
+					@update:model-value="onCastPick" />
 			</div>
 			<div v-if="filtersActive" class="flex flex-wrap items-center gap-2">
 				<DiscoverFilterChip
@@ -344,8 +331,7 @@ function loadMore() {
 					:key="chip.id"
 					:label="chip.label"
 					:remove-label="chip.removeLabel"
-					@remove="removeFilterChip(chip.id)"
-				/>
+					@remove="removeFilterChip(chip.id)" />
 				<p v-if="castPeople.length > 1" class="w-full text-sm text-fg-muted">
 					Movies starring all selected actors.
 				</p>
@@ -366,8 +352,7 @@ function loadMore() {
 				class="mt-14 mb-8 self-center"
 				:loading="pending && page > 1"
 				:disabled="pending"
-				@click="loadMore"
-			/>
+				@click="loadMore" />
 		</div>
 	</div>
 </template>

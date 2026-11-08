@@ -22,7 +22,7 @@ const yearLabel = computed(() => {
 <template>
 	<button
 		type="button"
-		class="flex w-full min-w-0 cursor-pointer items-center gap-2.5 rounded-lg border border-fg-muted/40 bg-surface-overlay/70 p-1.5 text-left backdrop-blur-md transition-colors hover:bg-surface-poster"
+		class="flex w-full min-w-0 cursor-pointer items-center gap-2.5 rounded-lg border border-border-default bg-surface-overlay/70 p-1.5 text-left backdrop-blur-md transition-colors hover:bg-surface-hover"
 		@mousedown.prevent
 		@click="emit('select')">
 		<div

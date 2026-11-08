@@ -36,7 +36,7 @@ const emit = defineEmits<{
 					<li v-for="query in recents" :key="query" role="listitem">
 						<button
 							type="button"
-							class="flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-fg-default transition-colors hover:bg-surface-poster max-sm:text-base sm:py-1.5 sm:text-sm"
+							class="flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-fg-default transition-colors hover:bg-surface-hover max-sm:text-base sm:py-1.5 sm:text-sm"
 							@mousedown.prevent
 							@click="emit('selectRecent', query)">
 							<UIcon
