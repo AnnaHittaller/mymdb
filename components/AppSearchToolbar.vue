@@ -13,16 +13,17 @@ const controlSize = computed(() => (isMobileChrome.value ? "lg" : "md") as "lg" 
 		<div class="flex w-full flex-row items-center justify-between gap-2 sm:justify-end">
 			<Logo class="m-0 shrink-0 sm:hidden [&_a]:justify-start" />
 			<div v-if="user" class="flex shrink-0 flex-row items-center gap-2">
-				<NuxtLink
+				<UButton
 					to="/search"
-					class="nav-item-icon-button size-9 shrink-0 sm:size-8"
+					variant="iconbutton"
+					color="custom"
+					size="icon"
+					square
+					icon="i-heroicons-magnifying-glass-20-solid"
 					aria-label="Search movies and shows"
-				>
-					<UIcon
-						name="i-heroicons-magnifying-glass-20-solid"
-						class="size-4 text-current sm:size-3.5"
-					/>
-				</NuxtLink>
+					class="size-9 shrink-0 sm:size-8"
+					:ui="{ leadingIcon: 'size-4 sm:size-3.5' }"
+				/>
 				<NuxtLink to="/profile" class="shrink-0" aria-label="Profile">
 					<UAvatar
 						:alt="user.displayName ?? 'Profile'"

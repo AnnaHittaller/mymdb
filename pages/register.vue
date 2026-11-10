@@ -45,8 +45,7 @@
             :email="linkModalEmail"
             :loading="linkModalLoading"
             @confirm="onLinkPasswordConfirm"
-            @cancel="cancelLinkPassword"
-        />
+            @cancel="cancelLinkPassword" />
     </div>
 </template>
 
@@ -155,5 +154,4 @@ const signUpWithGoogle = async () => {
 }
 
 //TODO: add UNotifications and toast for account created
-//TODO: simplify state management
 </script>

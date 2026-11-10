@@ -79,7 +79,16 @@ async function toggleWatchNext(item: TrendingItem) {
 	await setNext(String(item.id), !inWatchNext(item), mediaType);
 }
 
-const arrowClass = "z-10 size-8 cursor-pointer justify-center rounded-full border border-primary bg-surface-overlay/80 p-0 text-primary hover:bg-surface-overlay sm:size-10";
+const heroCarouselArrow = {
+	variant: "iconbutton" as const,
+	color: "custom" as const,
+	size: "icon" as const,
+	square: true,
+	ui: { leadingIcon: "size-6" },
+};
+
+const heroArrowSlotClass =
+	"z-10 sm:size-10";
 
 const {
 	modalOpen: trailerModalOpen,
@@ -137,16 +146,16 @@ async function onWatchTrailer(item: TrendingItem) {
 			arrows
 			prev-icon="i-heroicons-chevron-left-20-solid"
 			next-icon="i-heroicons-chevron-right-20-solid"
-			:prev="{ variant: 'ghost', color: 'neutral', ui: { leadingIcon: 'size-6' } }"
-			:next="{ variant: 'ghost', color: 'neutral', ui: { leadingIcon: 'size-6' } }"
+			:prev="heroCarouselArrow"
+			:next="heroCarouselArrow"
 			:autoplay="heroAutoplay"
 			:items="trendingItems"
 			:ui="{
 				container: 'items-stretch',
 				item: 'flex basis-full',
 				viewport: 'min-h-[390px] overflow-hidden rounded-[12px] [transform:translateZ(0)]',
-				prev: `start-4 top-1/2 -translate-y-1/2 sm:start-4 @max-[447px]:start-1/2 @max-[447px]:end-auto @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-8 @max-[447px]:translate-x-[calc(-100%-12px)] @max-[447px]:translate-y-0 ${arrowClass}`,
-				next: `end-4 top-1/2 -translate-y-1/2 sm:end-4 @max-[447px]:end-auto @max-[447px]:start-1/2 @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-8 @max-[447px]:translate-x-[12px] @max-[447px]:translate-y-0 ${arrowClass}`,
+				prev: `start-4 top-1/2 -translate-y-1/2 sm:start-4 @max-[447px]:start-1/2 @max-[447px]:end-auto @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-8 @max-[447px]:translate-x-[calc(-100%-12px)] @max-[447px]:translate-y-0 ${heroArrowSlotClass}`,
+				next: `end-4 top-1/2 -translate-y-1/2 sm:end-4 @max-[447px]:end-auto @max-[447px]:start-1/2 @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-8 @max-[447px]:translate-x-[12px] @max-[447px]:translate-y-0 ${heroArrowSlotClass}`,
 			}">
 			<div
 				class="relative flex h-full min-h-[390px] w-full flex-1 items-center justify-center px-6 py-12 @min-[400px]:py-14 @max-[447px]:py-[68px]">

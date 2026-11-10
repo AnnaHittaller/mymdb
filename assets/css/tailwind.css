@@ -292,29 +292,6 @@
 	}
 }
 
-/* Toolbar search: square control; icon picks up accent via currentColor */
-@utility nav-item-icon-button {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	line-height: 0;
-	border-radius: 0.5rem;
-	color: var(--color-fg-subtle);
-	transition:
-		color 0.2s ease,
-		background-color 0.2s ease;
-
-	& svg {
-		display: block;
-	}
-
-	&:hover {
-		color: var(--color-primary);
-		background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
-	}
-}
-
 @layer base {
 	html {
 		font-family: "Roboto Condensed", system-ui, sans-serif;

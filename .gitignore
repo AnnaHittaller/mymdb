@@ -19,10 +19,14 @@ logs
 /blob-report/
 /playwright/.cache/
 
+# Local scratch (archived components, notes, experiments)
+/_temp/
+
 # Misc
 .DS_Store
 .fleet
 .idea
+.cursor
 
 # Local env files
 .env
