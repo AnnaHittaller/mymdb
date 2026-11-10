@@ -7,8 +7,8 @@ definePageMeta({
 
 const user = useCurrentUser()
 const { movies: userMovies, watchNext: watchNextMovies } = useUserDocument()
-const { data: trendingMovies } = useTrendingCatalog('movie', { server: true })
-const { data: trendingShows } = useTrendingCatalog('tv', { server: true })
+const { data: trendingMovies, pending: pendingMovies } = useTrendingCatalog('movie', { server: true })
+const { data: trendingShows, pending: pendingShows } = useTrendingCatalog('tv', { server: true })
 </script>
 
 <template>
@@ -16,17 +16,19 @@ const { data: trendingShows } = useTrendingCatalog('tv', { server: true })
         <Hero />
         <div class="pb-8">
             <Heading class="pt-4">Trending</Heading>
-            <div class="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
+            <div class="flex flex-col gap-3 md:grid md:grid-cols-2 md:items-stretch md:gap-4">
                 <TrendingCollectionCard
                     title="Trending movies"
                     to="/trending/movies"
                     media-type="movie"
-                    :items="trendingMovies ?? []" />
+                    :items="trendingMovies ?? []"
+                    :pending="pendingMovies" />
                 <TrendingCollectionCard
                     title="Trending shows"
                     to="/trending/shows"
                     media-type="tv"
-                    :items="trendingShows ?? []" />
+                    :items="trendingShows ?? []"
+                    :pending="pendingShows" />
             </div>
         </div>
         <template v-if="user">

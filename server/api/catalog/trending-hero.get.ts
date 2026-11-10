@@ -1,3 +1,4 @@
+import { CACHE_DURATION } from "~/constants/movie";
 import type { TmdbMediaRow } from "~/server/utils/tmdbNormalize";
 import { normalizeTrendingAllResult } from "~/server/utils/tmdbNormalize";
 
@@ -28,7 +29,7 @@ export default defineCachedEventHandler(async () => {
 		})
 	}
 }, {
-	maxAge: 60 * 60,
+	maxAge: CACHE_DURATION / 1000,
 	name: 'trending-hero',
 	getKey: () => 'week-all',
 })

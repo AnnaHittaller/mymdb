@@ -1,3 +1,4 @@
+import { CACHE_DURATION } from "~/constants/movie";
 import type { MediaType } from "~/types/catalog";
 import type { TmdbMediaRow } from "~/server/utils/tmdbNormalize";
 import { toTrendingItem } from "~/server/utils/tmdbNormalize";
@@ -40,7 +41,8 @@ export default defineCachedEventHandler(async (event) => {
 		})
 	}
 }, {
-	maxAge: 60 * 60,
+	// TMDB trending/week; align TTL with other catalog caches
+	maxAge: CACHE_DURATION / 1000,
 	name: 'catalog-trending',
 	getKey: (event) => {
 		const query = getQuery(event)
