@@ -117,7 +117,7 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm lea
 					<div
 						v-if="leadingGenre"
 						class="mt-2 flex flex-wrap items-center gap-2">
-						<span class="text-sm font-medium text-fg-muted">Leading genre:</span>
+						<span class="text-sm font-medium text-fg-muted">Leading genre this week:</span>
 						<UBadge
 							variant="outline"
 							color="neutral"

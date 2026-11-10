@@ -6,6 +6,7 @@ import {
 	createUserDocument,
 	type CatalogUpdate,
 } from "../domain/user-document/createUserDocument";
+import type { MediaTypeHint } from "../domain/user-document/reconcileWatchlist";
 import { createVueFireUserDocumentStore } from "../domain/user-document/vueFireStore";
 import type { MediaType } from "../types/catalog";
 import type { UserMovie } from "../types/movie";
@@ -21,6 +22,7 @@ type UserDocumentApi = {
 	setNext: (id: string, next: boolean, mediaType?: MediaType) => Promise<void>;
 	setTheme: (theme: string) => Promise<void>;
 	setUsername: (username: string) => Promise<void>;
+	repairWatchlist: (hints: MediaTypeHint[]) => Promise<void>;
 };
 
 const userDocumentKey: InjectionKey<UserDocumentApi> = Symbol("user-document");
@@ -78,9 +80,11 @@ export function provideUserDocument() {
 			document.setNext(id, next, mediaType),
 		setTheme: (theme: string) => document.setTheme(theme),
 		setUsername: (username: string) => document.setUsername(username),
+		repairWatchlist: (hints: MediaTypeHint[]) => document.repairWatchlist(hints),
 	};
 
 	provide(userDocumentKey, api);
+	return api;
 }
 
 const CATALOG_REFRESH_STORAGE_PREFIX = "mymdb:catalog-refresh:";

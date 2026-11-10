@@ -204,6 +204,42 @@ describe("user document", () => {
 		expect(document.movies()).toEqual(starting.movies);
 	});
 
+	it("applies a media type hint without changing the other rows", async () => {
+		const document = createUserDocument(
+			createMemoryUserDocumentStore(
+				user([
+					movie("1396", { title: "Breaking Bad", mediaType: undefined }),
+					movie("550", { title: "Fight Club", next: true }),
+				]),
+			),
+		);
+
+		await document.repairWatchlist([{ id: "1396", mediaType: "tv" }]);
+
+		expect(document.movies().find((entry) => entry.id === "1396")?.mediaType).toBe("tv");
+		expect(document.movies().find((entry) => entry.id === "550")).toMatchObject({
+			mediaType: "movie",
+			next: true,
+		});
+	});
+
+	it("ignores a hint for an id that is not on the list", async () => {
+		const document = createUserDocument(createMemoryUserDocumentStore(user([movie("a")])));
+
+		await document.repairWatchlist([{ id: "missing", mediaType: "tv" }]);
+
+		expect(document.movies()).toEqual([movie("a")]);
+	});
+
+	it("leaves the list unchanged when there are no hints", async () => {
+		const starting = user([movie("a", { next: true })]);
+		const document = createUserDocument(createMemoryUserDocumentStore(starting));
+
+		await document.repairWatchlist([]);
+
+		expect(document.movies()).toEqual(starting.movies);
+	});
+
 	it("rejects commands when there is no user document", async () => {
 		const document = createUserDocument(createMemoryUserDocumentStore(null));
 
@@ -213,6 +249,7 @@ describe("user document", () => {
 		await expect(document.setTheme("dusk")).rejects.toThrow("No user document");
 		await expect(document.setUsername("new-name")).rejects.toThrow("No user document");
 		await expect(document.refreshCatalog([])).rejects.toThrow("No user document");
+		await expect(document.repairWatchlist([])).rejects.toThrow("No user document");
 		expect(document.movies()).toEqual([]);
 		expect(document.watchNext()).toEqual([]);
 		expect(document.theme()).toBe("");

@@ -3,6 +3,11 @@ import type { UserMovie } from "../../types/movie";
 import { catalogKey, defaultMediaType } from "../../utils/catalogKey";
 import { formatMovieRating } from "../../utils/formatMovieRating";
 import type { UserDocumentData, UserDocumentStore } from "./types";
+import {
+	applyMediaTypeHints,
+	watchlistEquals,
+	type MediaTypeHint,
+} from "./reconcileWatchlist";
 
 const NO_USER_DOCUMENT = "No user document";
 
@@ -22,9 +27,11 @@ function entryKey(movie: Pick<UserMovie, "id" | "mediaType">): string {
 function matchesEntry(
 	movie: UserMovie,
 	id: string,
-	mediaType?: MediaType,
+	queryMediaType?: MediaType,
 ): boolean {
-	return entryKey(movie) === catalogKey(id, defaultMediaType(mediaType ?? movie.mediaType));
+	if (String(movie.id) !== String(id)) return false;
+	const wantedType = queryMediaType ?? defaultMediaType(movie.mediaType);
+	return entryKey(movie) === catalogKey(id, wantedType);
 }
 
 function displayedRating(rating: number): string {
@@ -159,6 +166,15 @@ export function createUserDocument(store: UserDocumentStore) {
 			store.transact((document) => {
 				const current = requireDocument(document);
 				return { ...current, username };
+			}),
+		repairWatchlist: (hints: MediaTypeHint[]) =>
+			store.transact((document) => {
+				const current = requireDocument(document);
+				const next = applyMediaTypeHints(current.movies, hints);
+				if (watchlistEquals(current.movies, next)) {
+					return current;
+				}
+				return { ...current, movies: next };
 			}),
 		refreshCatalog: async (updates: CatalogUpdate[]) => {
 			const current = store.current();

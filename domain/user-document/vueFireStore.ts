@@ -1,7 +1,13 @@
 import { doc, runTransaction, type Firestore } from "firebase/firestore";
 import { watch, type Ref } from "vue";
+import type { MediaType } from "../../types/catalog";
 import type { UserMovie } from "../../types/movie";
+import { reconcileWatchlistMovies } from "./reconcileWatchlist";
 import type { UserDocumentData, UserDocumentStore } from "./types";
+
+function storedMediaType(value: unknown): MediaType | undefined {
+	return value === "tv" || value === "movie" ? value : undefined;
+}
 
 function toDate(value: unknown): Date {
 	if (value instanceof Date) {
@@ -33,8 +39,10 @@ function toUserMovie(value: unknown): UserMovie | null {
 	const genres = Array.isArray(movie.genres)
 		? movie.genres.filter((genre): genre is string => typeof genre === "string")
 		: undefined;
+	const mediaType = storedMediaType(movie.mediaType) ?? storedMediaType(movie.media_type);
 	return {
 		id: String(movie.id),
+		...(mediaType ? { mediaType } : {}),
 		title: movie.title,
 		rating: typeof movie.rating === "number" ? movie.rating : 0,
 		poster: typeof movie.poster === "string" ? movie.poster : "",
@@ -53,12 +61,14 @@ export function toUserDocument(data: unknown, uid: string): UserDocumentData | n
 	if (typeof record.uid === "string" && record.uid !== uid) {
 		return null;
 	}
-	const movies = Array.isArray(record.movies)
-		? record.movies.flatMap((movie) => {
-				const normalized = toUserMovie(movie);
-				return normalized ? [normalized] : [];
-			})
-		: [];
+	const movies = reconcileWatchlistMovies(
+		Array.isArray(record.movies)
+			? record.movies.flatMap((movie) => {
+					const normalized = toUserMovie(movie);
+					return normalized ? [normalized] : [];
+				})
+			: [],
+	);
 	return {
 		uid,
 		username: typeof record.username === "string" ? record.username : "",
@@ -74,10 +84,14 @@ function serialize(document: UserDocumentData) {
 		username: document.username,
 		email: document.email,
 		theme: document.theme,
-		movies: document.movies.map((movie) => ({
-			...movie,
-			timestamp: toDate(movie.timestamp),
-		})),
+		movies: reconcileWatchlistMovies(document.movies).map((movie) => {
+			const { mediaType, ...rest } = movie;
+			return {
+				...rest,
+				...(mediaType ? { mediaType } : {}),
+				timestamp: toDate(movie.timestamp),
+			};
+		}),
 	};
 }
 

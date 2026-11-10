@@ -1,6 +1,7 @@
 <script setup>
 
-provideUserDocument()
+const userDocument = provideUserDocument()
+useLegacyMediaTypeMigration(userDocument)
 
 // Start trending with the session. server: false so other pages are not held for this request.
 useTrendingHero({ lazy: true, server: false })

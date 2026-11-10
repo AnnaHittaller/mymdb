@@ -34,7 +34,7 @@ const props = withDefaults(
 		/** When true, show movie vs show badge on the poster (mixed grids only). */
 		showMediaType?: boolean;
 	}>(),
-	{ mediaType: "movie", showMediaType: false },
+	{ showMediaType: false },
 );
 
 const user = useCurrentUser();
@@ -43,7 +43,7 @@ const { movies, isInList, add, remove, setNext } = useUserDocument();
 const movieId = computed(() => String(props.movie.id));
 
 const resolvedMediaType = computed((): MediaType =>
-	defaultMediaType(props.movie.mediaType ?? props.mediaType),
+	defaultMediaType(props.mediaType ?? props.movie.mediaType),
 );
 
 const detailPath = computed(() => catalogDetailPath(movieId.value, resolvedMediaType.value));
