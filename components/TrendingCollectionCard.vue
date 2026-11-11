@@ -66,15 +66,15 @@ const rowShellClass =
 	"relative flex items-stretch gap-2.5 overflow-hidden rounded-[8px] border border-border-default bg-surface-inset p-2 pr-12";
 
 const rankFlagRowClass =
-	"absolute right-0 top-0 z-10 flex items-center justify-center rounded-bl-[6px] bg-primary px-2.5 py-1 text-sm font-bold leading-none text-inverted tabular-nums";
+	"absolute right-0 top-0 z-10 flex items-center justify-center rounded-bl-[6px] bg-primary px-2.5 py-1 text-base font-bold leading-none text-inverted tabular-nums";
 
 const rankFlagOnPosterClass =
-	"absolute left-0 top-0 z-10 flex items-center justify-center rounded-br-[6px] bg-primary px-2.5 py-1 text-sm font-bold leading-none text-inverted tabular-nums";
+	"absolute left-0 top-0 z-10 flex items-center justify-center rounded-br-[6px] bg-primary px-2.5 py-1 text-base font-bold leading-none text-inverted tabular-nums";
 
 const ratingInlineClass = "inline-flex items-center gap-1";
-const starIconClass = "block size-4 shrink-0 text-rating";
-const ratingTextClass = "text-sm leading-snug tabular-nums";
-const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm leading-snug text-fg-muted";
+const starIconClass = "block size-5 shrink-0 text-rating";
+const ratingTextClass = "text-base leading-snug tabular-nums";
+const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-base leading-snug text-fg-muted";
 </script>
 
 <template>
@@ -108,21 +108,21 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm lea
 			<div class="flex items-start gap-2.5">
 				<UIcon
 					name="i-heroicons-arrow-trending-up"
-					class="mt-1 size-6 shrink-0 text-primary"
+					class="mt-1 size-8 shrink-0 text-primary"
 					aria-hidden="true" />
 				<div class="min-w-0 flex-1">
-					<p class="text-xl font-semibold leading-tight text-fg-default @min-[400px]:text-2xl">
+					<p class="text-2xl font-semibold leading-tight text-fg-default @min-[400px]:text-3xl">
 						{{ title }}
 					</p>
 					<div
 						v-if="leadingGenre"
 						class="mt-2 flex flex-wrap items-center gap-2">
-						<span class="text-sm font-medium text-fg-muted">Leading genre this week:</span>
+						<span class="text-base font-medium text-fg-muted">Leading genre this week:</span>
 						<UBadge
 							variant="outline"
 							color="neutral"
 							size="md"
-							class="border-primary/40 px-3 py-1 text-sm font-medium text-fg-default"
+							class="border-primary/40 px-3 py-1 text-base font-medium text-fg-default"
 							aria-hidden="true">
 							{{ leadingGenre }}
 						</UBadge>
@@ -137,28 +137,28 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm lea
 					tabindex="-1"
 					aria-hidden="true"
 					class="pointer-events-none shrink-0 group-hover:border-primary group-hover:text-primary"
-					:ui="{ leadingIcon: 'size-5' }" />
+					:ui="{ leadingIcon: 'size-6' }" />
 			</div>
 
 			<div class="flex min-h-0 flex-1 flex-col gap-2">
 				<div v-if="isEmpty" class="flex items-center gap-3 py-2">
 					<div
-						class="flex aspect-2/3 w-12 items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster lg:w-14"
+						class="flex aspect-2/3 w-14 items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster lg:w-16"
 						aria-hidden="true">
-						<UIcon :name="emptyIcon" class="size-6 text-fg-muted opacity-60 md:size-8" />
+						<UIcon :name="emptyIcon" class="size-8 text-fg-muted opacity-60 md:size-10" />
 					</div>
-					<p class="text-sm text-fg-muted">Nothing trending right now.</p>
+					<p class="text-base text-fg-muted">Nothing trending right now.</p>
 				</div>
 
 				<div
 					v-else-if="topThreeRanked.length === 0"
 					class="flex items-center gap-3 py-2">
 					<div
-						class="flex aspect-2/3 w-12 items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster lg:w-14"
+						class="flex aspect-2/3 w-14 items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster lg:w-16"
 						aria-hidden="true">
-						<UIcon :name="emptyIcon" class="size-6 text-fg-muted opacity-60 md:size-8" />
+						<UIcon :name="emptyIcon" class="size-8 text-fg-muted opacity-60 md:size-10" />
 					</div>
-					<p class="text-sm text-fg-muted">No posters to preview.</p>
+					<p class="text-base text-fg-muted">No posters to preview.</p>
 				</div>
 
 				<!-- Narrow: poster, then text; rank flag top-right of row -->
@@ -169,7 +169,7 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm lea
 						:class="rowShellClass">
 						<span :class="rankFlagRowClass" aria-hidden="true">#{{ rank }}</span>
 						<div
-							class="relative aspect-2/3 w-14 shrink-0 overflow-hidden rounded-[4px] bg-surface-poster sm:w-16">
+							class="relative aspect-2/3 w-16 shrink-0 overflow-hidden rounded-[4px] bg-surface-poster sm:w-[4.5rem]">
 							<img
 								:src="`${POSTER_IMAGE_URL}${item.poster}`"
 								:alt="''"
@@ -180,7 +180,7 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm lea
 								class="size-full object-cover">
 						</div>
 						<div class="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-							<p class="line-clamp-2 text-sm font-semibold leading-snug text-fg-default">{{ item.title }}
+							<p class="line-clamp-2 text-base font-semibold leading-snug text-fg-default">{{ item.title }}
 							</p>
 							<p v-if="hasMeta(item)" :class="metaLineClass">
 								<template v-if="ratingLabel(item) !== 'N/A'">
@@ -228,7 +228,7 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm lea
 								decoding="async"
 								class="aspect-2/3 w-full object-cover">
 						</div>
-						<p class="line-clamp-2 text-center text-sm font-semibold leading-snug text-fg-default pt-2">
+						<p class="line-clamp-2 text-center text-base font-semibold leading-snug text-fg-default pt-2">
 							{{ item.title }}
 						</p>
 						<p

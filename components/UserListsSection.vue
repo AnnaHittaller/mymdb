@@ -27,14 +27,21 @@ const isDesktop = useMediaQuery("(min-width: 768px)");
 		<div
 			v-if="showHeading"
 			class="mb-3 flex flex-wrap items-center justify-between gap-3 pt-4">
-			<Heading class="pt-0">Your lists</Heading>
-			<div class="flex flex-wrap gap-2">
+			<Heading flush>Your lists</Heading>
+			<div class="flex shrink-0 flex-wrap items-center gap-2">
 				<UButton
 					v-if="showSeeAll && lists.length > limit"
 					variant="outline"
+					size="lg"
 					label="See all"
 					to="/lists" />
-				<UButton variant="outline" label="Add new list" icon="i-heroicons-plus" @click="createOpen = true" />
+				<UButton
+					variant="outline"
+					size="lg"
+					label="Add new list"
+					icon="i-heroicons-plus"
+					:ui="{ leadingIcon: 'size-5' }"
+					@click="createOpen = true" />
 			</div>
 		</div>
 		<div class="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">

@@ -50,11 +50,11 @@ const heroCarouselArrow = {
 	color: "custom" as const,
 	size: "icon" as const,
 	square: true,
-	ui: { leadingIcon: "size-6" },
+	ui: { leadingIcon: "size-8" },
 };
 
 const heroArrowSlotClass =
-	"z-10 sm:size-10";
+	"z-10 sm:size-11";
 
 const {
 	modalOpen: trailerModalOpen,
@@ -120,11 +120,11 @@ async function onWatchTrailer(item: TrendingItem) {
 				container: 'items-stretch',
 				item: 'flex basis-full',
 				viewport: 'min-h-[390px] overflow-hidden rounded-[12px] [transform:translateZ(0)]',
-				prev: `start-4 top-1/2 -translate-y-1/2 sm:start-4 @max-[447px]:start-1/2 @max-[447px]:end-auto @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-8 @max-[447px]:translate-x-[calc(-100%-12px)] @max-[447px]:translate-y-0 ${heroArrowSlotClass}`,
-				next: `end-4 top-1/2 -translate-y-1/2 sm:end-4 @max-[447px]:end-auto @max-[447px]:start-1/2 @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-8 @max-[447px]:translate-x-[12px] @max-[447px]:translate-y-0 ${heroArrowSlotClass}`,
+				prev: `start-4 top-1/2 -translate-y-1/2 sm:start-4 @max-[447px]:start-1/2 @max-[447px]:end-auto @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-10 @max-[447px]:translate-x-[calc(-100%-12px)] @max-[447px]:translate-y-0 ${heroArrowSlotClass}`,
+				next: `end-4 top-1/2 -translate-y-1/2 sm:end-4 @max-[447px]:end-auto @max-[447px]:start-1/2 @max-[447px]:top-auto @max-[447px]:bottom-4 @max-[447px]:size-10 @max-[447px]:translate-x-[12px] @max-[447px]:translate-y-0 ${heroArrowSlotClass}`,
 			}">
 			<div
-				class="relative flex h-full min-h-[390px] w-full flex-1 items-center justify-center px-6 py-12 @min-[400px]:py-14 @max-[447px]:py-[68px]">
+				class="relative flex h-full min-h-[390px] w-full flex-1 items-center justify-center px-6 py-16 @min-[400px]:py-[4.5rem] @max-[447px]:py-[4.75rem]">
 				<img
 					v-if="item.backdrop"
 					:src="`${BACKDROP_IMAGE_URL}${item.backdrop}`"
@@ -139,10 +139,10 @@ async function onWatchTrailer(item: TrendingItem) {
 					class="absolute inset-0 h-full w-full object-cover">
 				<div class="@container relative z-10 flex w-full justify-center">
 					<div
-						class="flex h-fit w-full min-h-0 flex-col items-center gap-4 rounded-[12px] border border-border-default bg-surface-overlay/70 p-4 backdrop-blur-md @min-[300px]:@max-[399px]:grid @min-[300px]:@max-[399px]:w-full @min-[300px]:@max-[399px]:grid-cols-[7.5rem_1fr] @min-[300px]:@max-[399px]:items-start @min-[300px]:@max-[399px]:gap-x-4 @min-[300px]:@max-[399px]:gap-y-2 @min-[400px]:w-[min(100%,600px,max(400px,66.67%))] @min-[400px]:flex-row @min-[400px]:items-stretch">
+						class="flex h-fit w-full min-h-0 flex-col items-center gap-4 rounded-[12px] border border-border-default bg-surface-overlay/70 p-4 backdrop-blur-md @min-[300px]:@max-[399px]:grid @min-[300px]:@max-[399px]:w-full @min-[300px]:@max-[399px]:grid-cols-[8.5rem_1fr] @min-[300px]:@max-[399px]:items-start @min-[300px]:@max-[399px]:gap-x-4 @min-[300px]:@max-[399px]:gap-y-2 @min-[400px]:w-[min(100%,680px,max(400px,72%))] @min-[400px]:flex-row @min-[400px]:items-stretch">
 						<NuxtLink
 							:to="catalogDetailPath(item.id, itemMediaType(item))"
-							class="relative flex min-h-0 w-[7.5rem] shrink-0 self-center overflow-hidden rounded-lg @min-[300px]:@max-[399px]:col-start-1 @min-[300px]:@max-[399px]:row-start-1 @min-[300px]:@max-[399px]:self-start @min-[400px]:w-[8.5rem] @min-[400px]:max-h-full @min-[400px]:self-stretch">
+							class="relative flex min-h-0 w-[8.5rem] shrink-0 self-center overflow-hidden rounded-lg @min-[300px]:@max-[399px]:col-start-1 @min-[300px]:@max-[399px]:row-start-1 @min-[300px]:@max-[399px]:self-start @min-[400px]:w-[10rem] @min-[400px]:max-h-full @min-[400px]:self-stretch">
 							<img
 								v-if="item.poster"
 								:src="`${POSTER_IMAGE_URL}${item.poster}`"
@@ -160,12 +160,12 @@ async function onWatchTrailer(item: TrendingItem) {
 								:to="catalogDetailPath(item.id, itemMediaType(item))"
 								class="flex min-w-0 flex-col gap-2 @min-[300px]:@max-[399px]:col-start-2 @min-[300px]:@max-[399px]:row-start-1">
 								<span class="flex flex-col gap-0.5">
-									<span class="text-lg uppercase leading-tight">{{ item.title }}</span>
-									<span v-if="item.genres?.length" class="text-sm leading-tight text-fg-muted">{{
+									<span class="text-xl uppercase leading-tight">{{ item.title }}</span>
+									<span v-if="item.genres?.length" class="text-base leading-tight text-fg-muted">{{
 										item.genres.join(" · ") }}</span>
 								</span>
-								<span>
-									<UIcon name="i-heroicons-star-20-solid" class="mr-1 align-[-0.15em] text-rating" />
+								<span class="text-base">
+									<UIcon name="i-heroicons-star-20-solid" class="mr-1 size-5 align-[-0.15em] text-rating" />
 									{{ ratingLabel(item) }}<span v-if="yearLabel(item)" class="text-fg-muted"> · {{
 										yearLabel(item) }}</span><span class="text-fg-muted"> · </span><CatalogMediaBadge
 										embedded
@@ -176,7 +176,7 @@ async function onWatchTrailer(item: TrendingItem) {
 								class="flex flex-col gap-2 @min-[300px]:@max-[399px]:col-span-2 @min-[300px]:@max-[399px]:row-start-2">
 								<NuxtLink
 									:to="catalogDetailPath(item.id, itemMediaType(item))"
-									class="line-clamp-3 min-h-[4.5rem] leading-6">
+									class="line-clamp-3 min-h-[4.5rem] text-base leading-7">
 									{{ item.overview }}
 								</NuxtLink>
 								<WatchTrailerButton
@@ -185,7 +185,9 @@ async function onWatchTrailer(item: TrendingItem) {
 									:title="item.title"
 									:loading="isTrailerLoading(item)"
 									:disabled="isTrailerDisabled(item)"
+									size="lg"
 									class="self-start"
+									:ui="{ leadingIcon: 'size-5' }"
 									@play="onWatchTrailer(item)" />
 								<HeroTrendingListControls v-if="user" :item="item" />
 							</div>

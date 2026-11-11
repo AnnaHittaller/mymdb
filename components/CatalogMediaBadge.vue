@@ -19,18 +19,18 @@ const label = computed(() => catalogMediaLabel(resolved.value));
 <template>
 	<span
 		v-if="overlay"
-		class="absolute left-1.5 top-1.5 inline-flex items-center justify-center rounded bg-surface-overlay/50 p-1 text-fg-default backdrop-blur-sm"
+		class="absolute left-1.5 top-1.5 inline-flex items-center justify-center rounded bg-surface-overlay/50 p-1.5 text-fg-default backdrop-blur-sm"
 		:aria-label="label">
-		<UIcon :name="icon" class="block size-3 shrink-0" aria-hidden="true" />
+		<UIcon :name="icon" class="block size-4 shrink-0" aria-hidden="true" />
 	</span>
 	<span
 		v-else-if="embedded"
-		class="inline-flex items-center gap-0.5 align-[-0.05em] text-fg-muted">
-		<UIcon :name="icon" class="size-3 shrink-0" aria-hidden="true" />
+		class="inline-flex items-center gap-0.5 text-base align-[-0.05em] text-fg-muted">
+		<UIcon :name="icon" class="size-4 shrink-0" aria-hidden="true" />
 		<span>{{ label }}</span>
 	</span>
-	<span v-else class="inline-flex items-center gap-1 text-sm leading-tight text-fg-muted">
-		<UIcon :name="icon" class="size-4 shrink-0" aria-hidden="true" />
+	<span v-else class="inline-flex items-center gap-1 text-base leading-tight text-fg-muted">
+		<UIcon :name="icon" class="size-5 shrink-0" aria-hidden="true" />
 		<span>{{ label }}</span>
 	</span>
 </template>

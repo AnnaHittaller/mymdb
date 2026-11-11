@@ -18,7 +18,7 @@ const emit = defineEmits<{
 			v-for="list in lists"
 			:key="list.id"
 			type="button"
-			class="cursor-pointer rounded-lg border px-3 py-2.5 text-left text-base font-medium transition-colors"
+			class="cursor-pointer rounded-lg border px-3 py-3 text-left text-lg font-medium transition-colors"
 			:class="
 				isMember(list.id)
 					? 'border-primary bg-primary/5 text-fg-default hover:bg-primary/10'
@@ -30,9 +30,11 @@ const emit = defineEmits<{
 		<UButton
 			variant="outline"
 			block
+			size="xl"
 			class="mt-2"
 			label="Create new list"
 			icon="i-heroicons-plus"
+			:ui="{ leadingIcon: 'size-5' }"
 			@click="emit('create')" />
 	</div>
 </template>

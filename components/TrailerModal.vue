@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { browsingModalUi } from "~/constants/browsingOverlayUi";
 import type { TrailerRef } from "~/types/trailer";
 import { embedUrl } from "~/utils/tmdbVideo";
 
@@ -34,8 +35,9 @@ const iframeTitle = computed(() =>
 		:title="title"
 		:description="trailer?.name"
 		:ui="{
-			content: 'w-[calc(100vw-2rem)] max-w-4xl',
-			body: 'p-0 sm:p-0',
+			...browsingModalUi,
+			content: 'w-[calc(100vw-2rem)] max-w-5xl',
+			body: 'p-0 text-base sm:p-0',
 		}">
 		<template #body>
 			<div

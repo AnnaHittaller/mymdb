@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { useWindowSize } from "@vueuse/core";
-
 const user = useCurrentUser();
-const { width: viewportWidth } = useWindowSize();
-const isMobileChrome = computed(() => viewportWidth.value < 640);
 
-const controlSize = computed(() => (isMobileChrome.value ? "lg" : "md") as "lg" | "md");
+/** Match toolbar search `UButton` (`class="size-10"`). */
+const toolbarIconClass = "size-10 shrink-0";
 </script>
 
 <template>
@@ -21,14 +18,13 @@ const controlSize = computed(() => (isMobileChrome.value ? "lg" : "md") as "lg" 
 					square
 					icon="i-heroicons-magnifying-glass-20-solid"
 					aria-label="Search movies and shows"
-					class="size-9 shrink-0 sm:size-8"
-					:ui="{ leadingIcon: 'size-4 sm:size-3.5' }"
+					:class="toolbarIconClass"
+					:ui="{ leadingIcon: 'size-5 sm:size-4' }"
 				/>
-				<NuxtLink to="/profile" class="shrink-0" aria-label="Profile">
+				<NuxtLink to="/profile" :class="toolbarIconClass" aria-label="Profile">
 					<UAvatar
 						:alt="user.displayName ?? 'Profile'"
-						:size="controlSize"
-						class="border border-border-default"
+						:ui="{ root: `${toolbarIconClass} border border-border-default` }"
 					/>
 				</NuxtLink>
 			</div>

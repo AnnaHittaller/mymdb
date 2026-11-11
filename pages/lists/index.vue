@@ -12,8 +12,14 @@ const isDesktop = useMediaQuery("(min-width: 768px)");
 <template>
 	<div>
 		<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-			<Heading>Your lists</Heading>
-			<UButton variant="outline" label="Add new list" icon="i-heroicons-plus" @click="createOpen = true" />
+			<Heading flush>Your lists</Heading>
+			<UButton
+				variant="outline"
+				size="lg"
+				label="Add new list"
+				icon="i-heroicons-plus"
+				:ui="{ leadingIcon: 'size-5' }"
+				@click="createOpen = true" />
 		</div>
 		<UserListsSection :limit="0" :show-heading="false" />
 		<CreateListModal v-model:open="createOpen" :use-drawer="!isDesktop" />

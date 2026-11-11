@@ -139,15 +139,15 @@ async function toggleFavorites() {
 			<CatalogMediaBadge v-if="showMediaType" overlay :media-type="resolvedMediaType" />
 			<div
 				class="absolute right-1.5 top-1.5 inline-flex items-center justify-center gap-0.5 rounded bg-surface-overlay/50 px-1.5 py-0.5 text-fg-default backdrop-blur-sm">
-				<UIcon name="i-heroicons-star-20-solid" class="block size-3 shrink-0 text-rating" />
-				<span class="mt-0.5 text-xs leading-none tabular-nums">{{ ratingLabel }}</span>
+				<UIcon name="i-heroicons-star-20-solid" class="block size-4 shrink-0 text-rating" />
+				<span class="mt-0.5 text-sm leading-none tabular-nums">{{ ratingLabel }}</span>
 			</div>
 		</NuxtLink>
 		<div class="flex min-w-0 flex-col gap-0.5">
-			<NuxtLink :to="detailPath" class="line-clamp-1 text-sm font-medium leading-tight text-fg-default">
+			<NuxtLink :to="detailPath" class="line-clamp-1 text-base font-medium leading-tight text-fg-default">
 				{{ movie.title }}
 			</NuxtLink>
-			<p v-if="genreLabel" class="line-clamp-1 text-xs leading-tight text-fg-muted">
+			<p v-if="genreLabel" class="line-clamp-1 text-sm leading-tight text-fg-muted">
 				{{ genreLabel }}
 			</p>
 		</div>

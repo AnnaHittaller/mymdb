@@ -12,13 +12,14 @@ const props = withDefaults(
 		disabled?: boolean;
 		block?: boolean;
 		size?: "xs" | "sm" | "md" | "lg" | "xl";
+		ui?: Record<string, string>;
 	}>(),
 	{
 		trailer: null,
 		loading: false,
 		disabled: false,
 		block: false,
-		size: "sm",
+		size: "md",
 	},
 );
 
@@ -46,6 +47,11 @@ function onClick() {
 		:loading="loading"
 		:disabled="unavailable"
 		:aria-disabled="unavailable || undefined"
-		:ui="{ base: 'leading-none', label: 'leading-none', leadingIcon: 'shrink-0' }"
+		:ui="{
+			base: 'leading-none',
+			label: 'leading-none',
+			leadingIcon: 'shrink-0',
+			...ui,
+		}"
 		@click="onClick" />
 </template>

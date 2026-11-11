@@ -212,14 +212,14 @@ function loadMore() {
 				<div
 					v-if="recents.length > 0"
 					class="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5">
-					<p class="shrink-0 text-sm font-medium text-fg-muted">
+					<p class="shrink-0 text-base font-medium text-fg-muted">
 						Recent Searches
 					</p>
 					<button
 						v-for="recent in visibleRecents"
 						:key="recent"
 						type="button"
-						class="max-w-[120px] max-sm:min-w-10 min-w-16 shrink-0 cursor-pointer truncate rounded-md border border-border-default/50 bg-surface-inset px-1.5 py-1 text-sm text-fg-muted transition-colors hover:border-border-default hover:bg-surface-hover hover:text-fg-default"
+						class="max-w-[120px] max-sm:min-w-10 min-w-16 shrink-0 cursor-pointer truncate rounded-md border border-border-default/50 bg-surface-inset px-1.5 py-1 text-base text-fg-muted transition-colors hover:border-border-default hover:bg-surface-hover hover:text-fg-default"
 						:title="recent"
 						@click="onSelectRecent(recent)">
 						<span class="block truncate">{{ recent }}</span>
@@ -229,13 +229,13 @@ function loadMore() {
 		</div>
 
 		<div v-if="q" class="flex flex-col items-stretch">
-			<p v-if="error && movies.length === 0" class="text-lg">
+			<p v-if="error && movies.length === 0" class="text-xl md:text-2xl">
 				Couldn't load search results.
 			</p>
-			<p v-else-if="pending && movies.length === 0" class="text-lg">
+			<p v-else-if="pending && movies.length === 0" class="text-xl md:text-2xl">
 				Loading results…
 			</p>
-			<p v-else-if="movies.length === 0" class="text-lg">
+			<p v-else-if="movies.length === 0" class="text-xl md:text-2xl">
 				No matching results can be found.
 			</p>
 			<div v-if="movies.length > 0" class="movie-grid">

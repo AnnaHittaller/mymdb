@@ -24,9 +24,9 @@ export default defineAppConfig({
 				},
 				size: {
 					icon: {
-						base: "size-8 justify-center p-0 gap-0",
-						leadingIcon: "size-6",
-						trailingIcon: "size-6",
+						base: "size-10 justify-center p-0 gap-0",
+						leadingIcon: "size-8",
+						trailingIcon: "size-8",
 					},
 				},
 			},

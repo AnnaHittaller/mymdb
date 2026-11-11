@@ -370,16 +370,16 @@ function loadMore() {
 					:label="chip.label"
 					:remove-label="chip.removeLabel"
 					@remove="removeFilterChip(chip.id)" />
-				<p v-if="castPeople.length > 1" class="w-full text-sm text-fg-muted">
+				<p v-if="castPeople.length > 1" class="w-full text-base text-fg-muted">
 					{{ castHint }}
 				</p>
-				<UButton label="Clear" variant="outline" class="ml-auto sm:ml-0" @click="clearFilters" />
+				<UButton label="Clear" variant="outline" size="lg" class="ml-auto sm:ml-0" @click="clearFilters" />
 			</div>
 		</div>
 		<div class="flex flex-col items-stretch">
-			<p v-if="error && movies.length === 0 && !awaitingResults" class="text-lg">Couldn't load titles.</p>
-			<p v-else-if="awaitingResults" class="text-lg">Loading…</p>
-			<p v-else-if="movies.length === 0" class="text-lg">No titles match these filters.</p>
+			<p v-if="error && movies.length === 0 && !awaitingResults" class="text-xl md:text-2xl">Couldn't load titles.</p>
+			<p v-else-if="awaitingResults" class="text-xl md:text-2xl">Loading…</p>
+			<p v-else-if="movies.length === 0" class="text-xl md:text-2xl">No titles match these filters.</p>
 			<div v-if="movies.length > 0" class="movie-grid">
 				<MovieCard
 					v-for="movie in movies"

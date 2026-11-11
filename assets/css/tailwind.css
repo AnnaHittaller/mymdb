@@ -221,14 +221,19 @@
 @utility nav-item-icon {
 	display: block;
 	flex-shrink: 0;
-	width: 1.625rem;
-	height: 1.625rem;
+	width: 1.75rem;
+	height: 1.75rem;
 	color: var(--color-fg-subtle);
+
+	@media (width >= 40rem) {
+		width: 2rem;
+		height: 2rem;
+	}
 }
 
 @utility nav-item-label {
 	display: block;
-	font-size: 0.6875rem;
+	font-size: 0.8125rem;
 	line-height: 1.1;
 	text-align: center;
 	color: var(--color-fg-subtle);
@@ -286,9 +291,9 @@
 
 	@media (width >= 40rem) {
 		flex: none;
-		min-width: 4.75rem;
-		padding: 0.625rem 0.375rem;
-		gap: 0.375rem;
+		min-width: 5.25rem;
+		padding: 0.75rem 0.5rem;
+		gap: 0.5rem;
 	}
 }
 
@@ -305,7 +310,7 @@
 	}
 
 	h2 {
-		@apply text-2xl mb-4 md:text-2xl font-extrabold;
+		@apply text-3xl mb-4 font-extrabold md:text-4xl;
 	}
 }
 
@@ -315,14 +320,14 @@
 
 .movie-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
 	row-gap: 2rem;
-	column-gap: 1rem;
+	column-gap: 1.25rem;
 }
 
 /* Discover filter triggers — slot classes from constants/discoverFilterUi.ts → app.config.ts */
 @utility discover-filter-control {
-	@apply relative inline-flex w-full min-w-0 cursor-pointer items-center gap-1.5 border border-border-default !bg-default text-fg-default shadow-none outline-none ring-0 transition-colors;
+	@apply relative inline-flex w-full min-w-0 cursor-pointer items-center gap-2 border border-border-default !bg-default text-base text-fg-default shadow-none outline-none ring-0 transition-colors;
 	@apply hover:!bg-elevated;
 	@apply focus:border-border-default focus:outline-none focus:ring-0;
 	@apply focus-within:border-border-default focus-within:outline-none focus-within:ring-0;

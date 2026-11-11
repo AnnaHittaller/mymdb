@@ -56,9 +56,9 @@ const isEmpty = computed(() => props.movies.length === 0);
 			<div class="shrink-0 @max-[349px]:w-full @min-[350px]:w-auto">
 				<div
 					v-if="isEmpty"
-					class="mx-auto flex aspect-2/3 w-12 items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster @min-[350px]:mx-0 lg:w-14"
+					class="mx-auto flex aspect-2/3 w-14 items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster @min-[350px]:mx-0 lg:w-16"
 					aria-hidden="true">
-					<UIcon name="i-heroicons-film-20-solid" class="size-6 text-fg-muted opacity-60 md:size-8" />
+					<UIcon name="i-heroicons-film-20-solid" class="size-8 text-fg-muted opacity-60 md:size-10" />
 				</div>
 				<div
 					v-else
@@ -66,7 +66,7 @@ const isEmpty = computed(() => props.movies.length === 0);
 					<div
 						v-for="movie in previewPosters"
 						:key="`${defaultMediaType(movie.mediaType)}-${movie.id}`"
-						class="relative aspect-2/3 w-12 shrink-0 overflow-hidden rounded-[4px] bg-surface-poster lg:w-14 @max-[349px]:w-full">
+						class="relative aspect-2/3 w-14 shrink-0 overflow-hidden rounded-[4px] bg-surface-poster lg:w-16 @max-[349px]:w-full">
 						<img
 							:src="`${POSTER_SUGGESTION_IMAGE_URL}${movie.poster}`"
 							:alt="''"
@@ -93,9 +93,9 @@ const isEmpty = computed(() => props.movies.length === 0);
 						tabindex="-1"
 						aria-hidden="true"
 						class="pointer-events-none shrink-0 group-hover:border-primary group-hover:text-primary"
-						:ui="{ leadingIcon: 'size-5' }" />
+						:ui="{ leadingIcon: 'size-6' }" />
 				</div>
-				<p class="mt-0.5 text-sm text-fg-muted">{{ countLabel }}</p>
+				<p class="mt-0.5 text-base text-fg-muted">{{ countLabel }}</p>
 			</div>
 		</NuxtLink>
 	</div>

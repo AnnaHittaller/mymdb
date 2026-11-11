@@ -3,13 +3,14 @@
  * Wired in `app.config.ts` (triggers + portal menus). Do not use `UTheme` for these: menus teleport outside the page tree.
  */
 
-export const discoverFilterTrigger = "group discover-filter-control rounded-[8px]";
+export const discoverFilterTrigger =
+	"group discover-filter-control rounded-[8px] text-base min-h-11";
 
 export const discoverMenuSlots = {
 	content:
 		"max-h-60 bg-surface-popover border border-border-default rounded-lg ring-0 shadow-lg overflow-hidden",
 	viewport: "scrollbar-menu scroll-py-1",
-	item: "text-fg-default data-highlighted:not-data-disabled:text-fg-default data-highlighted:not-data-disabled:before:!bg-surface-hover",
+	item: "text-base text-fg-default data-highlighted:not-data-disabled:text-fg-default data-highlighted:not-data-disabled:before:!bg-surface-hover",
 };
 
 export const discoverSelectTriggerSlots = {
@@ -29,5 +30,5 @@ export const discoverFilterVariants = {
 
 /** InputMenu `base` is the `<input>`; page `:ui` overrides theme `placeholder:text-dimmed`. */
 export const castActorInputUi = {
-	base: "discover-filter-input text-fg-default placeholder:text-fg-default",
+	base: "discover-filter-input text-base text-fg-default placeholder:text-fg-default",
 };

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { browsingDrawerUi, browsingModalUi } from "~/constants/browsingOverlayUi";
+
 const props = defineProps<{
 	open: boolean;
 	useDrawer?: boolean;
@@ -51,20 +53,22 @@ async function submit() {
 		v-if="!useDrawer"
 		:open="open"
 		title="Create new list"
+		:ui="browsingModalUi"
 		@update:open="emit('update:open', $event)">
 		<template #body>
 			<UInput
 				v-model="name"
-				size="lg"
+				size="xl"
 				placeholder="List name"
 				:maxlength="60"
 				autofocus
+				:ui="{ base: 'text-base' }"
 				@keydown.enter.prevent="submit" />
 		</template>
 		<template #footer>
 			<div class="flex w-full justify-end gap-2">
-				<UButton variant="outline" label="Cancel" @click="emit('update:open', false)" />
-				<UButton label="Create" :loading="saving" @click="submit" />
+				<UButton variant="outline" size="xl" label="Cancel" @click="emit('update:open', false)" />
+				<UButton size="xl" label="Create" :loading="saving" @click="submit" />
 			</div>
 		</template>
 	</UModal>
@@ -72,16 +76,18 @@ async function submit() {
 		v-else
 		:open="open"
 		title="Create new list"
+		:ui="browsingDrawerUi"
 		@update:open="emit('update:open', $event)">
 		<template #body>
 			<div class="flex flex-col gap-4 p-4">
 				<UInput
 					v-model="name"
-					size="lg"
+					size="xl"
 					placeholder="List name"
 					:maxlength="60"
+					:ui="{ base: 'text-base' }"
 					@keydown.enter.prevent="submit" />
-				<UButton block label="Create" :loading="saving" @click="submit" />
+				<UButton block size="xl" label="Create" :loading="saving" @click="submit" />
 			</div>
 		</template>
 	</UDrawer>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { refDebounced } from "@vueuse/core";
+import { browsingModalUi } from "~/constants/browsingOverlayUi";
 import type { UserList } from "~/types/list";
 import type { UserMovie } from "~/types/movie";
 import { defaultMediaType } from "~/utils/catalogKey";
@@ -81,7 +82,7 @@ async function removeMovie(movie: UserMovie) {
 			<div class="flex min-w-0 flex-1 flex-wrap items-center gap-3">
 				<Heading v-if="!editing || !list.renamable" class="min-w-0">
 					<span>{{ displayTitle }}</span>
-					<span class="ml-2 text-lg font-normal text-fg-muted">[{{ countLabel }}]</span>
+					<span class="ml-2 text-xl font-normal text-fg-muted">[{{ countLabel }}]</span>
 				</Heading>
 				<UInput
 					v-else
@@ -95,15 +96,17 @@ async function removeMovie(movie: UserMovie) {
 				<UButton
 					v-if="!editing"
 					variant="outline"
+					size="lg"
 					label="Edit list"
 					icon="i-heroicons-pencil-square"
 					@click="startEdit" />
 				<template v-else>
-					<UButton variant="outline" label="Done" @click="list.renamable ? commitRename() : doneEdit()" />
+					<UButton variant="outline" size="lg" label="Done" @click="list.renamable ? commitRename() : doneEdit()" />
 					<UButton
 						v-if="list.kind === 'custom'"
 						color="error"
 						variant="outline"
+						size="lg"
 						label="Delete list"
 						@click="deleteConfirmOpen = true" />
 				</template>
@@ -133,10 +136,10 @@ async function removeMovie(movie: UserMovie) {
 		</UInput>
 		<div class="flex flex-col items-stretch">
 			<Heading v-if="debouncedSearchTerm !== ''">Results</Heading>
-			<p v-if="debouncedSearchTerm !== '' && filteredMovies.length === 0" class="text-xl">
+			<p v-if="debouncedSearchTerm !== '' && filteredMovies.length === 0" class="text-xl md:text-2xl">
 				No matching results can be found.
 			</p>
-			<p v-if="listMovies.length === 0">This list is empty.</p>
+			<p v-if="listMovies.length === 0" class="text-xl md:text-2xl">This list is empty.</p>
 			<div v-if="filteredMovies.length > 0" class="movie-grid">
 				<MovieCard
 					v-for="movie in filteredMovies"
@@ -149,16 +152,16 @@ async function removeMovie(movie: UserMovie) {
 					@remove-from-list="removeMovie(movie)" />
 			</div>
 		</div>
-		<UModal v-model:open="deleteConfirmOpen" title="Delete this list?">
+		<UModal v-model:open="deleteConfirmOpen" title="Delete this list?" :ui="browsingModalUi">
 			<template #body>
-				<p class="text-fg-muted">
+				<p class="text-base text-fg-muted">
 					Titles stay in your library if they are on other lists. This cannot be undone.
 				</p>
 			</template>
 			<template #footer>
 				<div class="flex w-full justify-end gap-2">
-					<UButton variant="outline" label="Cancel" @click="deleteConfirmOpen = false" />
-					<UButton color="error" label="Delete" :loading="deleting" @click="confirmDeleteList" />
+					<UButton variant="outline" size="lg" label="Cancel" @click="deleteConfirmOpen = false" />
+					<UButton color="error" size="lg" label="Delete" :loading="deleting" @click="confirmDeleteList" />
 				</div>
 			</template>
 		</UModal>

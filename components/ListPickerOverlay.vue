@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useMediaQuery } from "@vueuse/core";
+import { browsingDrawerUi, browsingSlideoverUi } from "~/constants/browsingOverlayUi";
 import type { ToggleMoviePayload } from "~/domain/user-document/createUserDocument";
 import type { MediaType } from "~/types/catalog";
 import { defaultMediaType } from "~/utils/catalogKey";
@@ -37,7 +38,8 @@ function onCreateList(listId: string) {
 		v-if="isDesktop"
 		v-model:open="open"
 		title="Save to list"
-		description="Toggle lists for this title">
+		description="Toggle lists for this title"
+		:ui="browsingSlideoverUi">
 		<template #body>
 			<ListPickerBody
 				:lists="flyoutLists"
@@ -50,10 +52,11 @@ function onCreateList(listId: string) {
 		v-else
 		v-model:open="open"
 		title="Save to list"
-		:dismissible="true">
+		:dismissible="true"
+		:ui="browsingDrawerUi">
 		<template #body>
 			<ListPickerBody
-				class="p-4"
+				class="py-4"
 				:lists="flyoutLists"
 				:is-member="(id) => isInList(id, moviePayload.id, defaultMediaType(moviePayload.mediaType))"
 				@toggle="toggle"

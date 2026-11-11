@@ -46,23 +46,23 @@ async function toggleFavorites() {
 </script>
 
 <template>
-	<div class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3">
+	<div class="flex h-8 max-h-8 min-h-8 shrink-0 flex-nowrap items-center gap-4">
 		<button
 			type="button"
-			class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200"
+			class="flex h-8 cursor-pointer items-center leading-none transition-colors duration-200"
 			:class="bookmarkClass"
 			aria-label="Save to list"
 			@click="pickerOpen = true">
-			<IconAddToList class="size-6" />
+			<IconAddToList class="size-8" />
 		</button>
 		<button
 			type="button"
-			class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
+			class="flex h-8 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
 			:aria-label="inFavorites ? 'Remove from favorites' : 'Add to favorites'"
 			@click="toggleFavorites">
 			<UIcon
 				:name="inFavorites ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
-				:class="inFavorites ? 'size-6 text-primary' : 'size-6 text-fg-subtle hover:text-primary'" />
+				:class="inFavorites ? 'size-8 text-primary' : 'size-8 text-fg-subtle hover:text-primary'" />
 		</button>
 		<ListPickerOverlay v-model:open="pickerOpen" :movie-payload="moviePayload" />
 	</div>

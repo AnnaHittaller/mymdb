@@ -100,7 +100,7 @@ async function onWatchTrailer() {
     <div v-if="pending" class="px-8 py-8 text-lg">Loading…</div>
     <div v-else-if="show && !error">
         <Heading class="block md:hidden pb-8">{{ show.name }}</Heading>
-        <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4 text-lg md:text-base">
+        <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4 text-lg md:text-lg">
             <div class="flex flex-col gap-4 md:self-start md:w-[18rem] lg:w-sm md:shrink-0">
                 <div v-auto-animate class="relative">
                     <div v-if="user" v-auto-animate="{ duration: 150 }">
@@ -149,12 +149,12 @@ async function onWatchTrailer() {
             <div class="w-full flex flex-col gap-4">
                 <Heading class="hidden md:block">{{ show.name }}</Heading>
                 <div>
-                    <span v-for="genre in show?.genres" :key="genre.id" class="text-lg font-bold">
+                    <span v-for="genre in show?.genres" :key="genre.id" class="text-xl font-bold">
                         <div v-if="show.genres[0] != genre" class="bg-primary h-4 w-[.25rem] inline-block ml-2 mr-1" />
                         {{ genre.name }}
                     </span>
                 </div>
-                <h3 v-if="show.tagline" class="text-lg">{{ show.tagline }}</h3>
+                <h3 v-if="show.tagline" class="text-xl">{{ show.tagline }}</h3>
                 <p class="max-w-2xl">{{ show.overview }}</p>
                 <Heading class="pt-4">Details</Heading>
                 <div>First air date: {{ show.first_air_date }}</div>
@@ -170,7 +170,7 @@ async function onWatchTrailer() {
                             v-if="actor.profile_path" :src="`${PROFILE_IMAGE_URL}${actor.profile_path}`"
                             :alt="actor.name" width="185" height="278" loading="lazy" decoding="async"
                             class="w-16 h-24 rounded-md object-cover">
-                        <p class="mt-2 text-sm font-medium">{{ actor.name }}</p>
+                        <p class="mt-2 text-base font-medium">{{ actor.name }}</p>
                     </div>
                 </div>
 

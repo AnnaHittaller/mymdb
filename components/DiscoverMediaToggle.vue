@@ -5,7 +5,7 @@ const model = defineModel<MediaType>({ required: true });
 
 function segmentClass(active: boolean) {
 	return [
-		"flex-1 cursor-pointer rounded-[6px] px-3 py-2 text-center text-sm font-medium transition-colors",
+		"flex-1 cursor-pointer rounded-[6px] px-3 py-2 text-center text-base font-medium transition-colors",
 		active
 			? "bg-primary text-inverted"
 			: "text-fg-muted hover:bg-surface-hover hover:text-fg-default",
