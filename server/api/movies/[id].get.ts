@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
 	try {
 		const { id } = event.context.params!
 		const details = await fetchTmdbMovie(String(id))
-		return withTrailer(details)
+		return withTrailer(withDetailCast(details, "movie"))
 	} catch {
 		throw createError({
 			statusCode: 404,

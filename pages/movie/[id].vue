@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { POSTER_DETAIL_IMAGE_URL, PROFILE_IMAGE_URL } from "~/constants/movie";
+import { POSTER_DETAIL_IMAGE_URL } from "~/constants/movie";
 import type { Movie } from "~/types/movie";
 import { formatMovieRating } from "~/utils/formatMovieRating";
 import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
@@ -154,18 +154,7 @@ async function onWatchTrailer() {
                 <div>Release date: {{ movie.release_date }}</div>
                 <div>Runtime: {{ movie.runtime }} min</div>
                 <div>Average rating: {{ averageRatingLabel }}</div>
-                <Heading class="pt-4">Starring</Heading>
-                <div class="flex flex-wrap gap-x-6 gap-y-4 md:max-lg:gap-x-4">
-                    <div
-                        v-for="actor in movie.credits.cast.slice(0, 5)" :key="actor.id"
-                        class=" flex flex-col items-center text-center shrink-0 w-20 md:max-lg:w-[4.5rem]">
-                        <img
-                            v-if="actor.profile_path" :src="`${PROFILE_IMAGE_URL}${actor.profile_path}`"
-                            :alt="actor.name" width="185" height="278" loading="lazy" decoding="async"
-                            class="w-16 h-24 rounded-md object-cover">
-                        <p class="mt-2 text-base font-medium">{{ actor.name }}</p>
-                    </div>
-                </div>
+                <DetailCastSection :cast="movie.detailCast" />
 
             </div>
         </div>

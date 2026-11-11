@@ -1,4 +1,5 @@
 import type { MediaType } from "./catalog";
+import type { DetailCastMember } from "./detailCast";
 import type { ListMembership } from "./list";
 import type { TrailerRef } from "./trailer";
 
@@ -56,6 +57,7 @@ export interface Movie {
 	vote_average: number;
 	vote_count: number;
 	credits: Credits;
+	detailCast: DetailCastMember[];
 	trailer?: TrailerRef | null;
 }
 
