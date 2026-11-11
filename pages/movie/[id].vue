@@ -23,19 +23,19 @@ const movieFetch = useFetch<Movie>(() => `/api/movies/${movieId.value}`, {
     key: `movie-${movieId.value}`,
     getCachedData: cachedPayload,
 })
-const similarFetch = useFetch(() => `/api/movies/similar?id=${movieId.value}`, {
-    key: `similar-${movieId.value}`,
+const recommendationsFetch = useFetch(() => `/api/movies/recommendations?id=${movieId.value}`, {
+    key: `recommendations-${movieId.value}`,
     getCachedData: cachedPayload,
 })
 
-const [{ data, pending, error }, { data: similar }] = await Promise.all([movieFetch, similarFetch])
+const [{ data, pending, error }, { data: recommendations }] = await Promise.all([movieFetch, recommendationsFetch])
 
 const movie = computed(() => data.value)
 
 const averageRatingLabel = computed(() =>
     movie.value ? formatMovieRating(movie.value.vote_average) : "N/A",
 )
-const moviesWithPoster = computed(() => similar.value ?? [])
+const moviesWithPoster = computed(() => recommendations.value ?? [])
 
 const listPayload = computed(() => {
     const current = movie.value
@@ -169,14 +169,15 @@ async function onWatchTrailer() {
 
             </div>
         </div>
-        <Heading class="pt-4">More like this</Heading>
+        <Heading class="pt-4">You may also like</Heading>
 
         <div v-if="moviesWithPoster.length > 0" class="movie-grid ">
             <MovieCard
                 v-for="item in moviesWithPoster"
-                :key="`movie-${item.id}`"
+                :key="`${item.mediaType ?? 'movie'}-${item.id}`"
                 :movie="item"
-                media-type="movie" />
+                :media-type="item.mediaType ?? 'movie'"
+                show-media-type />
         </div>
         <TrailerModal
             v-model:open="trailerModalOpen"

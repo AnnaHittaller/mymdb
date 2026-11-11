@@ -4,6 +4,7 @@ export function buildTmdbDiscoverTvParams(input: DiscoverQueryInput): URLSearchP
 	const page = Number(input.page) || 1
 	const rating = Number(input.rating) || 0
 	const genres = String(input.genres ?? "")
+	const keywords = String(input.keywords ?? "").trim()
 	const withCast = String(input.withCast ?? "").trim()
 	const releaseYearGte = Number(input.releaseYearGte) || 0
 	const releaseYearLte = Number(input.releaseYearLte) || 0
@@ -16,7 +17,8 @@ export function buildTmdbDiscoverTvParams(input: DiscoverQueryInput): URLSearchP
 	})
 
 	if (rating > 0) params.set("vote_average.gte", String(rating))
-	if (genres) params.set("with_genres", genres)
+	if (keywords) params.set("with_keywords", keywords)
+	else if (genres) params.set("with_genres", genres)
 	if (withCast) params.set("with_cast", withCast)
 	if (releaseYearGte > 0) {
 		params.set("first_air_date.gte", `${releaseYearGte}-01-01`)
