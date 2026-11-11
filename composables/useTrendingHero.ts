@@ -2,7 +2,7 @@ import { BACKDROP_COMPACT_IMAGE_URL, BACKDROP_IMAGE_URL } from "~/constants/movi
 import type { TrendingItem } from "~/types/catalog";
 import { cachedTrendingList } from "~/utils/trendingCache";
 
-const TRENDING_HERO_KEY = "trending-hero-v1";
+const TRENDING_HERO_KEY = "trending-hero";
 
 let warmedBackdrop = false;
 

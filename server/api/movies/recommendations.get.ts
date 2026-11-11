@@ -23,7 +23,7 @@ export default defineCachedEventHandler(async (event) => {
 	}
 }, {
 	maxAge: CACHE_DURATION / 1000,
-	name: 'movie-recommendations-v5',
+	name: 'movie-recommendations',
 	getKey: (event) => {
 		const query = getQuery(event)
 		const blend = parseBlend(query) ? 'blend' : 'plain'
