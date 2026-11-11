@@ -9,7 +9,6 @@ import { formatMovieRating } from "~/utils/formatMovieRating";
 import { catalogKey } from "~/utils/catalogKey";
 
 const user = useCurrentUser();
-const { isInList, movies, add, remove, setNext } = useUserDocument();
 const { data: trendingItems } = await useTrendingHero();
 
 const backdropSizes = "(max-width: 639px) calc(100vw - 2rem), calc(100vw - 7.25rem - 2rem)";
@@ -44,39 +43,6 @@ function yearLabel(item: TrendingItem) {
 
 function itemMediaType(item: TrendingItem): MediaType {
 	return defaultMediaType(item.mediaType);
-}
-
-function inWatchNext(item: TrendingItem) {
-	return movies.value.some(
-		(entry) =>
-			entry.id === String(item.id)
-			&& defaultMediaType(entry.mediaType) === itemMediaType(item)
-			&& entry.next,
-	);
-}
-
-async function addToList(item: TrendingItem) {
-	const mediaType = itemMediaType(item);
-	await add({
-		id: String(item.id),
-		mediaType,
-		title: item.title,
-		rating: item.rating,
-		poster: item.poster ?? "",
-		...(item.genres?.length ? { genres: item.genres } : {}),
-		seen: false,
-		next: false,
-		timestamp: new Date(),
-	});
-}
-
-async function removeFromList(item: TrendingItem) {
-	await remove(String(item.id), itemMediaType(item));
-}
-
-async function toggleWatchNext(item: TrendingItem) {
-	const mediaType = itemMediaType(item);
-	await setNext(String(item.id), !inWatchNext(item), mediaType);
 }
 
 const heroCarouselArrow = {
@@ -221,34 +187,7 @@ async function onWatchTrailer(item: TrendingItem) {
 									:disabled="isTrailerDisabled(item)"
 									class="self-start"
 									@play="onWatchTrailer(item)" />
-								<div v-if="user"
-									class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3 text-fg-subtle">
-									<button
-										v-if="!isInList(String(item.id), itemMediaType(item))"
-										type="button"
-										class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
-										aria-label="Add to my list"
-										@click="addToList(item)">
-										<IconAddToList class="size-6" />
-									</button>
-									<button
-										v-else
-										type="button"
-										class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
-										aria-label="Remove from watchlist"
-										@click="removeFromList(item)">
-										<UIcon name="i-heroicons-x-circle" class="size-6" />
-									</button>
-									<button
-										v-if="isInList(String(item.id), itemMediaType(item))"
-										type="button"
-										class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
-										:aria-label="inWatchNext(item) ? 'Remove from favorites' : 'Add to favorites'"
-										@click="toggleWatchNext(item)">
-										<UIcon :name="inWatchNext(item) ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
-											class="size-6" />
-									</button>
-								</div>
+								<HeroTrendingListControls v-if="user" :item="item" />
 							</div>
 						</div>
 					</div>

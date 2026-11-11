@@ -1,4 +1,5 @@
 import type { MediaType } from "./catalog";
+import type { ListMembership } from "./list";
 import type { TrailerRef } from "./trailer";
 
 export interface TrendingMovie {
@@ -20,8 +21,11 @@ export interface UserMovie {
 	poster: string;
 	genres?: string[];
 	seen: boolean;
-	next: boolean;
-	timestamp: Date;
+	memberships: ListMembership[];
+	/** Legacy v1 — stripped on v2 write; migration reads only */
+	next?: boolean;
+	/** Legacy v1 — stripped on v2 write; migration / reconcile reads only */
+	timestamp?: Date;
 }
 
 export interface Movie {

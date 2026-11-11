@@ -1,3 +1,4 @@
+import type { UserList } from "./list";
 import type { UserMovie } from "./movie";
 
 export interface User {
@@ -5,5 +6,7 @@ export interface User {
 	username: string;
 	email: string;
 	theme: string;
+	schemaVersion?: number;
+	lists?: UserList[];
 	movies?: UserMovie[] | [];
 }

@@ -14,11 +14,11 @@ const navLinkActiveClass = 'nav-item-active'
                 <UIcon name="i-heroicons-home" class="nav-item-icon" />
                 <span class="nav-item-label">Home</span>
             </NuxtLink>
-            <NuxtLink v-if="user" to="/my-movies" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
+            <NuxtLink v-if="user" to="/lists" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
                 <IconAddToList class="nav-item-icon" />
                 <span class="nav-item-label">My Lists</span>
             </NuxtLink>
-            <NuxtLink v-if="user" to="/watch-next" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
+            <NuxtLink v-if="user" to="/lists/favorites" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
                 <UIcon name="i-heroicons-heart" class="nav-item-icon" />
                 <span class="nav-item-label">Favorites</span>
             </NuxtLink>

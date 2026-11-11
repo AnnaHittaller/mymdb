@@ -5,6 +5,7 @@ import { POSTER_IMAGE_URL } from "~/constants/movie";
 import { catalogKey, defaultMediaType } from "~/utils/catalogKey";
 import { catalogDetailPath } from "~/utils/catalogPath";
 import { formatMovieRating } from "~/utils/formatMovieRating";
+import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
 
 type MovieCardMovie = {
 	id: number | string;
@@ -31,14 +32,22 @@ const props = withDefaults(
 	defineProps<{
 		movie: MovieCardMovie;
 		mediaType?: MediaType;
-		/** When true, show movie vs show badge on the poster (mixed grids only). */
 		showMediaType?: boolean;
+		listId?: string;
+		editing?: boolean;
 	}>(),
-	{ showMediaType: false },
+	{ showMediaType: false, editing: false },
 );
 
+const emit = defineEmits<{
+	"remove-from-list": [];
+}>();
+
 const user = useCurrentUser();
-const { movies, isInList, add, remove, setNext } = useUserDocument();
+const { isOnAnyList, isInFavorites, setFavorites } = useUserDocument();
+const { notifyListError } = useListCapToast();
+
+const pickerOpen = ref(false);
 
 const movieId = computed(() => String(props.movie.id));
 
@@ -86,40 +95,31 @@ watch(
 	{ immediate: true },
 );
 
-const isInMovieList = computed(() => isInList(movieId.value, resolvedMediaType.value));
+const moviePayload = computed(() => {
+	const genres = genreNamesFrom(props.movie);
+	const fromResolved = resolvedGenres.value;
+	return togglePayloadFromCatalog(
+		props.movie,
+		resolvedMediaType.value,
+		genres.length ? genres : fromResolved.length ? fromResolved : undefined,
+	);
+});
 
-const isInNextList = computed(() =>
-	movies.value.some(
-		(entry) =>
-			entry.id === movieId.value
-			&& defaultMediaType(entry.mediaType) === resolvedMediaType.value
-			&& entry.next,
-	),
+const onAnyList = computed(() => isOnAnyList(movieId.value, resolvedMediaType.value));
+const inFavorites = computed(() => isInFavorites(movieId.value, resolvedMediaType.value));
+
+const bookmarkClass = computed(() =>
+	onAnyList.value
+		? "text-primary hover:text-primary/75"
+		: "text-fg-subtle hover:text-primary",
 );
 
-async function addToList() {
-	const m = props.movie;
-	const genres = genreNamesFrom(m);
-	const fromResolved = resolvedGenres.value;
-	await add({
-		id: movieId.value,
-		mediaType: resolvedMediaType.value,
-		title: m.title,
-		rating: m.rating ?? m.vote_average ?? 0,
-		poster: posterPath.value,
-		...(genres.length ? { genres } : fromResolved.length ? { genres: fromResolved } : {}),
-		seen: false,
-		next: false,
-		timestamp: new Date(),
-	});
-}
-
-async function removeFromList() {
-	await remove(movieId.value, resolvedMediaType.value);
-}
-
-async function toggleWatchNext() {
-	await setNext(movieId.value, !isInNextList.value, resolvedMediaType.value);
+async function toggleFavorites() {
+	try {
+		await setFavorites(moviePayload.value, !inFavorites.value);
+	} catch (error) {
+		notifyListError(error);
+	}
 }
 </script>
 
@@ -136,16 +136,11 @@ async function toggleWatchNext() {
 				loading="lazy"
 				decoding="async"
 				class="aspect-2/3 w-full rounded-lg object-cover">
-			<CatalogMediaBadge
-				v-if="showMediaType"
-				overlay
-				:media-type="resolvedMediaType" />
+			<CatalogMediaBadge v-if="showMediaType" overlay :media-type="resolvedMediaType" />
 			<div
 				class="absolute right-1.5 top-1.5 inline-flex items-center justify-center gap-0.5 rounded bg-surface-overlay/50 px-1.5 py-0.5 text-fg-default backdrop-blur-sm">
-				<UIcon
-					name="i-heroicons-star-20-solid"
-					class=" block size-3 shrink-0 text-rating" />
-				<span class="text-xs leading-none mt-0.5 tabular-nums">{{ ratingLabel }}</span>
+				<UIcon name="i-heroicons-star-20-solid" class="block size-3 shrink-0 text-rating" />
+				<span class="mt-0.5 text-xs leading-none tabular-nums">{{ ratingLabel }}</span>
 			</div>
 		</NuxtLink>
 		<div class="flex min-w-0 flex-col gap-0.5">
@@ -156,31 +151,37 @@ async function toggleWatchNext() {
 				{{ genreLabel }}
 			</p>
 		</div>
-		<div v-if="user" class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3 text-fg-subtle">
+		<div
+			v-if="user"
+			class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3 transition-colors duration-200">
+			<template v-if="!editing">
+				<button
+					type="button"
+					class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200"
+					:class="bookmarkClass"
+					aria-label="Save to list"
+					@click="pickerOpen = true">
+					<IconAddToList class="size-6" />
+				</button>
+				<button
+					type="button"
+					class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
+					:aria-label="inFavorites ? 'Remove from favorites' : 'Add to favorites'"
+					@click="toggleFavorites">
+					<UIcon
+						:name="inFavorites ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
+						:class="inFavorites ? 'size-6 text-primary' : 'size-6 text-fg-subtle hover:text-primary'" />
+				</button>
+			</template>
 			<button
-				v-if="!isInMovieList"
+				v-if="editing && listId"
 				type="button"
-				class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
-				aria-label="Add to my list"
-				@click="addToList">
-				<IconAddToList class="size-6" />
-			</button>
-			<button
-				v-else
-				type="button"
-				class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
-				aria-label="Remove from watchlist"
-				@click="removeFromList">
+				class="ml-auto flex h-6 cursor-pointer items-center leading-none text-fg-subtle transition-colors duration-200 hover:text-primary"
+				aria-label="Remove from this list"
+				@click="emit('remove-from-list')">
 				<UIcon name="i-heroicons-x-circle" class="size-6" />
 			</button>
-			<button
-				v-if="isInMovieList"
-				type="button"
-				class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
-				:aria-label="isInNextList ? 'Remove from favorites' : 'Add to favorites'"
-				@click="toggleWatchNext">
-				<UIcon :name="isInNextList ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'" class="size-6" />
-			</button>
 		</div>
+		<ListPickerOverlay v-model:open="pickerOpen" :movie-payload="moviePayload" />
 	</article>
 </template>

@@ -18,7 +18,7 @@ test.describe("critical path (email/password, no Google popup)", () => {
 		);
 	});
 
-	test("register, sign in again, add to watchlist", async ({ page, goto }) => {
+	test("register, sign in again, save to list via flyout", async ({ page, goto }) => {
 		const email = `e2e-${Date.now()}@example.com`;
 		const password = "password12";
 		const username = `e2e-${Date.now()}`;
@@ -30,11 +30,10 @@ test.describe("critical path (email/password, no Google popup)", () => {
 		await reg.locator('input[name="password"]').fill(password);
 		await reg.getByRole("button", { name: "Create an account" }).click();
 		await expect(page).toHaveURL("/", { timeout: 30_000 });
-		await expect(page.getByRole("heading", { name: /My movies/i })).toBeVisible({
+		await expect(page.getByRole("heading", { name: /Your lists/i })).toBeVisible({
 			timeout: 30_000,
 		});
 
-		// Client navigation keeps Firebase auth in memory; goto('/profile') SSR-middleware sends you to login without session cookies.
 		await page.locator('a[href="/profile"]').last().click();
 		await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible({ timeout: 30_000 });
 		await page.getByRole("button", { name: "Sign out" }).click();
@@ -47,11 +46,15 @@ test.describe("critical path (email/password, no Google popup)", () => {
 		await expect(page).toHaveURL("/", { timeout: 30_000 });
 
 		await goto(`/movie/${movieId}`, { waitUntil: "hydration" });
-		await expect(page.getByRole("button", { name: "Add to my movies" }).last()).toBeVisible({
+		await expect(page.getByRole("button", { name: "Save to list" }).last()).toBeVisible({
 			timeout: 30_000,
 		});
-		await page.getByRole("button", { name: "Add to my movies" }).last().click();
-		await expect(page.getByRole("button", { name: "Remove from watchlist" }).last()).toBeVisible({
+		await page.getByRole("button", { name: "Save to list" }).last().click();
+		await expect(page.getByRole("heading", { name: "Save to list" })).toBeVisible({
+			timeout: 15_000,
+		});
+		await page.getByRole("button", { name: "Favorites", exact: true }).click();
+		await expect(page.getByRole("button", { name: "Add to favorites" })).toBeHidden({
 			timeout: 15_000,
 		});
 	});

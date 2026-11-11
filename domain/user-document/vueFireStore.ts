@@ -1,8 +1,12 @@
 import { doc, runTransaction, type Firestore } from "firebase/firestore";
 import { watch, type Ref } from "vue";
-import type { MediaType } from "../../types/catalog";
+import type { UserList } from "../../types/list";
+import type { ListMembership } from "../../types/list";
 import type { UserMovie } from "../../types/movie";
+import type { MediaType } from "../../types/catalog";
+import { migrateUserDocumentV2, parseMembershipsFromFirestore } from "./migrateV2";
 import { reconcileWatchlistMovies } from "./reconcileWatchlist";
+import { SCHEMA_VERSION_V2 } from "./listConstants";
 import type { UserDocumentData, UserDocumentStore } from "./types";
 
 function storedMediaType(value: unknown): MediaType | undefined {
@@ -25,6 +29,20 @@ function toDate(value: unknown): Date {
 	return new Date(0);
 }
 
+function toUserList(value: unknown): UserList | null {
+	if (!value || typeof value !== "object") return null;
+	const row = value as Record<string, unknown>;
+	if (typeof row.id !== "string" || typeof row.name !== "string") return null;
+	const kind = row.kind === "custom" ? "custom" : "system";
+	return {
+		id: row.id,
+		kind,
+		name: row.name,
+		renamable: row.renamable !== false,
+		createdAt: toDate(row.createdAt),
+	};
+}
+
 function toUserMovie(value: unknown): UserMovie | null {
 	if (!value || typeof value !== "object") {
 		return null;
@@ -40,6 +58,7 @@ function toUserMovie(value: unknown): UserMovie | null {
 		? movie.genres.filter((genre): genre is string => typeof genre === "string")
 		: undefined;
 	const mediaType = storedMediaType(movie.mediaType) ?? storedMediaType(movie.media_type);
+	const memberships = parseMembershipsFromFirestore(movie.memberships);
 	return {
 		id: String(movie.id),
 		...(mediaType ? { mediaType } : {}),
@@ -48,8 +67,9 @@ function toUserMovie(value: unknown): UserMovie | null {
 		poster: typeof movie.poster === "string" ? movie.poster : "",
 		...(genres?.length ? { genres } : {}),
 		seen: Boolean(movie.seen),
-		next: Boolean(movie.next),
-		timestamp: toDate(movie.timestamp),
+		memberships,
+		...(movie.next !== undefined ? { next: Boolean(movie.next) } : {}),
+		...(movie.timestamp !== undefined ? { timestamp: toDate(movie.timestamp) } : {}),
 	};
 }
 
@@ -69,27 +89,53 @@ export function toUserDocument(data: unknown, uid: string): UserDocumentData | n
 				})
 			: [],
 	);
-	return {
+	const lists = Array.isArray(record.lists)
+		? record.lists.flatMap((list) => {
+				const normalized = toUserList(list);
+				return normalized ? [normalized] : [];
+			})
+		: undefined;
+	const base: UserDocumentData = {
+		schemaVersion: typeof record.schemaVersion === "number" ? record.schemaVersion : undefined,
 		uid,
 		username: typeof record.username === "string" ? record.username : "",
 		email: typeof record.email === "string" ? record.email : "",
 		theme: typeof record.theme === "string" ? record.theme : "",
+		lists: lists ?? [],
 		movies,
+	};
+	return migrateUserDocumentV2(base);
+}
+
+function serializeMembership(membership: ListMembership) {
+	return {
+		listId: membership.listId,
+		joinedAt: toDate(membership.joinedAt),
 	};
 }
 
 function serialize(document: UserDocumentData) {
+	const migrated = migrateUserDocumentV2(document);
 	return {
-		uid: document.uid,
-		username: document.username,
-		email: document.email,
-		theme: document.theme,
-		movies: reconcileWatchlistMovies(document.movies).map((movie) => {
-			const { mediaType, ...rest } = movie;
+		schemaVersion: SCHEMA_VERSION_V2,
+		uid: migrated.uid,
+		username: migrated.username,
+		email: migrated.email,
+		theme: migrated.theme,
+		lists: migrated.lists.map((list) => ({
+			id: list.id,
+			kind: list.kind,
+			name: list.name,
+			renamable: list.renamable,
+			createdAt: toDate(list.createdAt),
+		})),
+		movies: reconcileWatchlistMovies(migrated.movies).map((movie) => {
+			const { mediaType, next, timestamp, ...rest } = movie;
 			return {
 				...rest,
+				memberships: movie.memberships.map(serializeMembership),
 				...(mediaType ? { mediaType } : {}),
-				timestamp: toDate(movie.timestamp),
+				seen: movie.seen,
 			};
 		}),
 	};
@@ -98,7 +144,7 @@ function serialize(document: UserDocumentData) {
 export function createVueFireUserDocumentStore(
 	db: Firestore,
 	getUid: () => string | null,
-	source: Ref<unknown>
+	source: Ref<unknown>,
 ): UserDocumentStore & { dispose: () => void } {
 	let current: UserDocumentData | null = null;
 	const listeners = new Set<(document: UserDocumentData | null) => void>();
@@ -132,7 +178,8 @@ export function createVueFireUserDocumentStore(
 			await runTransaction(db, async (transaction) => {
 				const snap = await transaction.get(ref);
 				const latest = snap.exists() ? toUserDocument(snap.data(), uid) : null;
-				transaction.set(ref, serialize(update(latest)), { merge: true });
+				const next = migrateUserDocumentV2(update(latest));
+				transaction.set(ref, serialize(next), { merge: true });
 			});
 		},
 		dispose: stop,

@@ -16,6 +16,7 @@ function saved(
 		rating: 0,
 		poster: "",
 		seen: false,
+		memberships: [],
 		next: false,
 		timestamp: new Date(overrides.timestamp ?? 0),
 		...overrides,

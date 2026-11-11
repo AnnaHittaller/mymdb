@@ -1,10 +1,13 @@
+import type { UserList } from "../../types/list";
 import type { UserMovie } from "../../types/movie";
 
 export type UserDocumentData = {
+	schemaVersion?: number;
 	uid: string;
 	username: string;
 	email: string;
 	theme: string;
+	lists: UserList[];
 	movies: UserMovie[];
 };
 

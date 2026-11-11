@@ -1,6 +1,8 @@
 import { doc, getDoc, setDoc, type Firestore } from "firebase/firestore";
 import type { User } from "firebase/auth";
 import type { User as AppUser } from "~/types/user";
+import { defaultSystemLists } from "~/domain/user-document/migrateV2";
+import { SCHEMA_VERSION_V2 } from "~/domain/user-document/listConstants";
 
 export function defaultUsername(user: User, email: string) {
 	const fromName = user.displayName?.trim();
@@ -33,6 +35,8 @@ export async function ensureUserProfile(
 		username: profile.username,
 		email: profile.email,
 		theme: profile.theme ?? "emerald",
+		schemaVersion: SCHEMA_VERSION_V2,
+		lists: defaultSystemLists(),
 		movies: [],
 	} satisfies AppUser);
 }

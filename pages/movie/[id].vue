@@ -2,6 +2,7 @@
 import { POSTER_DETAIL_IMAGE_URL, PROFILE_IMAGE_URL } from "~/constants/movie";
 import type { Movie } from "~/types/movie";
 import { formatMovieRating } from "~/utils/formatMovieRating";
+import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
 
 definePageMeta({
     layout: "default",
@@ -10,7 +11,8 @@ definePageMeta({
 const route = useRoute()
 const user = useCurrentUser()
 
-const { isInList, movies, add, remove, setNext } = useUserDocument()
+const { isInFavorites, setFavorites } = useUserDocument()
+const { notifyListError } = useListCapToast()
 
 const movieId = computed(() => String(route.params.id))
 
@@ -35,40 +37,33 @@ const averageRatingLabel = computed(() =>
 )
 const moviesWithPoster = computed(() => similar.value ?? [])
 
-const isInMovieList = computed(() => isInList(movieId.value, "movie"));
-
-const isInNextList = computed(() =>
-    movies.value.some(
-        (entry) => entry.id === movieId.value && entry.next && (entry.mediaType ?? "movie") === "movie",
-    ),
-);
-
-const addToMovieList = async () => {
+const listPayload = computed(() => {
     const current = movie.value
-    if (!current) return
-    await add({
-        id: movieId.value,
-        mediaType: "movie",
-        title: current.title,
-        rating: current.vote_average,
-        poster: current.poster_path,
-        genres: current.genres.map((genre) => genre.name),
-        seen: false,
-        next: false,
-        timestamp: new Date()
-    });
-};
+    if (!current) return null
+    return togglePayloadFromCatalog(
+        {
+            id: movieId.value,
+            mediaType: "movie",
+            title: current.title,
+            rating: current.vote_average,
+            poster: current.poster_path,
+            genres: current.genres.map((genre) => genre.name),
+        },
+        "movie",
+        current.genres.map((genre) => genre.name),
+    )
+})
 
-const removeFromMovieList = async () => {
-    await remove(movieId.value, "movie")
-}
+const inFavorites = computed(() => isInFavorites(movieId.value, "movie"))
 
-const addToNextList = async () => {
-    await setNext(movieId.value, true, "movie");
-}
-
-const removeFromNextList = async () => {
-    await setNext(movieId.value, false, "movie");
+async function toggleFavorites() {
+    const payload = listPayload.value
+    if (!payload) return
+    try {
+        await setFavorites(payload, !inFavorites.value)
+    } catch (error) {
+        notifyListError(error)
+    }
 }
 
 const {
@@ -102,18 +97,15 @@ async function onWatchTrailer() {
         <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4 text-lg md:text-base">
             <div class="flex flex-col gap-4 md:self-start md:w-[18rem] lg:w-sm md:shrink-0">
                 <div v-auto-animate class="relative">
-                    <div v-if="user && isInMovieList" v-auto-animate="{ duration: 150 }">
+                    <div v-if="user" v-auto-animate="{ duration: 150 }">
                         <button
-                            v-if="!isInNextList" type="button" aria-label="Add to favorites"
+                            type="button"
+                            :aria-label="inFavorites ? 'Remove from favorites' : 'Add to favorites'"
                             class="z-20 absolute -top-1 -right-1 origin-center scale-150 cursor-pointer border-0 bg-transparent p-0 leading-none text-primary transition"
-                            @click.stop="addToNextList">
-                            <UIcon name="i-heroicons-heart" class="text-2xl" />
-                        </button>
-                        <button
-                            v-if="isInNextList" type="button" aria-label="Remove from favorites"
-                            class="z-20 absolute -top-1 -right-1 origin-center scale-150 cursor-pointer border-0 bg-transparent p-0 leading-none text-primary transition"
-                            @click.stop="removeFromNextList">
-                            <UIcon name="i-heroicons-heart-solid" class="text-2xl" />
+                            @click.stop="toggleFavorites">
+                            <UIcon
+                                :name="inFavorites ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
+                                class="text-2xl" />
                         </button>
                     </div>
                     <img
@@ -132,20 +124,21 @@ async function onWatchTrailer() {
                     size="lg"
                     class="text-lg"
                     @play="onWatchTrailer" />
-                <div class="icon-group flex gap-4 w-full">
-                    <UButton
-                        v-if="!user" icon="i-heroicons-arrow-right-on-rectangle" color="primary" variant="outline"
-                        label="Sign in" class="flex gap-2 items-center justify-center text-lg" block
-                        :to="{ path: '/login', query: { redirect: route.fullPath } }" />
-                    <UButton
-                        v-else-if="!isInMovieList" icon="i-heroicons-list-bullet-20-solid" color="primary"
-                        variant="outline" label="Add to my movies"
-                        class="flex gap-2 items-center justify-center text-lg" block @click="addToMovieList" />
-                    <UButton
-                        v-else icon="i-heroicons-x-circle" color="primary" variant="outline"
-                        label="Remove from watchlist" class="flex gap-2 items-center justify-center text-lg" block
-                        @click="removeFromMovieList" />
-                </div>
+                <UButton
+                    v-if="!user"
+                    icon="i-heroicons-arrow-right-on-rectangle"
+                    color="primary"
+                    variant="outline"
+                    label="Sign in"
+                    class="flex gap-2 items-center justify-center text-lg"
+                    block
+                    :to="{ path: '/login', query: { redirect: route.fullPath } }" />
+                <CatalogListActions
+                    v-else-if="listPayload"
+                    :payload="listPayload"
+                    block
+                    size="lg"
+                    class="text-lg" />
             </div>
             <div class="w-full flex flex-col gap-4">
                 <Heading class="hidden md:block">{{ movie.title }}</Heading>

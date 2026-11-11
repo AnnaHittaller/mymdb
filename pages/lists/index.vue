@@ -1,0 +1,21 @@
+<script setup lang="ts">
+import { useMediaQuery } from "@vueuse/core";
+
+definePageMeta({
+	middleware: "auth",
+});
+
+const createOpen = ref(false);
+const isDesktop = useMediaQuery("(min-width: 768px)");
+</script>
+
+<template>
+	<div>
+		<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+			<Heading>Your lists</Heading>
+			<UButton variant="outline" label="Add new list" icon="i-heroicons-plus" @click="createOpen = true" />
+		</div>
+		<UserListsSection :limit="0" :show-heading="false" />
+		<CreateListModal v-model:open="createOpen" :use-drawer="!isDesktop" />
+	</div>
+</template>

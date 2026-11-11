@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { FAVORITES_LIST_ID, WATCH_NEXT_LIST_ID } from "./listConstants";
 import { toUserDocument } from "./vueFireStore";
 
 describe("toUserDocument", () => {
@@ -36,6 +37,9 @@ describe("toUserDocument", () => {
 
 		expect(doc?.movies.find((movie) => movie.id === "1396")?.mediaType).toBe("tv");
 		expect(doc?.movies.find((movie) => movie.id === "550")?.mediaType).toBeUndefined();
-		expect(doc?.movies.find((movie) => movie.id === "550")?.next).toBe(true);
+		const fightClub = doc?.movies.find((movie) => movie.id === "550");
+		expect(fightClub?.memberships.map((m) => m.listId).sort()).toEqual(
+			[FAVORITES_LIST_ID, WATCH_NEXT_LIST_ID].sort(),
+		);
 	});
 });

@@ -5,24 +5,40 @@ import { CACHE_DURATION, CATALOG_SUMMARY_CHUNK } from "../constants/movie";
 import {
 	createUserDocument,
 	type CatalogUpdate,
+	type ToggleMoviePayload,
 } from "../domain/user-document/createUserDocument";
+import {
+	FAVORITES_LIST_ID,
+	WATCH_NEXT_LIST_ID,
+} from "../domain/user-document/listConstants";
 import type { MediaTypeHint } from "../domain/user-document/reconcileWatchlist";
 import { createVueFireUserDocumentStore } from "../domain/user-document/vueFireStore";
 import type { MediaType } from "../types/catalog";
+import type { UserList } from "../types/list";
 import type { UserMovie } from "../types/movie";
 import { catalogKey, defaultMediaType } from "../utils/catalogKey";
 
 type UserDocumentApi = {
 	movies: ComputedRef<UserMovie[]>;
 	watchNext: ComputedRef<UserMovie[]>;
+	lists: ComputedRef<UserList[]>;
 	theme: ComputedRef<string>;
-	isInList: (id: string, mediaType?: MediaType) => boolean;
-	add: (movie: UserMovie) => Promise<void>;
-	remove: (id: string, mediaType?: MediaType) => Promise<void>;
-	setNext: (id: string, next: boolean, mediaType?: MediaType) => Promise<void>;
+	moviesInList: (listId: string) => UserMovie[];
+	listById: (listId: string) => UserList | undefined;
+	isInList: (listId: string, id: string, mediaType?: MediaType) => boolean;
+	isOnAnyList: (id: string, mediaType?: MediaType) => boolean;
+	isInFavorites: (id: string, mediaType?: MediaType) => boolean;
+	toggleListMembership: (listId: string, payload: ToggleMoviePayload) => Promise<void>;
+	removeFromList: (listId: string, id: string, mediaType?: MediaType) => Promise<void>;
+	setFavorites: (payload: ToggleMoviePayload, add: boolean) => Promise<void>;
+	createList: (name: string) => Promise<void>;
+	renameList: (listId: string, name: string) => Promise<void>;
+	deleteList: (listId: string) => Promise<void>;
 	setTheme: (theme: string) => Promise<void>;
 	setUsername: (username: string) => Promise<void>;
 	repairWatchlist: (hints: MediaTypeHint[]) => Promise<void>;
+	favoritesListId: typeof FAVORITES_LIST_ID;
+	watchNextListId: typeof WATCH_NEXT_LIST_ID;
 };
 
 const userDocumentKey: InjectionKey<UserDocumentApi> = Symbol("user-document");
@@ -53,7 +69,7 @@ export function provideUserDocument() {
 				return user.value?.uid ?? null;
 			},
 			() => document.movies(),
-			(updates) => document.refreshCatalog(updates)
+			(updates) => document.refreshCatalog(updates),
 		);
 	}
 
@@ -66,21 +82,45 @@ export function provideUserDocument() {
 			version.value;
 			return document.watchNext();
 		}),
+		lists: computed(() => {
+			version.value;
+			return document.lists();
+		}),
 		theme: computed(() => {
 			version.value;
 			return document.theme();
 		}),
-		isInList: (id: string, mediaType?: MediaType) => {
+		moviesInList: (listId: string) => {
 			version.value;
-			return document.isInList(id, mediaType);
+			return document.moviesInList(listId);
 		},
-		add: (movie: UserMovie) => document.add(movie),
-		remove: (id: string, mediaType?: MediaType) => document.remove(id, mediaType),
-		setNext: (id: string, next: boolean, mediaType?: MediaType) =>
-			document.setNext(id, next, mediaType),
-		setTheme: (theme: string) => document.setTheme(theme),
-		setUsername: (username: string) => document.setUsername(username),
-		repairWatchlist: (hints: MediaTypeHint[]) => document.repairWatchlist(hints),
+		listById: (listId: string) => {
+			version.value;
+			return document.listById(listId);
+		},
+		isInList: (listId: string, id: string, mediaType?: MediaType) => {
+			version.value;
+			return document.isInList(listId, id, mediaType);
+		},
+		isOnAnyList: (id: string, mediaType?: MediaType) => {
+			version.value;
+			return document.isOnAnyList(id, mediaType);
+		},
+		isInFavorites: (id: string, mediaType?: MediaType) => {
+			version.value;
+			return document.isInFavorites(id, mediaType);
+		},
+		toggleListMembership: (listId, payload) => document.toggleListMembership(listId, payload),
+		removeFromList: (listId, id, mediaType) => document.removeFromList(listId, id, mediaType),
+		setFavorites: (payload, add) => document.setFavorites(payload, add),
+		createList: (name) => document.createList(name),
+		renameList: (listId, name) => document.renameList(listId, name),
+		deleteList: (listId) => document.deleteList(listId),
+		setTheme: (theme) => document.setTheme(theme),
+		setUsername: (username) => document.setUsername(username),
+		repairWatchlist: (hints) => document.repairWatchlist(hints),
+		favoritesListId: FAVORITES_LIST_ID,
+		watchNextListId: WATCH_NEXT_LIST_ID,
 	};
 
 	provide(userDocumentKey, api);
@@ -117,7 +157,7 @@ async function fetchCatalogSummaries(movies: UserMovie[]): Promise<CatalogUpdate
 function watchCatalogRefresh(
 	userId: () => string | null,
 	movies: () => UserMovie[],
-	refreshCatalog: (updates: CatalogUpdate[]) => Promise<void>
+	refreshCatalog: (updates: CatalogUpdate[]) => Promise<void>,
 ) {
 	const started = new Set<string>();
 	watch(
@@ -152,7 +192,7 @@ function watchCatalogRefresh(
 				}
 			})();
 		},
-		{ immediate: true }
+		{ immediate: true },
 	);
 }
 

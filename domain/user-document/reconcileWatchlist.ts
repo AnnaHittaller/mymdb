@@ -1,11 +1,10 @@
 import type { MediaType } from "../../types/catalog";
 import type { UserMovie } from "../../types/movie";
 import { catalogKey } from "../../utils/catalogKey";
+import { movieActivityMillis } from "./listHelpers";
 
 function timestampMillis(movie: UserMovie): number {
-	const timestamp = movie.timestamp;
-	if (timestamp instanceof Date) return timestamp.getTime();
-	return 0;
+	return movieActivityMillis(movie);
 }
 
 function normalizeTitle(title: string): string {
@@ -75,11 +74,21 @@ export function reconcileWatchlistMovies(movies: UserMovie[]): UserMovie[] {
 	return dropSameTitleCollisions(dedupeByCatalogKey(movies));
 }
 
+function membershipSignature(movie: UserMovie): string {
+	if (!movie.memberships?.length) {
+		return `${movie.next ?? false}:legacy`;
+	}
+	return movie.memberships
+		.map((m) => `${m.listId}@${m.joinedAt instanceof Date ? m.joinedAt.getTime() : 0}`)
+		.sort()
+		.join(",");
+}
+
 function watchlistSignature(movies: UserMovie[]): string {
 	return movies
 		.map((movie) => {
 			const mediaType = movie.mediaType ?? "unset";
-			return `${mediaType}:${movie.id}:${movie.title}:${movie.next}:${movie.seen}`;
+			return `${mediaType}:${movie.id}:${movie.title}:${movie.seen}:${membershipSignature(movie)}`;
 		})
 		.sort()
 		.join("|");
