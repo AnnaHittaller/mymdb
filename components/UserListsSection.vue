@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useMediaQuery } from "@vueuse/core";
+import { listPath } from "~/domain/user-document/listHelpers";
 
 const props = withDefaults(
 	defineProps<{
@@ -41,7 +42,7 @@ const isDesktop = useMediaQuery("(min-width: 768px)");
 				v-for="list in visibleLists"
 				:key="list.id"
 				:title="list.name"
-				:to="`/lists/${list.id}`"
+				:to="listPath(list, lists)"
 				:list-id="list.id"
 				:movies="moviesInList(list.id)" />
 		</div>
