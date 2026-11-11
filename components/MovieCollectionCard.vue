@@ -46,14 +46,19 @@ const countLabel = computed(() => {
 });
 
 const isEmpty = computed(() => props.movies.length === 0);
+
+const arrowButtonUi = {
+	base: "size-8",
+	leadingIcon: "size-4",
+};
 </script>
 
 <template>
 	<div class="@container w-full min-w-0">
 		<NuxtLink
 			:to="to"
-			class="group flex w-full flex-wrap items-center gap-3 rounded-[12px] border border-border-default bg-surface-overlay/70 p-2 backdrop-blur-md transition-colors hover:border-primary @min-[350px]:gap-4">
-			<div class="shrink-0 @max-[349px]:w-full @min-[350px]:w-auto">
+			class="group flex w-full flex-wrap gap-3 rounded-[12px] border border-border-default bg-surface-overlay/70 p-2 backdrop-blur-md transition-colors hover:border-primary @min-[350px]:flex-nowrap @min-[350px]:items-center @min-[350px]:gap-4">
+			<div class="w-full min-w-0 @min-[350px]:w-auto @min-[350px]:shrink-0">
 				<div
 					v-if="isEmpty"
 					class="mx-auto flex aspect-2/3 w-14 items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster @min-[350px]:mx-0 lg:w-16"
@@ -62,11 +67,11 @@ const isEmpty = computed(() => props.movies.length === 0);
 				</div>
 				<div
 					v-else
-					class="flex gap-1 @max-[349px]:grid @max-[349px]:w-full @max-[349px]:grid-cols-4 @max-[349px]:gap-1">
+					class="grid w-full grid-cols-4 gap-1 @min-[350px]:flex @min-[350px]:w-auto @min-[350px]:gap-1">
 					<div
 						v-for="movie in previewPosters"
 						:key="`${defaultMediaType(movie.mediaType)}-${movie.id}`"
-						class="relative aspect-2/3 w-14 shrink-0 overflow-hidden rounded-[4px] bg-surface-poster lg:w-16 @max-[349px]:w-full">
+						class="relative aspect-2/3 min-w-0 overflow-hidden rounded-[4px] bg-surface-poster @min-[350px]:w-14 @min-[350px]:shrink-0 lg:w-16">
 						<img
 							:src="`${POSTER_SUGGESTION_IMAGE_URL}${movie.poster}`"
 							:alt="''"
@@ -79,23 +84,45 @@ const isEmpty = computed(() => props.movies.length === 0);
 				</div>
 			</div>
 
-			<div class="min-w-0 grow basis-[8.5rem] @max-[349px]:basis-full">
-				<div class="flex items-start gap-2">
-					<p class="min-w-0 flex-1 text-base font-semibold leading-snug text-fg-default">
+			<!-- Side-by-side: title + subline stacked, arrow vertically centered -->
+			<div
+				class="hidden min-w-0 min-h-0 flex-1 items-center gap-2 @min-[350px]:flex">
+				<div class="min-w-0 flex flex-1 flex-col justify-center gap-0.5">
+					<p class="text-lg font-semibold leading-snug text-fg-default">
 						{{ title }}
 					</p>
-					<UButton
-						variant="iconbutton"
-						color="custom"
-						size="icon"
-						square
-						icon="i-heroicons-arrow-right-20-solid"
-						tabindex="-1"
-						aria-hidden="true"
-						class="pointer-events-none shrink-0 group-hover:border-primary group-hover:text-primary"
-						:ui="{ leadingIcon: 'size-6' }" />
+					<p class="text-base text-fg-muted">{{ countLabel }}</p>
 				</div>
-				<p class="mt-0.5 text-base text-fg-muted">{{ countLabel }}</p>
+				<UButton
+					variant="iconbutton"
+					color="custom"
+					size="icon"
+					square
+					icon="i-heroicons-arrow-right-20-solid"
+					tabindex="-1"
+					aria-hidden="true"
+					class="pointer-events-none shrink-0 group-hover:border-primary group-hover:text-primary"
+					:ui="arrowButtonUi" />
+			</div>
+
+			<!-- Wrapped: text stack + arrow top-aligned with title -->
+			<div class="flex w-full items-start gap-2 @min-[350px]:hidden">
+				<div class="min-w-0 flex flex-1 flex-col gap-0.5">
+					<p class="text-lg font-semibold leading-snug text-fg-default">
+						{{ title }}
+					</p>
+					<p class="text-base text-fg-muted">{{ countLabel }}</p>
+				</div>
+				<UButton
+					variant="iconbutton"
+					color="custom"
+					size="icon"
+					square
+					icon="i-heroicons-arrow-right-20-solid"
+					tabindex="-1"
+					aria-hidden="true"
+					class="pointer-events-none shrink-0 group-hover:border-primary group-hover:text-primary"
+					:ui="arrowButtonUi" />
 			</div>
 		</NuxtLink>
 	</div>
