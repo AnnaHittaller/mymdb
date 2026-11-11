@@ -1,12 +1,12 @@
 <template>
-	<UModal v-model:open="open" :ui="{ content: 'max-w-md' }">
+	<UModal v-model:open="open" title="Sign in with Google" :ui="{ content: 'max-w-md' }">
 		<template #body>
 			<div class="space-y-4 p-2">
-				<h3 class="text-lg font-semibold">Sign in with Google</h3>
 				<ul class="list-disc space-y-2 pl-5 text-sm text-fg-muted">
 					<li>
 						<strong class="text-fg-default">Already linked</strong> Google to this account? Choose
-						<strong class="text-fg-default">Continue with Google</strong> — you do not need to fill the form.
+						<strong class="text-fg-default">Continue with Google</strong> — you do not need to fill the
+						form.
 					</li>
 					<li>
 						<strong class="text-fg-default">First time</strong> connecting an existing email &amp; password
@@ -15,7 +15,8 @@
 						password without refilling the form.
 					</li>
 					<li>
-						Registered with <strong class="text-fg-default">Google only</strong> (no password here)? Continue
+						Registered with <strong class="text-fg-default">Google only</strong> (no password here)?
+						Continue
 						with Google below.
 					</li>
 				</ul>
