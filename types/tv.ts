@@ -1,5 +1,6 @@
 import type { Credits, Genre } from "./movie";
 import type { DetailCastMember } from "./detailCast";
+import type { DetailKeyCredits } from "./detailCredits";
 import type { TrailerRef } from "./trailer";
 
 export interface TvSeries {
@@ -24,5 +25,6 @@ export interface TvSeries {
 	status?: string;
 	credits: Credits;
 	detailCast: DetailCastMember[];
+	detailCredits: DetailKeyCredits;
 	trailer?: TrailerRef | null;
 }

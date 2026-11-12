@@ -2,6 +2,7 @@
 import { POSTER_DETAIL_IMAGE_URL } from "~/constants/movie";
 import type { TvSeries } from "~/types/tv";
 import { formatMovieRating } from "~/utils/formatMovieRating";
+import { formatCreditNames } from "~/utils/normalizeDetailCredits";
 import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
 
 definePageMeta({
@@ -84,6 +85,13 @@ const {
 
 const hasTrailer = computed(() => Boolean(show.value?.trailer));
 
+const createdByText = computed(() =>
+    formatCreditNames(show.value?.detailCredits?.createdBy ?? []),
+)
+const musicText = computed(() =>
+    formatCreditNames(show.value?.detailCredits?.music ?? []),
+)
+
 async function onWatchTrailer() {
     const current = show.value;
     if (!current) return;
@@ -159,8 +167,12 @@ async function onWatchTrailer() {
                 <Heading class="pt-4">Details</Heading>
                 <div>First air date: {{ show.first_air_date }}</div>
                 <div v-if="show.number_of_seasons">Seasons: {{ show.number_of_seasons }}</div>
+                <div v-if="show.number_of_episodes">Episodes: {{ show.number_of_episodes }}</div>
                 <div>Typical runtime: {{ runtimeLabel }}</div>
+                <div v-if="show.status">Status: {{ show.status }}</div>
                 <div>Average rating: {{ averageRatingLabel }}</div>
+                <div v-if="createdByText">Created by: {{ createdByText }}</div>
+                <div v-if="musicText">Music: {{ musicText }}</div>
                 <DetailCastSection :cast="show.detailCast" />
 
             </div>

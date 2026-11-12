@@ -2,6 +2,7 @@
 import { POSTER_DETAIL_IMAGE_URL } from "~/constants/movie";
 import type { Movie } from "~/types/movie";
 import { formatMovieRating } from "~/utils/formatMovieRating";
+import { formatCreditNames } from "~/utils/normalizeDetailCredits";
 import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
 
 definePageMeta({
@@ -76,6 +77,16 @@ const {
 
 const hasTrailer = computed(() => Boolean(movie.value?.trailer));
 
+const directorsText = computed(() =>
+    formatCreditNames(movie.value?.detailCredits?.directors ?? []),
+)
+const directorsLabel = computed(() =>
+    (movie.value?.detailCredits?.directors.length ?? 0) > 1 ? "Directors" : "Director",
+)
+const musicText = computed(() =>
+    formatCreditNames(movie.value?.detailCredits?.music ?? []),
+)
+
 async function onWatchTrailer() {
     const current = movie.value;
     if (!current) return;
@@ -86,8 +97,6 @@ async function onWatchTrailer() {
         trailer: current.trailer,
     });
 }
-
-// TODO: add directors, producers and music composers
 </script>
 
 <template>
@@ -154,6 +163,8 @@ async function onWatchTrailer() {
                 <div>Release date: {{ movie.release_date }}</div>
                 <div>Runtime: {{ movie.runtime }} min</div>
                 <div>Average rating: {{ averageRatingLabel }}</div>
+                <div v-if="directorsText">{{ directorsLabel }}: {{ directorsText }}</div>
+                <div v-if="musicText">Music: {{ musicText }}</div>
                 <DetailCastSection :cast="movie.detailCast" />
 
             </div>
