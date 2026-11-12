@@ -3,15 +3,30 @@ import { POSTER_IMAGE_URL } from "~/constants/movie";
 import type { MediaType } from "~/types/catalog";
 import type { TrendingItem } from "~/types/catalog";
 import { formatMovieRating } from "~/utils/formatMovieRating";
+import { formatReleaseDate } from "~/utils/formatReleaseDate";
 import { trendingLeadingGenre } from "~/utils/trendingLeadingGenre";
 
-const props = defineProps<{
-	title: string;
-	to: string;
-	mediaType: MediaType;
-	items: TrendingItem[];
-	pending?: boolean;
-}>();
+const props = withDefaults(
+	defineProps<{
+		title: string;
+		to: string;
+		mediaType: MediaType | "mixed";
+		items: TrendingItem[];
+		pending?: boolean;
+		variant?: "trending" | "upcoming";
+		leadingGenreOverride?: string | null;
+		leadingGenreCaption?: string;
+		showReleaseDate?: boolean;
+	}>(),
+	{
+		variant: "trending",
+		leadingGenreOverride: undefined,
+		leadingGenreCaption: undefined,
+		showReleaseDate: false,
+	},
+);
+
+const showRankBadges = computed(() => props.variant !== "upcoming");
 
 const topThreeRanked = computed(() => {
 	const result: { item: TrendingItem; rank: number }[] = [];
@@ -24,18 +39,38 @@ const topThreeRanked = computed(() => {
 	return result;
 });
 
-const leadingGenre = computed(() => trendingLeadingGenre(props.items));
+const leadingGenre = computed(() => props.leadingGenreOverride ?? trendingLeadingGenre(props.items));
+
+const leadingGenreCaption = computed(
+	() => props.leadingGenreCaption
+		?? (props.variant === "upcoming" ? "Highlighted genre:" : "Leading genre this week:"),
+);
+
+const headerIcon = computed(() =>
+	props.variant === "upcoming"
+		? "i-heroicons-calendar-days-20-solid"
+		: "i-heroicons-arrow-trending-up",
+);
+
+const emptyMessage = computed(() =>
+	props.variant === "upcoming" ? "Nothing coming soon right now." : "Nothing trending right now.",
+);
 
 const isEmpty = computed(() => props.items.length === 0);
 
 const showSkeleton = computed(() => Boolean(props.pending) && isEmpty.value);
 
-const emptyIcon = computed(() =>
-	props.mediaType === "tv" ? "i-heroicons-tv-20-solid" : "i-heroicons-film-20-solid",
-);
+const emptyIcon = computed(() => {
+	if (props.mediaType === "mixed") return "i-heroicons-calendar-days-20-solid";
+	return props.mediaType === "tv" ? "i-heroicons-tv-20-solid" : "i-heroicons-film-20-solid";
+});
 
 function yearLabel(item: TrendingItem) {
 	return item.releaseDate?.slice(0, 4) ?? (item.releaseYear ? String(item.releaseYear) : "");
+}
+
+function releaseDateBadgeLabel(item: TrendingItem) {
+	return props.showReleaseDate ? formatReleaseDate(item.releaseDate) : "";
 }
 
 function ratingLabel(item: TrendingItem) {
@@ -47,6 +82,9 @@ function firstGenre(item: TrendingItem) {
 }
 
 function hasMeta(item: TrendingItem) {
+	if (props.showReleaseDate) {
+		return true;
+	}
 	return ratingLabel(item) !== "N/A" || Boolean(yearLabel(item)) || Boolean(firstGenre(item));
 }
 
@@ -54,7 +92,10 @@ const cardAriaLabel = computed(() => {
 	const segments: string[] = [props.title];
 	const genre = leadingGenre.value;
 	if (genre) segments.push(`Leading genre ${genre}`);
-	const topTitles = props.items.slice(0, 3).map((item, index) => `Number ${index + 1} ${item.title}`);
+	const topTitles = props.items.slice(0, 3).map((item, index) => {
+		const prefix = showRankBadges.value ? `Number ${index + 1} ` : "";
+		return `${prefix}${item.title}`;
+	});
 	if (topTitles.length > 0) segments.push(topTitles.join(". "));
 	return segments.join(". ");
 });
@@ -62,8 +103,11 @@ const cardAriaLabel = computed(() => {
 const cardShellClass =
 	"group flex h-full min-h-0 w-full flex-col gap-3 rounded-[12px] border border-border-default bg-surface-elevated p-3 shadow-surface-overlay transition-colors hover:border-primary @min-[400px]:gap-4 @min-[400px]:p-4";
 
-const rowShellClass =
-	"relative flex items-stretch gap-2.5 overflow-hidden rounded-[8px] border border-border-default bg-surface-inset p-2 pr-12";
+const rowShellClass = computed(() =>
+	showRankBadges.value
+		? "relative flex items-stretch gap-2.5 overflow-hidden rounded-[8px] border border-border-default bg-surface-inset p-2 pr-12"
+		: "flex items-stretch gap-2.5 overflow-hidden rounded-[8px] border border-border-default bg-surface-inset p-2",
+);
 
 const rankFlagRowClass =
 	"absolute right-0 top-0 z-10 flex items-center justify-center rounded-bl-[6px] bg-primary px-2.5 py-1 text-base font-bold leading-none text-inverted tabular-nums";
@@ -75,6 +119,10 @@ const ratingInlineClass = "inline-flex items-center gap-1";
 const starIconClass = "block size-5 shrink-0 text-rating";
 const ratingTextClass = "text-base leading-snug tabular-nums";
 const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-base leading-snug text-fg-muted";
+const releaseDateBadgeClass
+	= "inline-flex w-fit rounded-md bg-primary px-2 py-1 text-base font-medium leading-snug text-inverted";
+const itemMetaStackClass = "flex min-w-0 flex-col gap-1.5";
+const itemMetaStackCenteredClass = "flex min-w-0 flex-col items-center gap-1.5";
 </script>
 
 <template>
@@ -107,7 +155,7 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-base l
 			:class="cardShellClass">
 			<div class="flex items-start gap-2.5">
 				<UIcon
-					name="i-heroicons-arrow-trending-up"
+					:name="headerIcon"
 					class="mt-1 size-8 shrink-0 text-primary"
 					aria-hidden="true" />
 				<div class="min-w-0 flex-1">
@@ -117,7 +165,7 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-base l
 					<div
 						v-if="leadingGenre"
 						class="mt-2 flex flex-wrap items-center gap-2">
-						<span class="text-base font-medium text-fg-muted">Leading genre this week:</span>
+						<span class="text-base font-medium text-fg-muted">{{ leadingGenreCaption }}</span>
 						<UBadge
 							variant="outline"
 							color="neutral"
@@ -147,7 +195,7 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-base l
 						aria-hidden="true">
 						<UIcon :name="emptyIcon" class="size-8 text-fg-muted opacity-60 md:size-10" />
 					</div>
-					<p class="text-base text-fg-muted">Nothing trending right now.</p>
+					<p class="text-base text-fg-muted">{{ emptyMessage }}</p>
 				</div>
 
 				<div
@@ -167,7 +215,7 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-base l
 						v-for="{ item, rank } in topThreeRanked"
 						:key="`${item.mediaType}-${item.id}`"
 						:class="rowShellClass">
-						<span :class="rankFlagRowClass" aria-hidden="true">#{{ rank }}</span>
+						<span v-if="showRankBadges" :class="rankFlagRowClass" aria-hidden="true">#{{ rank }}</span>
 						<div
 							class="relative aspect-2/3 w-16 shrink-0 overflow-hidden rounded-[4px] bg-surface-poster sm:w-[4.5rem]">
 							<img
@@ -182,7 +230,25 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-base l
 						<div class="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
 							<p class="line-clamp-2 text-base font-semibold leading-snug text-fg-default">{{ item.title }}
 							</p>
-							<p v-if="hasMeta(item)" :class="metaLineClass">
+							<div v-if="hasMeta(item) && showReleaseDate" :class="itemMetaStackClass">
+								<p :class="metaLineClass">
+									<span :class="ratingInlineClass">
+										<UIcon name="i-heroicons-star-20-solid" :class="starIconClass"
+											aria-hidden="true" />
+										<span :class="ratingTextClass">{{ ratingLabel(item) }}</span>
+									</span>
+									<template v-if="firstGenre(item)">
+										<span class="text-fg-muted" aria-hidden="true">·</span>
+										<span>{{ firstGenre(item) }}</span>
+									</template>
+								</p>
+								<span
+									v-if="releaseDateBadgeLabel(item)"
+									:class="releaseDateBadgeClass">
+									{{ releaseDateBadgeLabel(item) }}
+								</span>
+							</div>
+							<p v-else-if="hasMeta(item)" :class="metaLineClass">
 								<template v-if="ratingLabel(item) !== 'N/A'">
 									<span :class="ratingInlineClass">
 										<UIcon name="i-heroicons-star-20-solid" :class="starIconClass"
@@ -217,8 +283,8 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-base l
 						class="flex min-w-0 flex-col gap-1.5">
 						<div
 							class="relative overflow-hidden rounded-[6px] bg-surface-poster"
-							:class="rank === 1 ? 'ring-1 ring-primary/50' : ''">
-							<span :class="rankFlagOnPosterClass" aria-hidden="true">#{{ rank }}</span>
+							:class="showRankBadges && rank === 1 ? 'ring-1 ring-primary/50' : ''">
+							<span v-if="showRankBadges" :class="rankFlagOnPosterClass" aria-hidden="true">#{{ rank }}</span>
 							<img
 								:src="`${POSTER_IMAGE_URL}${item.poster}`"
 								:alt="''"
@@ -231,8 +297,27 @@ const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-base l
 						<p class="line-clamp-2 text-center text-base font-semibold leading-snug text-fg-default pt-2">
 							{{ item.title }}
 						</p>
+						<div
+							v-if="hasMeta(item) && showReleaseDate"
+							:class="itemMetaStackCenteredClass">
+							<p :class="[metaLineClass, 'justify-center text-center']">
+								<span :class="ratingInlineClass">
+									<UIcon name="i-heroicons-star-20-solid" :class="starIconClass" aria-hidden="true" />
+									<span :class="ratingTextClass">{{ ratingLabel(item) }}</span>
+								</span>
+								<template v-if="firstGenre(item)">
+									<span aria-hidden="true">·</span>
+									<span class="line-clamp-1">{{ firstGenre(item) }}</span>
+								</template>
+							</p>
+							<span
+								v-if="releaseDateBadgeLabel(item)"
+								:class="releaseDateBadgeClass">
+								{{ releaseDateBadgeLabel(item) }}
+							</span>
+						</div>
 						<p
-							v-if="hasMeta(item)"
+							v-else-if="hasMeta(item)"
 							:class="[metaLineClass, 'justify-center text-center']">
 							<template v-if="ratingLabel(item) !== 'N/A'">
 								<span :class="ratingInlineClass">

@@ -1,14 +1,36 @@
 <script setup lang="ts">
 import { useCurrentUser } from 'vuefire';
+import { useFavoriteGenreHints } from '~/composables/useFavoriteGenreHints';
+import { useUpcomingCatalog } from '~/composables/useUpcomingCatalog';
 
 definePageMeta({
     layout: "default",
 })
 
 const user = useCurrentUser()
-const { lists } = useUserDocument()
+const { lists, moviesInList, favoritesListId } = useUserDocument()
 const { data: trendingMovies } = useTrendingCatalog('movie', { server: true })
 const { data: trendingShows } = useTrendingCatalog('tv', { server: true })
+
+const favorites = computed(() => moviesInList(favoritesListId))
+const genreHints = useFavoriteGenreHints(favorites)
+
+const personalizationReady = ref(false)
+onMounted(() => {
+    personalizationReady.value = true
+})
+
+const activeHints = computed(() => (
+    personalizationReady.value && user.value ? genreHints.value : null
+))
+
+const { data: upcomingItems, pending: upcomingPending } = useUpcomingCatalog(activeHints, {
+    server: true,
+})
+
+const upcomingTitle = computed(() => (
+    activeHints.value ? 'Coming soon for you' : 'Coming soon'
+))
 </script>
 
 <template>
@@ -16,12 +38,22 @@ const { data: trendingShows } = useTrendingCatalog('tv', { server: true })
         <Hero />
         <div class="pb-8">
             <Heading class="pt-4">Trending</Heading>
-            <div class="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
+            <div class="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-4">
                 <TrendingCollectionCard
                     title="Trending movies"
                     to="/trending/movies"
                     media-type="movie"
                     :items="trendingMovies ?? []" />
+                <TrendingCollectionCard
+                    :title="upcomingTitle"
+                    to="/coming-soon"
+                    media-type="mixed"
+                    variant="upcoming"
+                    :items="upcomingItems ?? []"
+                    :pending="upcomingPending"
+                    :show-release-date="true"
+                    :leading-genre-override="activeHints?.highlightGenre ?? null"
+                    :leading-genre-caption="activeHints ? 'Based on your taste for:' : undefined" />
                 <TrendingCollectionCard
                     title="Trending shows"
                     to="/trending/shows"
