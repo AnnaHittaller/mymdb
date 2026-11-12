@@ -1,5 +1,6 @@
 import { computed } from "vue";
 import { useCurrentUser } from "vuefire";
+import { resolveThemeAccent } from "~/constants/themeAccentColors";
 
 const DEFAULT_THEME = "emerald";
 
@@ -12,7 +13,7 @@ export const useComputedStyle = () => {
 		if (!user.value) {
 			return DEFAULT_THEME;
 		}
-		return theme.value || DEFAULT_THEME;
+		return resolveThemeAccent(theme.value, DEFAULT_THEME);
 	});
 
 	watchEffect(() => {

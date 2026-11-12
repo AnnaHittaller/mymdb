@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { doc } from "firebase/firestore";
 import { useCurrentUser, useDocument, useFirestore } from "vuefire";
-import { THEME_ACCENT_COLORS } from "~/constants/themeAccentColors";
+import { resolveThemeAccent } from "~/constants/themeAccentColors";
 
 const DEFAULT_THEME = "emerald";
 
@@ -25,11 +25,7 @@ watchEffect(() => {
 		typeof userDoc.value.theme === "string"
 			? userDoc.value.theme
 			: "";
-	config.ui.colors.primary = THEME_ACCENT_COLORS.some(
-		(entry) => entry.value === theme,
-	)
-		? theme
-		: DEFAULT_THEME;
+	config.ui.colors.primary = resolveThemeAccent(theme, DEFAULT_THEME);
 });
 </script>
 
