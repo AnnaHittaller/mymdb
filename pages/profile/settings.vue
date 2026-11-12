@@ -1,12 +1,11 @@
-<script setup>
+<script setup lang="ts">
 definePageMeta({
-    middleware: "auth"
-})
+	middleware: "auth",
+});
+
+await navigateTo({ path: "/profile" }, { replace: true });
 </script>
 
 <template>
-    <div>
-        <Heading>Change theme color</Heading>
-        <ColorSelector/>
-    </div>
+	<div />
 </template>

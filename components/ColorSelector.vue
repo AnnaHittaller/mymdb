@@ -1,36 +1,45 @@
 <script setup lang="ts">
-const { theme, setTheme } = useUserDocument()
+import { THEME_ACCENT_COLORS, themeAccentLabel } from "~/constants/themeAccentColors";
 
-const selectedColor = ref('')
-
-const colors = [
-    { value: 'emerald', label: 'Emerald', class: 'bg-emerald-500 hover:bg-emerald-500/75' },
-    { value: 'mandy', label: 'Mandy', class: 'bg-mandy-500 hover:bg-mandy-500/75' },
-    { value: 'dusk', label: 'Dusk', class: 'bg-dusk-500 hover:bg-dusk-500/75' },
-    { value: 'pumpkin', label: 'Pumpkin', class: 'bg-pumpkin-500 hover:bg-pumpkin-500/75' },
-    { value: 'mauve', label: 'Mauve', class: 'bg-mauve-500 hover:bg-mauve-500/75' },
-    { value: 'periwinkle', label: 'Periwinkle', class: 'bg-periwinkle-500 hover:bg-periwinkle-500/75' },
-    { value: 'saffron', label: 'Saffron', class: 'bg-saffron-500 hover:bg-saffron-500/75' },
-]
+const { theme, setTheme } = useUserDocument();
 
 const updateColor = async (color: string) => {
-    selectedColor.value = color; // Update the selectedColor value
-    await setTheme(color)
-}
-
+	await setTheme(color);
+};
 </script>
 
 <template>
-    <div class="flex flex-wrap gap-4 pt-4 justify-center">
-        <div v-for="color in colors" :key="color.value" class="inline-block">
-            <label :for="color.value">
-                <input type="radio" :id="color.value" :value="color.value" v-model="selectedColor"
-                    @change="updateColor(color.value)" class="hidden" />
-                <UBadge color="neutral" variant="solid" size="lg"
-                    :class="[color.class, 'rounded-lg cursor-pointer text-lg transition-colors duration-200', color.value === theme ? 'ring-2 ring-primary ring-offset-4 ring-offset-surface-page' : '']">
-                    {{ color.label }}
-                </UBadge>
-            </label>
-        </div>
-    </div>
+	<div class="space-y-4">
+		<p class="text-base text-fg-muted">
+			Current theme:
+			<span class="text-fg-default">{{ themeAccentLabel(theme) }}</span>
+		</p>
+		<div class="flex flex-wrap gap-4">
+			<div v-for="color in THEME_ACCENT_COLORS" :key="color.value" class="inline-block">
+				<label :for="`theme-${color.value}`" class="cursor-pointer">
+					<input
+						:id="`theme-${color.value}`"
+						type="radio"
+						name="theme-accent"
+						:value="color.value"
+						:checked="color.value === theme"
+						class="hidden"
+						@change="updateColor(color.value)" />
+					<UBadge
+						color="neutral"
+						variant="solid"
+						size="lg"
+						:class="[
+							color.swatchClass,
+							'cursor-pointer rounded-lg text-lg transition-colors duration-200',
+							color.value === theme
+								? 'ring-2 ring-primary ring-offset-4 ring-offset-surface-elevated'
+								: '',
+						]">
+						{{ color.label }}
+					</UBadge>
+				</label>
+			</div>
+		</div>
+	</div>
 </template>
