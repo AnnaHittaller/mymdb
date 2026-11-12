@@ -31,6 +31,26 @@ function genreIdList(value: string): number[] {
 	})
 }
 
+const CLEAR_DISCOVER_FILTER_PARAMS = {
+	rating: undefined,
+	genres: undefined,
+	with_cast: undefined,
+	release_year_gte: undefined,
+	release_year_lte: undefined,
+} satisfies Record<string, undefined>
+
+function discoverFiltersInQuery(route: ReturnType<typeof useRoute>): boolean {
+	return positiveInt(queryParam(route.query.rating)) > 0
+		|| genreIdList(queryParam(route.query.genres)).length > 0
+		|| decodeWithCastParam(queryParam(route.query.with_cast)).some((person) => person.name)
+		|| positiveInt(queryParam(route.query.release_year_gte)) > 0
+		|| positiveInt(queryParam(route.query.release_year_lte)) > 0
+}
+
+function patchLeavingSearch(patch: Record<string, string | undefined>) {
+	return { ...patch, q: undefined }
+}
+
 export function useCatalogListing() {
 	const route = useRoute()
 	const page = ref(1)
@@ -68,14 +88,10 @@ export function useCatalogListing() {
 		},
 		set(next) {
 			if (next === (queryParam(route.query.media) === "tv" ? "tv" : "movie")) return
-			void writeQuery({
+			void writeQuery(patchLeavingSearch({
 				media: next === "tv" ? "tv" : undefined,
-				rating: undefined,
-				genres: undefined,
-				with_cast: undefined,
-				release_year_gte: undefined,
-				release_year_lte: undefined,
-			})
+				...CLEAR_DISCOVER_FILTER_PARAMS,
+			}))
 		},
 	})
 
@@ -84,7 +100,8 @@ export function useCatalogListing() {
 		set: (next: number) => {
 			const normalized = next > 0 ? next : 0
 			if (normalized === positiveInt(queryParam(route.query.rating))) return
-			void writeQuery({ rating: normalized > 0 ? String(normalized) : undefined })
+			const patch = { rating: normalized > 0 ? String(normalized) : undefined }
+			void writeQuery(normalized > 0 ? patchLeavingSearch(patch) : patch)
 		},
 	})
 
@@ -95,7 +112,8 @@ export function useCatalogListing() {
 		set(ids) {
 			const next = ids.join(",")
 			if (next === genreIdList(queryParam(route.query.genres)).join(",")) return
-			void writeQuery({ genres: next || undefined })
+			const patch = { genres: next || undefined }
+			void writeQuery(next ? patchLeavingSearch(patch) : patch)
 		},
 	})
 
@@ -104,7 +122,8 @@ export function useCatalogListing() {
 		set: (next: number) => {
 			const normalized = next > 0 ? next : 0
 			if (normalized === positiveInt(queryParam(route.query.release_year_gte))) return
-			void writeQuery({ release_year_gte: normalized > 0 ? String(normalized) : undefined })
+			const patch = { release_year_gte: normalized > 0 ? String(normalized) : undefined }
+			void writeQuery(normalized > 0 ? patchLeavingSearch(patch) : patch)
 		},
 	})
 
@@ -113,7 +132,8 @@ export function useCatalogListing() {
 		set: (next: number) => {
 			const normalized = next > 0 ? next : 0
 			if (normalized === positiveInt(queryParam(route.query.release_year_lte))) return
-			void writeQuery({ release_year_lte: normalized > 0 ? String(normalized) : undefined })
+			const patch = { release_year_lte: normalized > 0 ? String(normalized) : undefined }
+			void writeQuery(normalized > 0 ? patchLeavingSearch(patch) : patch)
 		},
 	})
 
@@ -140,7 +160,9 @@ export function useCatalogListing() {
 		|| releaseYearTo.value > 0,
 	)
 
-	// Discover filters stay in the URL during search, but they do not change the TMDB request.
+	const discoverDimmed = computed(() => Boolean(q.value))
+	const searchDimmed = computed(() => filtersActive.value)
+
 	const fetchSignature = computed(() => {
 		if (mode.value === "search") return `search|${q.value}`
 		return [
@@ -223,7 +245,7 @@ export function useCatalogListing() {
 
 	async function commitSearch(trimmed: string) {
 		addRecentSearch(trimmed)
-		await writeQuery({ q: trimmed })
+		await writeQuery({ q: trimmed, ...CLEAR_DISCOVER_FILTER_PARAMS })
 	}
 
 	async function clearSearch() {
@@ -232,9 +254,9 @@ export function useCatalogListing() {
 
 	function addCast(person: BrowseCastPerson) {
 		if (!person.name || castPeople.value.some((entry) => entry.id === person.id)) return
-		void writeQuery({
+		void writeQuery(patchLeavingSearch({
 			with_cast: encodeWithCastParam([...castPeople.value, person]),
-		})
+		}))
 	}
 
 	function removeCast(id: number) {
@@ -245,12 +267,14 @@ export function useCatalogListing() {
 	}
 
 	function clearFilters() {
-		void writeQuery({
-			rating: undefined,
-			genres: undefined,
-			with_cast: undefined,
-			release_year_gte: undefined,
-			release_year_lte: undefined,
+		void writeQuery({ ...CLEAR_DISCOVER_FILTER_PARAMS })
+	}
+
+	if (import.meta.client) {
+		onMounted(() => {
+			if (q.value && discoverFiltersInQuery(route)) {
+				void writeQuery(CLEAR_DISCOVER_FILTER_PARAMS)
+			}
 		})
 	}
 
@@ -265,6 +289,8 @@ export function useCatalogListing() {
 		releaseYearTo,
 		castPeople,
 		filtersActive,
+		discoverDimmed,
+		searchDimmed,
 		movies,
 		pending,
 		status: fetched.status,

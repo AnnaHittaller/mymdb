@@ -301,6 +301,7 @@
 	html {
 		font-family: "Roboto Condensed", system-ui, sans-serif;
 		font-size: 14px;
+		scrollbar-gutter: stable;
 	}
 
 	@media (width >= 40rem) {

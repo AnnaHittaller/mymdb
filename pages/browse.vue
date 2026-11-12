@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { refDebounced, useWindowSize } from "@vueuse/core";
-import { castActorInputUi } from "~/constants/discoverFilterUi";
+import { castActorInputUi, discoverFilterContent } from "~/constants/discoverFilterUi";
 import {
 	fetchPersonSuggestions,
 	PERSON_SEARCH_DEBOUNCE_MS,
@@ -37,7 +37,13 @@ definePageMeta({
 });
 
 const filterMenuControl = { highlightOnHover: true };
-const filterFieldClass = "w-full sm:w-48";
+const filterFieldClass = "w-full min-w-0";
+const browsePanelClass
+	= "flex h-full w-full min-w-0 flex-col gap-4 rounded-[12px] border border-border-default bg-surface-overlay/70 p-4 transition-opacity";
+const browseFilterGridClass
+	= "grid w-full min-w-0 gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,11rem),1fr))]";
+const browseChipClass
+	= "rounded-md bg-surface-hover px-2 py-1 text-base text-fg-default transition-colors hover:bg-surface-inset";
 
 const ratingItems = [
 	{ label: "Any rating", value: 0 },
@@ -69,6 +75,8 @@ const {
 	releaseYearTo,
 	castPeople,
 	filtersActive,
+	discoverDimmed,
+	searchDimmed,
 	movies,
 	pending,
 	status,
@@ -118,7 +126,7 @@ const genreNameById = computed(() => new Map(genreItems.value.map((genre) => [ge
 const subtitle = computed(() =>
 	mode.value === "search"
 		? `Results for «${q.value}»`
-		: "Popular titles — narrow with filters below.",
+		: "Popular titles — narrow with filters.",
 );
 
 const castHint = computed(() =>
@@ -312,138 +320,168 @@ function onClearFilters() {
 		<div class="flex flex-col gap-4 pb-8">
 			<Heading>Browse</Heading>
 
-			<UForm
-				ref="searchForm"
-				:state="state"
-				class="w-full"
-				@submit="onExplicitSearch">
-				<UFormField name="query" class="w-full">
-					<UInput
-						v-model="state.query"
-						type="search"
-						name="query"
-						placeholder="Search by title, or leave empty to browse with filters below."
-						aria-label="Search movies and shows"
-						autocomplete="off"
-						enterkeyhint="search"
-						size="xl"
-						:ui="{
-							base: 'text-lg placeholder:italic [appearance:textfield]',
-							trailing: 'pe-1',
-						}"
-						class="search-page-input w-full">
-						<template #trailing>
-							<div class="flex shrink-0 items-center gap-0.5">
-								<UButton
-									v-show="state.query !== ''"
-									type="button"
-									color="neutral"
-									variant="ghost"
-									icon="i-heroicons-x-mark-20-solid"
-									size="sm"
-									square
-									aria-label="Clear search"
-									@click="onClearQuery" />
-								<UButton
-									type="submit"
-									color="primary"
-									variant="ghost"
-									icon="i-heroicons-magnifying-glass-20-solid"
-									size="sm"
-									square
-									aria-label="Search"
-									:ui="{ base: 'font-medium justify-center' }" />
-							</div>
-						</template>
-					</UInput>
-				</UFormField>
+			<div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-stretch">
+				<section
+					:class="[browsePanelClass, searchDimmed ? 'opacity-60' : undefined]"
+					aria-labelledby="browse-search-heading">
+					<div
+						id="browse-search-heading"
+						class="flex items-center gap-2 text-base font-semibold uppercase tracking-wide text-fg-default">
+						<UIcon name="i-heroicons-magnifying-glass-20-solid" class="size-5 shrink-0 text-primary" />
+						Search
+					</div>
+					<UForm
+						ref="searchForm"
+						:state="state"
+						class="w-full"
+						@submit="onExplicitSearch">
+						<UFormField name="query" class="w-full">
+							<UInput
+								v-model="state.query"
+								type="search"
+								name="query"
+								placeholder="Search by title"
+								aria-label="Search movies and shows"
+								autocomplete="off"
+								enterkeyhint="search"
+								size="xl"
+								:ui="{
+									base: 'text-lg placeholder:italic [appearance:textfield]',
+									trailing: 'pe-1',
+								}"
+								class="search-page-input w-full">
+								<template #trailing>
+									<div class="flex shrink-0 items-center gap-0.5">
+										<UButton
+											v-show="state.query !== ''"
+											type="button"
+											color="neutral"
+											variant="ghost"
+											icon="i-heroicons-x-mark-20-solid"
+											size="sm"
+											square
+											aria-label="Clear search"
+											@click="onClearQuery" />
+										<UButton
+											type="submit"
+											color="primary"
+											variant="ghost"
+											icon="i-heroicons-magnifying-glass-20-solid"
+											size="sm"
+											square
+											aria-label="Search"
+											:ui="{ base: 'font-medium justify-center' }" />
+									</div>
+								</template>
+							</UInput>
+						</UFormField>
 
-				<div
-					v-if="recents.length > 0"
-					class="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5">
-					<p class="shrink-0 text-base font-medium text-fg-muted">
-						Recent Searches
-					</p>
-					<button
-						v-for="recent in visibleRecents"
-						:key="recent"
-						type="button"
-						class="max-w-[120px] max-sm:min-w-10 min-w-16 shrink-0 cursor-pointer truncate rounded-md border border-border-default/50 bg-surface-inset px-1.5 py-1 text-base text-fg-muted transition-colors hover:border-border-default hover:bg-surface-hover hover:text-fg-default"
-						:title="recent"
-						@click="onSelectRecent(recent)">
-						<span class="block truncate">{{ recent }}</span>
-					</button>
-				</div>
-			</UForm>
+						<div
+							v-if="recents.length > 0"
+							class="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5">
+							<p class="shrink-0 text-base font-medium text-fg-muted">
+								Recent Searches
+							</p>
+							<button
+								v-for="recent in visibleRecents"
+								:key="recent"
+								type="button"
+								:class="[
+									browseChipClass,
+									'max-w-[120px] max-sm:min-w-10 min-w-16 shrink-0 cursor-pointer truncate text-fg-muted hover:text-fg-default',
+								]"
+								:title="recent"
+								@click="onSelectRecent(recent)">
+								<span class="block truncate">{{ recent }}</span>
+							</button>
+						</div>
+					</UForm>
+				</section>
 
-			<div
-				class="flex flex-col gap-4"
-				:class="q ? 'opacity-60' : undefined"
-				:aria-describedby="q ? 'browse-filter-hint' : undefined">
-				<div class="flex flex-wrap items-center gap-4">
-					<DiscoverMediaToggle v-model="media" />
-					<USelect
-						v-model="rating"
-						:items="ratingItems"
-						:class="filterFieldClass" />
-					<USelectMenu
-						v-model="genreIds"
-						v-bind="filterMenuControl"
-						:items="genreItems"
-						value-key="value"
-						multiple
-						placeholder="Any Genres"
-						:class="filterFieldClass">
-						<template #default>
-							<span class="truncate text-fg-default">Any Genres</span>
-						</template>
-					</USelectMenu>
-					<USelect
-						v-model="releaseYearFrom"
-						:items="yearFromItems"
-						:class="filterFieldClass" />
-					<USelect
-						v-model="releaseYearTo"
-						:items="yearToItems"
-						:class="filterFieldClass" />
-					<UInputMenu
-						:key="castInputKey"
-						v-model:search-term="castSearchTerm"
-						:model-value="undefined"
-						v-bind="filterMenuControl"
-						:items="castSuggestionItems"
-						ignore-filter
-						value-key="value"
-						placeholder="Search actors"
-						:class="filterFieldClass"
-						:ui="castActorInputUi"
-						@update:model-value="onCastPick" />
-				</div>
-				<div v-if="filtersActive" class="flex flex-wrap items-center gap-2">
-					<DiscoverFilterChip
-						v-for="chip in filterChips"
-						:key="chip.id"
-						:label="chip.label"
-						:remove-label="chip.removeLabel"
-						@remove="removeFilterChip(chip.id)" />
-					<p v-if="castPeople.length > 1" class="w-full text-base text-fg-muted">
-						{{ castHint }}
+				<section
+					:class="[browsePanelClass, discoverDimmed ? 'opacity-60' : undefined]"
+					aria-labelledby="browse-filter-heading"
+					:aria-describedby="discoverDimmed ? 'browse-filter-hint' : undefined">
+					<div
+						id="browse-filter-heading"
+						class="flex items-center gap-2 text-base font-semibold uppercase tracking-wide text-fg-default">
+						<UIcon name="i-heroicons-funnel-20-solid" class="size-5 shrink-0 text-primary" />
+						Discover by filter
+					</div>
+					<p v-if="discoverDimmed" id="browse-filter-hint" class="sr-only">
+						Clear search to use filters.
 					</p>
-					<UButton label="Clear all" variant="outline" size="lg" class="ml-auto sm:ml-0"
-						@click="onClearFilters" />
-				</div>
+					<div :class="browseFilterGridClass">
+						<DiscoverMediaToggle v-model="media" class="min-w-0" />
+						<USelect
+							v-model="rating"
+							:content="discoverFilterContent"
+							:items="ratingItems"
+							:class="filterFieldClass" />
+						<USelectMenu
+							v-model="genreIds"
+							v-bind="filterMenuControl"
+							:content="discoverFilterContent"
+							:items="genreItems"
+							value-key="value"
+							multiple
+							placeholder="Any Genres"
+							:class="filterFieldClass">
+							<template #default>
+								<span class="truncate text-fg-default">Any Genres</span>
+							</template>
+						</USelectMenu>
+						<USelect
+							v-model="releaseYearFrom"
+							:content="discoverFilterContent"
+							:items="yearFromItems"
+							:class="filterFieldClass" />
+						<USelect
+							v-model="releaseYearTo"
+							:content="discoverFilterContent"
+							:items="yearToItems"
+							:class="filterFieldClass" />
+						<UInputMenu
+							:key="castInputKey"
+							v-model:search-term="castSearchTerm"
+							:model-value="undefined"
+							:content="discoverFilterContent"
+							v-bind="filterMenuControl"
+							:items="castSuggestionItems"
+							ignore-filter
+							value-key="value"
+							placeholder="Search actors"
+							:class="filterFieldClass"
+							:ui="castActorInputUi"
+							@update:model-value="onCastPick" />
+					</div>
+					<div v-if="filtersActive" class="flex flex-wrap items-center gap-2">
+						<p class="w-full text-base font-medium text-fg-muted">
+							Active filters
+						</p>
+						<DiscoverFilterChip
+							v-for="chip in filterChips"
+							:key="chip.id"
+							:label="chip.label"
+							:remove-label="chip.removeLabel"
+							@remove="removeFilterChip(chip.id)" />
+						<p v-if="castPeople.length > 1" class="w-full text-base text-fg-muted">
+							{{ castHint }}
+						</p>
+						<UButton
+							label="Clear all"
+							variant="outline"
+							size="lg"
+							class="ml-auto sm:ml-0"
+							@click="onClearFilters" />
+					</div>
+				</section>
 			</div>
 
 			<p class="text-xl md:text-2xl">{{ subtitle }}</p>
-			<p v-if="q" id="browse-filter-hint" class="text-base text-fg-muted">
-				Movie and show filter applies after you clear search.
-				<template v-if="filtersActive">
-					Clear search to apply genre, year, cast, and rating filters.
-				</template>
-			</p>
 		</div>
 
-		<div class="flex flex-col items-stretch">
+		<div class="flex min-h-[2.75rem] flex-col items-stretch md:min-h-[3rem]">
 			<p v-if="statusMessage" class="text-xl md:text-2xl">{{ statusMessage }}</p>
 			<div v-if="movies.length > 0" class="movie-grid">
 				<MovieCard

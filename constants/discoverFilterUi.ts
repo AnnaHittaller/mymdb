@@ -28,6 +28,16 @@ export const discoverFilterVariants = {
 	variant: "none" as const,
 };
 
+/**
+ * Popper content for filter menus.
+ * - `position: 'popper'` — avoids `item-aligned` fighting page scroll when `bodyLock` is off.
+ * - `bodyLock: true` — block background scroll while open (normal for selects); pair with `UApp` `scroll-body="false"` so Reka does not add extra `padding-right` on top of `scrollbar-gutter: stable`.
+ */
+export const discoverFilterContent = {
+	bodyLock: true,
+	position: "popper",
+} as const;
+
 /** InputMenu `base` is the `<input>`; page `:ui` overrides theme `placeholder:text-dimmed`. */
 export const castActorInputUi = {
 	base: "discover-filter-input text-base text-fg-default placeholder:text-fg-default",

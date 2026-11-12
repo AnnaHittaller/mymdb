@@ -39,6 +39,7 @@ See THEME MAP in `tailwind.css` for the complete list (elevated surfaces, border
 - **Variant `none`:** avoids Nuxt `outline` rings; fills/borders come from the utilities (`!bg-default`, `border-border-default`, …).
 - **8px radius:** `rounded-[8px]` on the shared `filterTrigger` string in `discoverFilterUi.ts` (theme default is `rounded-md`).
 - **Actor search placeholder:** theme sets `placeholder:text-dimmed` on the input **base** slot — override with page `:ui="castActorInputUi"` (highest priority for that field only).
+- **Menu scroll lock:** browse filter controls use `:content="discoverFilterContent"` (`position: 'popper'`, `bodyLock: true` in **`discoverFilterUi.ts`**). **`UApp`** sets **`scroll-body="false"`** (`app.vue`) so Reka does not add compensating `padding-right` when the body is locked — works with **`scrollbar-gutter: stable`** on `html`.
 - **`inputMenu.slots.placeholder`:** not used for typed placeholders; use the `placeholder` prop + **base** slot classes instead.
 
 ## User accent color

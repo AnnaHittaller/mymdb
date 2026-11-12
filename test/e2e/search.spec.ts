@@ -86,6 +86,39 @@ test.describe("search page", () => {
 		await expect(page.getByText("Enter at least 2 characters")).toBeVisible();
 	});
 
+	test("discover filters and search are mutually exclusive in the URL", async ({ page, goto }) => {
+		await registerAndLandHome(page, goto);
+		await goto("/browse?rating=8", { waitUntil: "hydration" });
+
+		const url = new URL(page.url());
+		expect(url.searchParams.get("rating")).toBe("8");
+		expect(url.searchParams.get("q")).toBeNull();
+
+		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
+		await searchInput.fill("matrix");
+		await expect(page).toHaveURL(/\/browse\?q=matrix/, { timeout: 15_000 });
+
+		const afterSearch = new URL(page.url());
+		expect(afterSearch.searchParams.get("q")).toBe("matrix");
+		expect(afterSearch.searchParams.get("rating")).toBeNull();
+	});
+
+	test("switching media clears an active search", async ({ page, goto }) => {
+		await registerAndLandHome(page, goto);
+		await goto("/browse", { waitUntil: "hydration" });
+
+		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
+		await searchInput.fill("matrix");
+		await expect(page).toHaveURL(/\/browse\?q=matrix/, { timeout: 15_000 });
+
+		await page.getByRole("button", { name: "Shows" }).click();
+		await expect(page).toHaveURL(/\/browse\?media=tv$/, { timeout: 15_000 });
+
+		const afterToggle = new URL(page.url());
+		expect(afterToggle.searchParams.get("q")).toBeNull();
+		expect(afterToggle.searchParams.get("media")).toBe("tv");
+	});
+
 	test("search and discover urls redirect to browse", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
 

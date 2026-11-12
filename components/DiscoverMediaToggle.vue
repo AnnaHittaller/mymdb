@@ -15,7 +15,7 @@ function segmentClass(active: boolean) {
 
 <template>
 	<div
-		class="flex w-full gap-0.5 rounded-[8px] border border-border-default bg-surface-inset p-0.5 sm:w-48"
+		class="flex w-full min-w-0 gap-0.5 rounded-[8px] border border-border-default bg-surface-inset p-0.5"
 		role="group"
 		aria-label="Discover movies or shows">
 		<button
