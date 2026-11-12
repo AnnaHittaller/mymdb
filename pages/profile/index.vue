@@ -17,6 +17,7 @@
                 </NuxtLink>
             </div>
             <p class="-mt-2 text-2xl text-fg-muted">{{ user?.email }}</p>
+            <NuxtLink to="/legal" class="text-base text-primary hover:underline">Legal &amp; privacy</NuxtLink>
             <div class="flex max-[440px]:flex-col gap-4 mt-4">
                 <UButton
                     icon="i-heroicons-arrow-left-on-rectangle"

@@ -18,12 +18,6 @@ export const forgotPasswordSchema = z.object({
   email: z.email('Invalid email'),
 });
 
-// Contact schema 
-export const contactSchema = z.object({
-  subject: z.string({ error: 'Subject is required' }).min(1, 'Subject is required'),
-  message: z.string({ error: 'Message is required' }).min(1, 'Message is required'),
-});
-
 // Search page (explicit submit)
 export const searchQuerySchema = z.object({
   query: z
@@ -36,5 +30,4 @@ export const searchQuerySchema = z.object({
 export type LoginSchema = z.infer<typeof loginSchema>;
 export type RegisterSchema = z.infer<typeof registerSchema>;
 export type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
-export type ContactSchema = z.infer<typeof contactSchema>;
 export type SearchQuerySchema = z.infer<typeof searchQuerySchema>;

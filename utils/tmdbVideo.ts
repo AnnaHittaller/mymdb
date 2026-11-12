@@ -39,7 +39,7 @@ export function embedUrl(site: string, key: string, autoplay = true): string | n
 		return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(key)}?autoplay=${autoplayParam}&rel=0`;
 	}
 	if (site === "Vimeo") {
-		return `https://player.vimeo.com/video/${encodeURIComponent(key)}?autoplay=${autoplayParam}`;
+		return `https://player.vimeo.com/video/${encodeURIComponent(key)}?autoplay=${autoplayParam}&dnt=1`;
 	}
 	return null;
 }

@@ -58,7 +58,9 @@ describe("embedUrl and watchUrl", () => {
 	});
 
 	it("builds Vimeo embed and watch links", () => {
-		expect(embedUrl("Vimeo", "282875052")).toContain("player.vimeo.com/video/282875052");
+		expect(embedUrl("Vimeo", "282875052")).toBe(
+			"https://player.vimeo.com/video/282875052?autoplay=1&dnt=1",
+		);
 		expect(watchUrl("Vimeo", "282875052")).toBe("https://vimeo.com/282875052");
 	});
 

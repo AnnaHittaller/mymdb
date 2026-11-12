@@ -45,7 +45,22 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@formkit/auto-animate/nuxt',
     'nuxt-vuefire',
+    'nuxt-simple-cookie-consent',
   ],
+
+  cookieConsent: {
+    cookieName: 'mymdb_consent',
+    expiresInDays: 180,
+    consentVersion: '1.0.0',
+    categories: {
+      embeddedVideo: {
+        label: 'Embedded video',
+        description: 'Loads a YouTube or Vimeo trailer after you allow it.',
+        required: false,
+      },
+    },
+    scripts: [],
+  },
 
   colorMode: {
     preference: 'dark',
