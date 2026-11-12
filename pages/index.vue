@@ -36,8 +36,20 @@ const upcomingTitle = computed(() => (
 <template>
     <div class="max-w-full">
         <Hero />
+        <template v-if="user">
+            <UserListsSection
+                :limit="6"
+                :show-see-all="lists.length > 6" />
+        </template>
+        <div v-else class="flex flex-col items-start gap-4 px-8 pb-8">
+            <p class="text-lg">Sign in to keep your lists and favorites.</p>
+            <div class="flex gap-4">
+                <UButton :to="{ path: '/login', query: { redirect: '/' } }" label="Sign in" class="text-lg" />
+                <UButton to="/register" label="Register" variant="outline" class="text-lg" />
+            </div>
+        </div>
         <div class="pb-8">
-            <Heading class="pt-4">Trending</Heading>
+            <Heading class="pt-4">Recommendations</Heading>
             <div
                 class="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 trending:grid-cols-3">
                 <TrendingCollectionCard
@@ -63,18 +75,6 @@ const upcomingTitle = computed(() => (
                     to="/trending/shows"
                     media-type="tv"
                     :items="trendingShows ?? []" />
-            </div>
-        </div>
-        <template v-if="user">
-            <UserListsSection
-                :limit="6"
-                :show-see-all="lists.length > 6" />
-        </template>
-        <div v-else class="flex flex-col items-start gap-4 px-8 pb-8">
-            <p class="text-lg">Sign in to keep your lists and favorites.</p>
-            <div class="flex gap-4">
-                <UButton :to="{ path: '/login', query: { redirect: '/' } }" label="Sign in" class="text-lg" />
-                <UButton to="/register" label="Register" variant="outline" class="text-lg" />
             </div>
         </div>
     </div>
