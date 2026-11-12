@@ -33,6 +33,7 @@
     "@iconify-json/fe": "^1.2.1",
     "@iconify-json/fluent-emoji-flat": "^1.2.1",
     "@iconify-json/heroicons": "^1.2.2",
+    "@iconify-json/streamline-memes": "^1.2.1",
     "@nuxt/ui": "^4.12.0",
     "firebase": "^12.0.0",
     "firebase-admin": "^13.10.0",

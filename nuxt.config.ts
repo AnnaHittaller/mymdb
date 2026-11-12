@@ -66,6 +66,12 @@ export default defineNuxtConfig({
     preference: 'dark',
   },
 
+  icon: {
+    serverBundle: {
+      collections: ['fe', 'fluent-emoji-flat', 'heroicons', 'streamline-memes'],
+    },
+  },
+
   // Server render so a hard refresh of a gated page can read the __session cookie.
   ssr: true,
 

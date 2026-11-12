@@ -1,42 +1,43 @@
 <script setup lang="ts">
-import type { NuxtError } from '#app'
+import type { NuxtError } from "#app";
+import { pickRandomErrorScreenContent } from "~/constants/errorScreenContent";
 
 const props = defineProps<{
-    error: NuxtError
-}>()
+	error: NuxtError;
+}>();
 
-const loading = ref(false)
+const screen = useState(
+	`error-screen:${props.error.statusCode ?? 500}:${props.error.message ?? ""}`,
+	() => pickRandomErrorScreenContent(props.error.statusCode ?? 500),
+);
 
-const heading = computed(() =>
-    props.error.statusCode === 404 ? 'Page not found' : 'Something went wrong'
-)
-
-const detail = computed(() => {
-    const message = props.error.message?.trim()
-    if (!message) return ''
-
-    const path = message.replace(/^Page not found:\s*/i, '')
-    if (!path || path === heading.value) return ''
-    return path
-})
-
-const handleError = () => {
-    loading.value = true
-    clearError({ redirect: '/' })
-        .finally(() => loading.value = false)
-}
+const handleError = () => clearError({ redirect: "/" });
 </script>
 
 <template>
-    <div
-        v-if="error"
-        class="flex min-h-[100dvh] flex-col items-center justify-center bg-surface-page px-6 text-center text-fg-default"
-    >
-        <p class="text-7xl font-semibold tracking-tight tabular-nums">{{ error.statusCode }}</p>
-        <h1 class="mt-4 text-3xl font-semibold">{{ heading }}</h1>
-        <p v-if="detail" class="mt-3 max-w-lg text-base break-all text-fg-muted">{{ detail }}</p>
-        <p class="mt-8 text-xl text-fg-muted">It looks like something broke.</p>
-        <p class="mb-6 text-xl text-fg-muted">Sorry about that.</p>
-        <UButton @click="handleError" label="Back to homepage" size="xl" :loading="loading" />
-    </div>
+	<UApp v-if="error">
+		<ErrorPageTheme />
+		<div
+			class="flex min-h-[100dvh] flex-col items-center justify-center bg-surface-page px-6 text-center text-fg-default"
+		>
+			<ErrorMemeIcons :names="screen.icons" />
+			<p
+				class="mt-6 text-8xl font-semibold tracking-tight tabular-nums text-fg-muted"
+			>
+				{{ error.statusCode }}
+			</p>
+			<h1 class="mt-5 max-w-2xl text-4xl font-semibold text-balance sm:text-[2.5rem]">
+				{{ screen.title }}
+			</h1>
+			<p class="mt-5 max-w-xl text-xl text-pretty text-fg-muted sm:text-2xl">
+				{{ screen.description }}
+			</p>
+			<UButton
+				class="mt-12"
+				label="Back to homepage"
+				size="xl"
+				@click="handleError"
+			/>
+		</div>
+	</UApp>
 </template>
