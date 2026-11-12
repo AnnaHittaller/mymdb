@@ -28,16 +28,23 @@ const props = withDefaults(
 
 const showRankBadges = computed(() => props.variant !== "upcoming");
 
-const topThreeRanked = computed(() => {
+function rankedWithPosters(limit: number) {
 	const result: { item: TrendingItem; rank: number }[] = [];
-	for (let i = 0; i < props.items.length && result.length < 3; i++) {
+	for (let i = 0; i < props.items.length && result.length < limit; i++) {
 		const item = props.items[i]!;
 		if (item.poster) {
 			result.push({ item, rank: i + 1 });
 		}
 	}
 	return result;
-});
+}
+
+const topThreeRanked = computed(() => rankedWithPosters(3));
+const topFiveRanked = computed(() => rankedWithPosters(5));
+
+const showUpcomingBanner = computed(() =>
+	props.variant === "upcoming" && topFiveRanked.value.length > 0,
+);
 
 const leadingGenre = computed(() => props.leadingGenreOverride ?? trendingLeadingGenre(props.items));
 
@@ -92,7 +99,8 @@ const cardAriaLabel = computed(() => {
 	const segments: string[] = [props.title];
 	const genre = leadingGenre.value;
 	if (genre) segments.push(`Leading genre ${genre}`);
-	const topTitles = props.items.slice(0, 3).map((item, index) => {
+	const previewCount = props.variant === "upcoming" ? 5 : 3;
+	const topTitles = props.items.slice(0, previewCount).map((item, index) => {
 		const prefix = showRankBadges.value ? `Number ${index + 1} ` : "";
 		return `${prefix}${item.title}`;
 	});
@@ -123,6 +131,16 @@ const releaseDateBadgeClass
 	= "inline-flex w-fit rounded-md bg-primary px-2 py-1 text-base font-medium leading-snug text-inverted";
 const itemMetaStackClass = "flex min-w-0 flex-col gap-1.5";
 const itemMetaStackCenteredClass = "flex min-w-0 flex-col items-center gap-1.5";
+
+/** Viewport bands (tablet full-width row): ≥1100 → 5, 950–1099 → 4, &lt;950 → 3 */
+const upcomingBannerPosterGridClass
+	= "grid min-h-0 min-w-0 flex-1 grid-cols-3 gap-2 min-[950px]:grid-cols-4 min-[1100px]:grid-cols-5";
+
+function upcomingBannerPosterCellClass(index: number) {
+	if (index === 4) return "hidden min-[1100px]:flex";
+	if (index === 3) return "hidden min-[950px]:flex";
+	return "";
+}
 </script>
 
 <template>
@@ -131,21 +149,60 @@ const itemMetaStackCenteredClass = "flex min-w-0 flex-col items-center gap-1.5";
 			v-if="showSkeleton"
 			:class="[cardShellClass, 'pointer-events-none']"
 			aria-hidden="true">
-			<div class="flex items-start gap-2">
-				<USkeleton class="size-6 shrink-0 rounded" />
-				<USkeleton class="h-8 min-w-0 flex-1" />
-				<USkeleton class="size-9 shrink-0 rounded-[8px]" />
-			</div>
-			<div class="flex items-center gap-2">
-				<USkeleton class="h-4 w-24" />
-				<USkeleton class="h-7 w-28 rounded-full" />
-			</div>
-			<div class="hidden flex-col gap-2 @max-[399px]:flex">
-				<USkeleton v-for="n in 3" :key="n" class="h-20 w-full rounded-[8px]" />
-			</div>
-			<div class="hidden grid-cols-3 gap-2 @min-[400px]:grid">
-				<USkeleton v-for="n in 3" :key="`w-${n}`" class="aspect-2/3 w-full rounded-[4px]" />
-			</div>
+			<template v-if="variant === 'upcoming'">
+				<div class="hidden min-h-0 flex-1 items-stretch gap-4 @min-[700px]:flex">
+					<div class="flex min-w-[12rem] max-w-sm shrink-0 flex-col gap-3">
+						<USkeleton class="size-8 shrink-0 rounded" />
+						<USkeleton class="h-9 w-full" />
+						<div class="flex flex-wrap items-center gap-2">
+							<USkeleton class="h-4 w-24" />
+							<USkeleton class="h-7 w-28 rounded-full" />
+						</div>
+						<USkeleton class="size-9 shrink-0 rounded-full" />
+					</div>
+					<div :class="upcomingBannerPosterGridClass">
+						<USkeleton
+							v-for="n in 5"
+							:key="`banner-${n}`"
+							class="aspect-2/3 w-full rounded-[4px]"
+							:class="upcomingBannerPosterCellClass(n - 1)" />
+					</div>
+				</div>
+				<div class="@min-[700px]:hidden">
+					<div class="flex items-start gap-2">
+						<USkeleton class="size-6 shrink-0 rounded" />
+						<USkeleton class="h-8 min-w-0 flex-1" />
+						<USkeleton class="size-9 shrink-0 rounded-[8px]" />
+					</div>
+					<div class="mt-3 flex items-center gap-2">
+						<USkeleton class="h-4 w-24" />
+						<USkeleton class="h-7 w-28 rounded-full" />
+					</div>
+					<div class="mt-3 hidden flex-col gap-2 @max-[399px]:flex">
+						<USkeleton v-for="n in 3" :key="n" class="h-20 w-full rounded-[8px]" />
+					</div>
+					<div class="mt-3 hidden grid-cols-3 gap-2 @min-[400px]:grid">
+						<USkeleton v-for="n in 3" :key="`w-${n}`" class="aspect-2/3 w-full rounded-[4px]" />
+					</div>
+				</div>
+			</template>
+			<template v-else>
+				<div class="flex items-start gap-2">
+					<USkeleton class="size-6 shrink-0 rounded" />
+					<USkeleton class="h-8 min-w-0 flex-1" />
+					<USkeleton class="size-9 shrink-0 rounded-[8px]" />
+				</div>
+				<div class="flex items-center gap-2">
+					<USkeleton class="h-4 w-24" />
+					<USkeleton class="h-7 w-28 rounded-full" />
+				</div>
+				<div class="hidden flex-col gap-2 @max-[399px]:flex">
+					<USkeleton v-for="n in 3" :key="n" class="h-20 w-full rounded-[8px]" />
+				</div>
+				<div class="hidden grid-cols-3 gap-2 @min-[400px]:grid">
+					<USkeleton v-for="n in 3" :key="`w-${n}`" class="aspect-2/3 w-full rounded-[4px]" />
+				</div>
+			</template>
 		</div>
 
 		<NuxtLink
@@ -153,7 +210,103 @@ const itemMetaStackCenteredClass = "flex min-w-0 flex-col items-center gap-1.5";
 			:to="to"
 			:aria-label="cardAriaLabel"
 			:class="cardShellClass">
-			<div class="flex items-start gap-2.5">
+			<div
+				v-if="showUpcomingBanner"
+				class="hidden min-h-0 flex-1 items-stretch gap-4 @min-[700px]:flex">
+				<div class="flex min-w-[12rem] max-w-sm shrink-0 flex-col gap-2">
+					<UIcon
+						:name="headerIcon"
+						class="size-8 shrink-0 text-primary"
+						aria-hidden="true" />
+					<p class="text-2xl font-semibold leading-tight text-fg-default @min-[400px]:text-3xl">
+						{{ title }}
+					</p>
+					<div
+						v-if="leadingGenre"
+						class="flex flex-wrap items-center gap-2">
+						<span class="text-base font-medium text-fg-muted">{{ leadingGenreCaption }}</span>
+						<UBadge
+							variant="outline"
+							color="neutral"
+							size="md"
+							class="border-primary/40 px-3 py-1 text-base font-medium text-fg-default"
+							aria-hidden="true">
+							{{ leadingGenre }}
+						</UBadge>
+					</div>
+					<UButton
+						variant="iconbutton"
+						color="custom"
+						size="icon"
+						icon="i-heroicons-arrow-right-20-solid"
+						tabindex="-1"
+						aria-hidden="true"
+						class="pointer-events-none mt-1 shrink-0 group-hover:border-primary group-hover:text-primary"
+						:ui="{ leadingIcon: 'size-6' }" />
+				</div>
+				<div :class="upcomingBannerPosterGridClass">
+					<div
+						v-for="({ item }, index) in topFiveRanked"
+						:key="`${item.mediaType}-${item.id}-banner`"
+						class="flex min-w-0 flex-col gap-1.5"
+						:class="upcomingBannerPosterCellClass(index)">
+						<div class="relative overflow-hidden rounded-[6px] bg-surface-poster">
+							<img
+								:src="`${POSTER_IMAGE_URL}${item.poster}`"
+								:alt="''"
+								width="342"
+								height="513"
+								loading="lazy"
+								decoding="async"
+								class="aspect-2/3 w-full object-cover">
+						</div>
+						<p class="line-clamp-2 text-center text-base font-semibold leading-snug text-fg-default pt-1">
+							{{ item.title }}
+						</p>
+						<div
+							v-if="hasMeta(item) && showReleaseDate"
+							:class="itemMetaStackCenteredClass">
+							<p :class="[metaLineClass, 'justify-center text-center']">
+								<span :class="ratingInlineClass">
+									<UIcon name="i-heroicons-star-20-solid" :class="starIconClass" aria-hidden="true" />
+									<span :class="ratingTextClass">{{ ratingLabel(item) }}</span>
+								</span>
+								<template v-if="firstGenre(item)">
+									<span aria-hidden="true">·</span>
+									<span class="line-clamp-1">{{ firstGenre(item) }}</span>
+								</template>
+							</p>
+							<span
+								v-if="releaseDateBadgeLabel(item)"
+								:class="releaseDateBadgeClass">
+								{{ releaseDateBadgeLabel(item) }}
+							</span>
+						</div>
+						<p
+							v-else-if="hasMeta(item)"
+							:class="[metaLineClass, 'justify-center text-center']">
+							<template v-if="ratingLabel(item) !== 'N/A'">
+								<span :class="ratingInlineClass">
+									<UIcon name="i-heroicons-star-20-solid" :class="starIconClass" aria-hidden="true" />
+									<span :class="ratingTextClass">{{ ratingLabel(item) }}</span>
+								</span>
+							</template>
+							<template v-if="yearLabel(item)">
+								<span v-if="ratingLabel(item) !== 'N/A'" aria-hidden="true">·</span>
+								<span>{{ yearLabel(item) }}</span>
+							</template>
+							<template v-if="firstGenre(item)">
+								<span v-if="ratingLabel(item) !== 'N/A' || yearLabel(item)" aria-hidden="true">·</span>
+								<span class="line-clamp-1">{{ firstGenre(item) }}</span>
+							</template>
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<div
+				class="flex items-start gap-2.5"
+				:class="{ '@min-[700px]:hidden': showUpcomingBanner }">
 				<UIcon
 					:name="headerIcon"
 					class="mt-1 size-8 shrink-0 text-primary"
@@ -188,7 +341,9 @@ const itemMetaStackCenteredClass = "flex min-w-0 flex-col items-center gap-1.5";
 					:ui="{ leadingIcon: 'size-6' }" />
 			</div>
 
-			<div class="flex min-h-0 flex-1 flex-col gap-2">
+			<div
+				class="flex min-h-0 flex-1 flex-col gap-2"
+				:class="{ '@min-[700px]:hidden': showUpcomingBanner }">
 				<div v-if="isEmpty" class="flex items-center gap-3 py-2">
 					<div
 						class="flex aspect-2/3 w-14 items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster lg:w-16"
@@ -276,7 +431,8 @@ const itemMetaStackCenteredClass = "flex min-w-0 flex-col items-center gap-1.5";
 				<!-- Wide: three equal mini-cards (movie-card style) -->
 				<div
 					v-if="!isEmpty && topThreeRanked.length > 0"
-					class="hidden min-h-0 flex-1 grid-cols-3 gap-2 @min-[400px]:grid">
+					class="hidden min-h-0 flex-1 grid-cols-3 gap-2 @min-[400px]:grid"
+					:class="{ '@min-[700px]:hidden': variant === 'upcoming' }">
 					<div
 						v-for="{ item, rank } in topThreeRanked"
 						:key="`${item.mediaType}-${item.id}-grid`"

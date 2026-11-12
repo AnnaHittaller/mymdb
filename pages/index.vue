@@ -38,13 +38,16 @@ const upcomingTitle = computed(() => (
         <Hero />
         <div class="pb-8">
             <Heading class="pt-4">Trending</Heading>
-            <div class="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-4">
+            <div
+                class="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 trending:grid-cols-3">
                 <TrendingCollectionCard
+                    class="md:col-start-1 md:row-start-1"
                     title="Trending movies"
                     to="/trending/movies"
                     media-type="movie"
                     :items="trendingMovies ?? []" />
                 <TrendingCollectionCard
+                    class="md:col-span-2 md:row-start-2 trending:col-span-1 trending:row-start-auto"
                     :title="upcomingTitle"
                     to="/coming-soon"
                     media-type="mixed"
@@ -55,6 +58,7 @@ const upcomingTitle = computed(() => (
                     :leading-genre-override="activeHints?.highlightGenre ?? null"
                     :leading-genre-caption="activeHints ? 'Based on your taste for:' : undefined" />
                 <TrendingCollectionCard
+                    class="md:col-start-2 md:row-start-1 trending:col-start-auto trending:row-start-auto"
                     title="Trending shows"
                     to="/trending/shows"
                     media-type="tv"

@@ -36,6 +36,8 @@
 
 @theme static {
 	--breakpoint-3xl: 1800px;
+	/* Home trending: three cards across (between md and 3xl). */
+	--breakpoint-trending: 75rem;
 
 	/* Shell semantics */
 	--color-surface-page: #101010;
