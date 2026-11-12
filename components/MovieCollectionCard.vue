@@ -54,24 +54,24 @@ const arrowButtonUi = {
 </script>
 
 <template>
-	<div class="@container w-full min-w-0">
+	<div class="h-full w-full min-w-0">
 		<NuxtLink
 			:to="to"
-			class="group flex w-full flex-wrap gap-3 rounded-[12px] border border-border-default bg-surface-overlay/70 p-2 backdrop-blur-md transition-colors hover:border-primary @min-[350px]:flex-nowrap @min-[350px]:items-center @min-[350px]:gap-4">
-			<div class="w-full min-w-0 @min-[350px]:w-auto @min-[350px]:shrink-0">
+			class="group flex h-full w-full flex-wrap gap-3 rounded-[12px] border border-border-default bg-surface-overlay/70 p-2 backdrop-blur-md transition-colors hover:border-primary md:flex-nowrap md:items-center md:gap-4">
+			<div class="w-full min-w-0 md:w-auto md:shrink-0">
 				<div
 					v-if="isEmpty"
-					class="mx-auto flex aspect-2/3 w-14 items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster @min-[350px]:mx-0 lg:w-16"
+					class="mx-auto flex aspect-2/3 w-14 items-center justify-center overflow-hidden rounded-[4px] bg-surface-poster md:mx-0 lg:w-16"
 					aria-hidden="true">
 					<UIcon name="i-heroicons-film-20-solid" class="size-8 text-fg-muted opacity-60 md:size-10" />
 				</div>
 				<div
 					v-else
-					class="grid w-full grid-cols-4 gap-1 @min-[350px]:flex @min-[350px]:w-auto @min-[350px]:gap-1">
+					class="grid w-full grid-cols-4 gap-1 md:flex md:w-auto md:gap-1">
 					<div
 						v-for="movie in previewPosters"
 						:key="`${defaultMediaType(movie.mediaType)}-${movie.id}`"
-						class="relative aspect-2/3 min-w-0 overflow-hidden rounded-[4px] bg-surface-poster @min-[350px]:w-14 @min-[350px]:shrink-0 lg:w-16">
+						class="relative aspect-2/3 min-w-0 overflow-hidden rounded-[4px] bg-surface-poster md:w-14 md:shrink-0 lg:w-16">
 						<img
 							:src="`${POSTER_SUGGESTION_IMAGE_URL}${movie.poster}`"
 							:alt="''"
@@ -86,7 +86,7 @@ const arrowButtonUi = {
 
 			<!-- Side-by-side: title + subline stacked, arrow vertically centered -->
 			<div
-				class="hidden min-w-0 min-h-0 flex-1 items-center gap-2 @min-[350px]:flex">
+				class="hidden min-h-0 min-w-0 flex-1 items-center gap-2 md:flex">
 				<div class="min-w-0 flex flex-1 flex-col justify-center gap-0.5">
 					<p class="text-lg font-semibold leading-snug text-fg-default">
 						{{ title }}
@@ -106,7 +106,7 @@ const arrowButtonUi = {
 			</div>
 
 			<!-- Wrapped: text stack + arrow top-aligned with title -->
-			<div class="flex w-full items-start gap-2 @min-[350px]:hidden">
+			<div class="flex w-full items-start gap-2 md:hidden">
 				<div class="min-w-0 flex flex-1 flex-col gap-0.5">
 					<p class="text-lg font-semibold leading-snug text-fg-default">
 						{{ title }}

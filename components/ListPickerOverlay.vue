@@ -20,16 +20,81 @@ const createOpen = ref(false);
 
 const flyoutLists = computed(() => lists.value);
 
-async function toggle(listId: string) {
+const baselineMembership = ref<Set<string>>(new Set());
+const pendingMembership = ref<Set<string>>(new Set());
+
+const resolvedMediaType = computed(() =>
+	defaultMediaType(props.moviePayload.mediaType ?? props.mediaType),
+);
+
+function membershipSnapshot(): Set<string> {
+	const id = props.moviePayload.id;
+	const mediaType = resolvedMediaType.value;
+	const next = new Set<string>();
+	for (const list of lists.value) {
+		if (isInList(list.id, id, mediaType)) {
+			next.add(list.id);
+		}
+	}
+	return next;
+}
+
+function resetPendingMembership() {
+	const snap = membershipSnapshot();
+	baselineMembership.value = snap;
+	pendingMembership.value = new Set(snap);
+}
+
+function togglePending(listId: string) {
+	const next = new Set(pendingMembership.value);
+	if (next.has(listId)) {
+		next.delete(listId);
+	} else {
+		next.add(listId);
+	}
+	pendingMembership.value = next;
+}
+
+function isMemberPending(listId: string) {
+	return pendingMembership.value.has(listId);
+}
+
+const flushing = ref(false);
+
+async function flushPendingMembership() {
+	if (flushing.value) return;
+	flushing.value = true;
 	try {
-		await toggleListMembership(listId, props.moviePayload);
-	} catch (error) {
-		notifyListError(error);
+		const base = baselineMembership.value;
+		const pending = pendingMembership.value;
+		const touched = new Set([...base, ...pending]);
+		for (const listId of touched) {
+			if (base.has(listId) === pending.has(listId)) continue;
+			try {
+				await toggleListMembership(listId, props.moviePayload);
+			} catch (error) {
+				notifyListError(error);
+			}
+		}
+	} finally {
+		flushing.value = false;
 	}
 }
 
+watch(open, async (isOpen, wasOpen) => {
+	if (isOpen) {
+		resetPendingMembership();
+		return;
+	}
+	if (wasOpen) {
+		await flushPendingMembership();
+	}
+});
+
 function onCreateList(listId: string) {
-	void toggle(listId);
+	const next = new Set(pendingMembership.value);
+	next.add(listId);
+	pendingMembership.value = next;
 }
 </script>
 
@@ -43,8 +108,8 @@ function onCreateList(listId: string) {
 		<template #body>
 			<ListPickerBody
 				:lists="flyoutLists"
-				:is-member="(id) => isInList(id, moviePayload.id, defaultMediaType(moviePayload.mediaType))"
-				@toggle="toggle"
+				:is-member="isMemberPending"
+				@toggle="togglePending"
 				@create="createOpen = true" />
 		</template>
 	</USlideover>
@@ -58,8 +123,8 @@ function onCreateList(listId: string) {
 			<ListPickerBody
 				class="py-4"
 				:lists="flyoutLists"
-				:is-member="(id) => isInList(id, moviePayload.id, defaultMediaType(moviePayload.mediaType))"
-				@toggle="toggle"
+				:is-member="isMemberPending"
+				@toggle="togglePending"
 				@create="createOpen = true" />
 		</template>
 	</UDrawer>

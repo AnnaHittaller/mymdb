@@ -54,6 +54,7 @@ test.describe("critical path (email/password, no Google popup)", () => {
 			timeout: 15_000,
 		});
 		await page.getByRole("button", { name: "Favorites", exact: true }).click();
+		await page.keyboard.press("Escape");
 		await expect(page.getByRole("button", { name: "Add to favorites" })).toBeHidden({
 			timeout: 15_000,
 		});

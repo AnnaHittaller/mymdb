@@ -44,7 +44,7 @@ const isDesktop = useMediaQuery("(min-width: 768px)");
 					@click="createOpen = true" />
 			</div>
 		</div>
-		<div class="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
+		<div class="flex flex-col gap-3 md:grid md:grid-cols-2 md:items-stretch md:gap-4">
 			<MovieCollectionCard
 				v-for="list in visibleLists"
 				:key="list.id"
