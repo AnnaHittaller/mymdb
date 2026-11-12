@@ -27,20 +27,24 @@ const navLinkActiveClass = 'nav-item-active'
 				<UIcon name="i-heroicons-fire" class="nav-item-icon" />
 				<span class="nav-item-label">Browse</span>
 			</NuxtLink>
-			<NuxtLink v-if="user" to="/profile" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
-				<UIcon name="i-heroicons-user-circle" class="nav-item-icon" />
-				<span class="nav-item-label">Profile</span>
-			</NuxtLink>
-			<NuxtLink v-if="!user" to="/login" class="px-2 text-lg font-semibold text-primary">
-				Sign in
-			</NuxtLink>
-			<NuxtLink
-				to="/legal"
-				:class="[navLinkClass, 'sm:mt-auto']"
-				:exact-active-class="navLinkActiveClass">
-				<UIcon name="i-heroicons-information-circle" class="nav-item-icon" />
-				<span class="nav-item-label">Legal</span>
-			</NuxtLink>
+			<div
+				class="contents sm:mt-auto sm:flex sm:w-full sm:flex-col sm:items-center sm:gap-6">
+				<NuxtLink
+					v-if="user"
+					to="/profile"
+					:class="[navLinkClass, 'max-sm:hidden']"
+					:exact-active-class="navLinkActiveClass">
+					<UIcon name="i-heroicons-user-circle" class="nav-item-icon" />
+					<span class="nav-item-label">Profile</span>
+				</NuxtLink>
+				<NuxtLink v-if="!user" to="/login" class="px-2 text-lg font-semibold text-primary">
+					Sign in
+				</NuxtLink>
+				<NuxtLink to="/legal" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
+					<UIcon name="i-heroicons-information-circle" class="nav-item-icon" />
+					<span class="nav-item-label">Legal</span>
+				</NuxtLink>
+			</div>
 		</nav>
 	</aside>
 </template>

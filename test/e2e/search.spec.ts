@@ -31,10 +31,10 @@ test.describe("search page", () => {
 		);
 	});
 
-	test("toolbar search icon opens search page", async ({ page, goto }) => {
+	test("browse nav opens browse page", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
 
-		await page.getByRole("link", { name: "Search movies and shows" }).click();
+		await page.getByRole("link", { name: "Browse" }).click();
 		await expect(page).toHaveURL("/browse", { timeout: 15_000 });
 		await expect(page.getByRole("heading", { name: "Browse" })).toBeVisible();
 	});

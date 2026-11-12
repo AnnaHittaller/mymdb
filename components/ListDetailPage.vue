@@ -77,7 +77,7 @@ async function removeMovie(movie: UserMovie) {
 </script>
 
 <template>
-	<div>
+	<div class="min-w-0 max-w-full">
 		<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
 			<div class="flex min-w-0 flex-1 flex-wrap items-center gap-3">
 				<Heading v-if="!editing || !list.renamable" class="min-w-0">

@@ -31,7 +31,7 @@ export const discoverFilterVariants = {
 /**
  * Popper content for filter menus.
  * - `position: 'popper'` — avoids `item-aligned` fighting page scroll when `bodyLock` is off.
- * - `bodyLock: true` — block background scroll while open (normal for selects); pair with `UApp` `scroll-body="false"` so Reka does not add extra `padding-right` on top of `scrollbar-gutter: stable`.
+ * - `bodyLock: true` — block background scroll while open (normal for selects); pair with `UApp` `scroll-body="false"` and **`useScrollbarGutter()`** (`scrollbar-gutter: stable` on `html` only when the page overflows vertically).
  */
 export const discoverFilterContent = {
 	bodyLock: true,

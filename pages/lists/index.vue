@@ -10,7 +10,7 @@ const isDesktop = useMediaQuery("(min-width: 768px)");
 </script>
 
 <template>
-	<div>
+	<div class="min-w-0 max-w-full">
 		<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
 			<Heading flush>Your lists</Heading>
 			<UButton

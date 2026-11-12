@@ -301,6 +301,10 @@
 	html {
 		font-family: "Roboto Condensed", system-ui, sans-serif;
 		font-size: 14px;
+		scrollbar-gutter: auto;
+	}
+
+	html.scrollbar-gutter-stable {
 		scrollbar-gutter: stable;
 	}
 

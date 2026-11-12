@@ -18,7 +18,10 @@ The app runs in dark mode only (`colorMode.preference: 'dark'` in `nuxt.config.t
 | Sidebar / mobile nav | `bg-surface-overlay`, `shadow-surface-overlay` (same token as overlay panels) |
 | Discover filters (`USelect` / `USelectMenu` / `UInputMenu`) | Triggers + dropdowns: **[constants/discoverFilterUi.ts](../../constants/discoverFilterUi.ts)** → **`app.config.ts`** (`discover-filter-control`, `discoverMenuSlots`, …). Menus use Portal — keep theme global, not `UTheme`-only. |
 | Nav links | `nav-item` (square column, all breakpoints); mobile active = primary only; hover = accent tint |
-| Toolbar search / hero carousel arrows | `UButton` `variant="iconbutton"` `color="custom"` `size="icon"` (`app.config.ts`; default border `border-border-default`, hover `border-primary` + `text-primary`, translucent overlay bg) |
+| Hero carousel arrows | `UButton` `variant="iconbutton"` `color="custom"` `size="icon"` (`app.config.ts`; default border `border-border-default`, hover `border-primary` + `text-primary`, translucent overlay bg) |
+| Mobile top bar | `AppSearchToolbar`: Logo + profile `UAvatar` (`size-10`, `border-border-default`) |
+| Sidebar profile (desktop) | `nav-item` + `i-heroicons-user-circle` above Legal (`max-sm:hidden`; toolbar owns mobile profile) |
+| Desktop top spacing | `AppSearchToolbar` padding only (`sm:pt-2` / `sm:pb-3`); row content `sm:hidden` |
 | Main content width | `min-w-0 max-w-full flex-grow` on `main` (fills the row beside the sidebar), mobile `max-sm:pb-14` |
 | Mobile nav position | `nav-sticky-mobile` on `NavBar` |
 
@@ -39,7 +42,7 @@ See THEME MAP in `tailwind.css` for the complete list (elevated surfaces, border
 - **Variant `none`:** avoids Nuxt `outline` rings; fills/borders come from the utilities (`!bg-default`, `border-border-default`, …).
 - **8px radius:** `rounded-[8px]` on the shared `filterTrigger` string in `discoverFilterUi.ts` (theme default is `rounded-md`).
 - **Actor search placeholder:** theme sets `placeholder:text-dimmed` on the input **base** slot — override with page `:ui="castActorInputUi"` (highest priority for that field only).
-- **Menu scroll lock:** browse filter controls use `:content="discoverFilterContent"` (`position: 'popper'`, `bodyLock: true` in **`discoverFilterUi.ts`**). **`UApp`** sets **`scroll-body="false"`** (`app.vue`) so Reka does not add compensating `padding-right` when the body is locked — works with **`scrollbar-gutter: stable`** on `html`.
+- **Menu scroll lock:** browse filter controls use `:content="discoverFilterContent"` (`position: 'popper'`, `bodyLock: true` in **`discoverFilterUi.ts`**). **`UApp`** sets **`scroll-body="false"`** (`app.vue`). **`useScrollbarGutter()`** toggles **`html.scrollbar-gutter-stable`** only when the document overflows vertically, so short pages (lists, profile) do not reserve gutter space.
 - **`inputMenu.slots.placeholder`:** not used for typed placeholders; use the `placeholder` prop + **base** slot classes instead.
 
 ## User accent color

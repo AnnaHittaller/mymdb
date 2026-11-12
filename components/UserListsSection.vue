@@ -23,7 +23,7 @@ const isDesktop = useMediaQuery("(min-width: 768px)");
 </script>
 
 <template>
-	<div class="pb-8">
+	<div class="min-w-0 max-w-full pb-8">
 		<div
 			v-if="showHeading"
 			class="mb-3 flex flex-wrap items-center justify-between gap-3 pt-4">
