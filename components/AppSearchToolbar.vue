@@ -11,7 +11,7 @@ const toolbarIconClass = "size-10 shrink-0";
 			<Logo class="m-0 shrink-0 sm:hidden [&_a]:justify-start" />
 			<div v-if="user" class="flex shrink-0 flex-row items-center gap-2">
 				<UButton
-					to="/search"
+					to="/browse"
 					variant="iconbutton"
 					color="custom"
 					size="icon"

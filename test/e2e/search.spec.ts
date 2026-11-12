@@ -35,53 +35,65 @@ test.describe("search page", () => {
 		await registerAndLandHome(page, goto);
 
 		await page.getByRole("link", { name: "Search movies and shows" }).click();
-		await expect(page).toHaveURL("/search", { timeout: 15_000 });
-		await expect(page.getByRole("heading", { name: "Search" })).toBeVisible();
+		await expect(page).toHaveURL("/browse", { timeout: 15_000 });
+		await expect(page.getByRole("heading", { name: "Browse" })).toBeVisible();
 	});
 
 	test("debounced query loads results", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
-		await goto("/search", { waitUntil: "hydration" });
+		await goto("/browse", { waitUntil: "hydration" });
 
 		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
 		await searchInput.fill("matrix");
 
-		await expect(page).toHaveURL(/\/search\?q=matrix/, { timeout: 15_000 });
-		await expect(page.getByRole("heading", { name: /Results for/i })).toBeVisible();
+		await expect(page).toHaveURL(/\/browse\?q=matrix/, { timeout: 15_000 });
+		await expect(page.getByRole("heading", { name: "Browse" })).toBeVisible();
+		await expect(page.getByText(/Results for/)).toBeVisible();
 		await expect(page.locator(".movie-grid")).toBeVisible({ timeout: 20_000 });
 	});
 
 	test("submit via Enter navigates to search", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
-		await goto("/search", { waitUntil: "hydration" });
+		await goto("/browse", { waitUntil: "hydration" });
 
 		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
 		await searchInput.fill("inception");
 		await searchInput.press("Enter");
 
-		await expect(page).toHaveURL(/\/search\?q=inception/, { timeout: 15_000 });
+		await expect(page).toHaveURL(/\/browse\?q=inception/, { timeout: 15_000 });
 	});
 
 	test("two characters submit on Enter", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
-		await goto("/search", { waitUntil: "hydration" });
+		await goto("/browse", { waitUntil: "hydration" });
 
 		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
 		await searchInput.fill("ab");
 		await searchInput.press("Enter");
 
-		await expect(page).toHaveURL(/\/search\?q=ab/, { timeout: 15_000 });
+		await expect(page).toHaveURL(/\/browse\?q=ab/, { timeout: 15_000 });
 	});
 
 	test("one character submit shows validation error", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
-		await goto("/search", { waitUntil: "hydration" });
+		await goto("/browse", { waitUntil: "hydration" });
 
 		const searchInput = page.getByRole("searchbox", { name: "Search movies and shows" });
 		await searchInput.fill("a");
 		await searchInput.press("Enter");
 
-		await expect(page).toHaveURL("/search", { timeout: 5_000 });
+		await expect(page).toHaveURL("/browse", { timeout: 5_000 });
 		await expect(page.getByText("Enter at least 2 characters")).toBeVisible();
+	});
+
+	test("search and discover urls redirect to browse", async ({ page, goto }) => {
+		await registerAndLandHome(page, goto);
+
+		await goto("/search?q=matrix", { waitUntil: "hydration" });
+		await expect(page).toHaveURL(/\/browse\?q=matrix/, { timeout: 15_000 });
+		await expect(page.getByRole("heading", { name: "Browse" })).toBeVisible();
+
+		await goto("/discover", { waitUntil: "hydration" });
+		await expect(page).toHaveURL("/browse", { timeout: 15_000 });
 	});
 });

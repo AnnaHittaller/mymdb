@@ -12,6 +12,15 @@ export interface CatalogCard {
 	releaseYear: number | null;
 }
 
+export type BrowseMode = "search" | "discover";
+
+export interface BrowseListing {
+	mode: BrowseMode;
+	results: CatalogCard[];
+	total_pages?: number;
+	has_more: boolean;
+}
+
 export interface TrendingItem extends CatalogCard {
 	overview: string;
 	releaseDate: string;
