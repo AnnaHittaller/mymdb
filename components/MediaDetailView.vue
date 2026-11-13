@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useMediaQuery } from "@vueuse/core";
 import { POSTER_DETAIL_IMAGE_URL } from "~/constants/movie";
 import type { MediaType } from "~/types/catalog";
 import type { DetailCastMember } from "~/types/detailCast";
@@ -37,9 +36,6 @@ const {
 const genreLine = computed(() => props.genres.map((genre) => genre.name).join(" · "));
 
 const visibleKeywords = computed(() => props.keywords.slice(0, 20));
-
-/** Related in the right column from 1220px; below the two-column band between md and 1219px. */
-const relatedInDetailColumn = useMediaQuery("(min-width: 1220px)");
 
 const mobilePosterClass =
 	"aspect-[2/3] h-auto max-h-[37.5rem] w-[min(100%,400px)] max-w-full object-cover";
@@ -132,13 +128,10 @@ async function onWatchTrailer() {
 
 				<DetailCastSection :cast="cast" />
 				<DetailMediaStrip :items="gallery" @play="play" />
-				<div v-if="relatedInDetailColumn" class="min-w-0">
-					<slot name="related" />
-				</div>
 			</div>
 		</div>
 
-		<div v-if="!relatedInDetailColumn" class="min-w-0">
+		<div class="min-w-0 w-full">
 			<slot name="related" />
 		</div>
 	</div>

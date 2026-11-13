@@ -52,7 +52,7 @@ const overlayDescription = computed(() =>
 			:description="overlayDescription"
 			:ui="browsingSlideoverUi">
 			<template #body>
-				<div class="flex flex-wrap gap-4">
+				<div class="flex flex-wrap gap-4 justify-between">
 					<DetailCastCard
 						v-for="member in cast"
 						:key="member.creditId"
@@ -68,7 +68,7 @@ const overlayDescription = computed(() =>
 			:dismissible="true"
 			:ui="browsingDrawerUi">
 			<template #body>
-				<div class="flex flex-wrap gap-4 py-4">
+				<div class="flex flex-wrap gap-4 py-4 justify-between">
 					<DetailCastCard
 						v-for="member in cast"
 						:key="member.creditId"
