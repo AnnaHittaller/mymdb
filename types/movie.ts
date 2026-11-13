@@ -1,6 +1,7 @@
 import type { MediaType } from "./catalog";
 import type { DetailCastMember } from "./detailCast";
 import type { DetailKeyCredits } from "./detailCredits";
+import type { DetailGalleryItem, DetailKeyword } from "./detailGallery";
 import type { ListMembership } from "./list";
 import type { TrailerRef } from "./trailer";
 
@@ -60,6 +61,8 @@ export interface Movie {
 	credits: Credits;
 	detailCast: DetailCastMember[];
 	detailCredits: DetailKeyCredits;
+	keywords: DetailKeyword[];
+	gallery: DetailGalleryItem[];
 	trailer?: TrailerRef | null;
 }
 

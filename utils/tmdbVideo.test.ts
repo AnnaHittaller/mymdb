@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { embedUrl, pickBestTrailer, watchUrl } from "./tmdbVideo";
+import { embedUrl, listPlayableTrailers, pickBestTrailer, watchUrl } from "./tmdbVideo";
 import type { TmdbVideoResult } from "~/types/trailer";
 
 const fightClubFixture: TmdbVideoResult[] = [
@@ -42,6 +42,19 @@ describe("pickBestTrailer", () => {
 			{ ...fightClubFixture[1]!, type: "Trailer", key: "trailer-key", official: true },
 		];
 		expect(pickBestTrailer(results)?.key).toBe("trailer-key");
+	});
+
+	it("lists each playable trailer once, best first", () => {
+		const results: TmdbVideoResult[] = [
+			...fightClubFixture,
+			{ ...fightClubFixture[1]!, id: "dup", name: "Duplicate" },
+			{ ...fightClubFixture[0]!, type: "Teaser", key: "teaser-key", id: "teaser" },
+		];
+		expect(listPlayableTrailers(results).map((trailer) => trailer.key)).toEqual([
+			"BdJKm16Co6M",
+			"O-b2VfmmbyA",
+			"teaser-key",
+		]);
 	});
 
 	it("returns null when no embeddable trailer or teaser", () => {

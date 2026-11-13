@@ -23,14 +23,26 @@ export function isEmbeddableSite(site: string): boolean {
 	return EMBEDDABLE_SITES.has(site);
 }
 
-export function pickBestTrailer(results: TmdbVideoResult[]): TrailerRef | null {
+export function listPlayableTrailers(results: TmdbVideoResult[]): TrailerRef[] {
 	const candidates = results.filter(
-		(v) => isEmbeddableSite(v.site) && PREFERRED_TYPES.includes(v.type as (typeof PREFERRED_TYPES)[number]),
+		(video) =>
+			isEmbeddableSite(video.site) &&
+			PREFERRED_TYPES.includes(video.type as (typeof PREFERRED_TYPES)[number]),
 	);
-	if (!candidates.length) return null;
+	const sorted = [...candidates].sort((a, b) => trailerScore(b) - trailerScore(a));
+	const seen = new Set<string>();
+	const trailers: TrailerRef[] = [];
+	for (const video of sorted) {
+		const id = `${video.site}:${video.key}`;
+		if (seen.has(id)) continue;
+		seen.add(id);
+		trailers.push({ site: video.site, key: video.key, name: video.name });
+	}
+	return trailers;
+}
 
-	const best = [...candidates].sort((a, b) => trailerScore(b) - trailerScore(a))[0]!;
-	return { site: best.site, key: best.key, name: best.name };
+export function pickBestTrailer(results: TmdbVideoResult[]): TrailerRef | null {
+	return listPlayableTrailers(results)[0] ?? null;
 }
 
 export function embedUrl(site: string, key: string, autoplay = true): string | null {

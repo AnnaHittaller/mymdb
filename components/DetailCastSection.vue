@@ -24,10 +24,10 @@ const overlayDescription = computed(() =>
 </script>
 
 <template>
-	<div v-if="cast.length > 0" class="pt-4">
-		<div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 pb-4">
-			<Heading flush class="min-w-0 flex-1">
-				Starring
+	<section v-if="cast.length > 0" class="flex min-w-0 flex-col gap-3">
+		<div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+			<Heading flush tier="section" class="min-w-0 flex-1">
+				Cast
 			</Heading>
 			<UButton
 				v-if="hasMore"
@@ -38,13 +38,11 @@ const overlayDescription = computed(() =>
 				label="See full cast"
 				@click="fullCastOpen = true" />
 		</div>
-		<div class="flex flex-wrap gap-3">
-			<div
+		<div class="flex flex-wrap gap-4">
+			<DetailCastCard
 				v-for="member in previewCast"
 				:key="member.creditId"
-				class="w-full max-w-[15.5rem] shrink-0 sm:w-[15.5rem]">
-				<DetailCastCard :member="member" layout="horizontal" />
-			</div>
+				:member="member" />
 		</div>
 
 		<USlideover
@@ -54,13 +52,11 @@ const overlayDescription = computed(() =>
 			:description="overlayDescription"
 			:ui="browsingSlideoverUi">
 			<template #body>
-				<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 [&>*]:min-w-0">
+				<div class="flex flex-wrap gap-4">
 					<DetailCastCard
 						v-for="member in cast"
 						:key="member.creditId"
-						:member="member"
-						layout="stacked"
-						tone="raised" />
+						:member="member" />
 				</div>
 			</template>
 		</USlideover>
@@ -72,15 +68,13 @@ const overlayDescription = computed(() =>
 			:dismissible="true"
 			:ui="browsingDrawerUi">
 			<template #body>
-				<div class="grid grid-cols-2 gap-3 py-4 min-[400px]:grid-cols-3 min-[550px]:grid-cols-4 [&>*]:min-w-0">
+				<div class="flex flex-wrap gap-4 py-4">
 					<DetailCastCard
 						v-for="member in cast"
 						:key="member.creditId"
-						:member="member"
-						layout="stacked"
-						tone="raised" />
+						:member="member" />
 				</div>
 			</template>
 		</UDrawer>
-	</div>
+	</section>
 </template>

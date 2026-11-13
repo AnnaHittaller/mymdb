@@ -1,6 +1,7 @@
 import type { Credits, Genre } from "./movie";
 import type { DetailCastMember } from "./detailCast";
 import type { DetailKeyCredits } from "./detailCredits";
+import type { DetailGalleryItem, DetailKeyword } from "./detailGallery";
 import type { TrailerRef } from "./trailer";
 
 export interface TvSeries {
@@ -26,5 +27,7 @@ export interface TvSeries {
 	credits: Credits;
 	detailCast: DetailCastMember[];
 	detailCredits: DetailKeyCredits;
+	keywords: DetailKeyword[];
+	gallery: DetailGalleryItem[];
 	trailer?: TrailerRef | null;
 }
