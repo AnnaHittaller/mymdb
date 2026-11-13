@@ -121,6 +121,10 @@ const deleteCurrentUser = async () => {
 				</ProfileSectionCard>
 			</div>
 
+			<ProfileSectionCard title="Recommendations" class="min-w-0">
+				<ProfileCatalogPrefs />
+			</ProfileSectionCard>
+
 			<ProfileSectionCard title="Theme &amp; customization" class="min-w-0">
 				<ColorSelector />
 			</ProfileSectionCard>

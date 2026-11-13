@@ -1,5 +1,6 @@
 import type { UserList } from "../../types/list";
 import type { UserMovie } from "../../types/movie";
+import type { CatalogPrefs } from "./catalogPrefs";
 
 export type UserDocumentData = {
 	schemaVersion?: number;
@@ -7,6 +8,7 @@ export type UserDocumentData = {
 	username: string;
 	email: string;
 	theme: string;
+	catalogPrefs: CatalogPrefs;
 	lists: UserList[];
 	movies: UserMovie[];
 };

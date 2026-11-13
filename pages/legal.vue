@@ -75,6 +75,10 @@ const sections = [
 			<ul class="list-disc space-y-1 pl-5 text-fg-muted">
 				<li>Your email address and display name, so you can sign in and see your lists.</li>
 				<li>The lists and favorites you save.</li>
+				<li>
+					Genres, keywords, streaming services, and the country tied to those services (Profile → Recommendations),
+					used only to reorder your personal Coming soon list—not to replace the default catalog.
+				</li>
 				<li>A sign-in session cookie (<code>__session</code>), so a refresh keeps you signed in.</li>
 			</ul>
 			<p>

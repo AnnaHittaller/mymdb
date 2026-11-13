@@ -16,12 +16,14 @@ const props = withDefaults(
 		variant?: "trending" | "upcoming";
 		leadingGenreOverride?: string | null;
 		leadingGenreCaption?: string;
+		subtitle?: string;
 		showReleaseDate?: boolean;
 	}>(),
 	{
 		variant: "trending",
 		leadingGenreOverride: undefined,
 		leadingGenreCaption: undefined,
+		subtitle: undefined,
 		showReleaseDate: false,
 	},
 );
@@ -48,9 +50,16 @@ const showUpcomingBanner = computed(() =>
 
 const leadingGenre = computed(() => props.leadingGenreOverride ?? trendingLeadingGenre(props.items));
 
+const showLeadingGenre = computed(
+	() => props.variant !== "upcoming" && Boolean(leadingGenre.value),
+);
+
+const showSubtitle = computed(
+	() => props.variant === "upcoming" && Boolean(props.subtitle),
+);
+
 const leadingGenreCaption = computed(
-	() => props.leadingGenreCaption
-		?? (props.variant === "upcoming" ? "Highlighted genre:" : "Leading genre this week:"),
+	() => props.leadingGenreCaption ?? "Leading genre this week:",
 );
 
 const headerIcon = computed(() =>
@@ -97,8 +106,9 @@ function hasMeta(item: TrendingItem) {
 
 const cardAriaLabel = computed(() => {
 	const segments: string[] = [props.title];
+	if (showSubtitle.value && props.subtitle) segments.push(props.subtitle);
 	const genre = leadingGenre.value;
-	if (genre) segments.push(`Leading genre ${genre}`);
+	if (showLeadingGenre.value && genre) segments.push(`Leading genre ${genre}`);
 	const previewCount = props.variant === "upcoming" ? 5 : 3;
 	const topTitles = props.items.slice(0, previewCount).map((item, index) => {
 		const prefix = showRankBadges.value ? `Number ${index + 1} ` : "";
@@ -108,8 +118,10 @@ const cardAriaLabel = computed(() => {
 	return segments.join(". ");
 });
 
-const cardShellClass =
-	"group flex h-full min-h-0 w-full flex-col gap-3 rounded-[12px] border border-border-default bg-surface-elevated p-3 shadow-surface-overlay transition-colors hover:border-primary @min-[400px]:gap-4 @min-[400px]:p-4";
+const cardShellClass = computed(() => [
+	"group flex h-full min-h-0 w-full flex-col gap-3 rounded-[12px] border border-border-default bg-surface-elevated p-3 transition-colors hover:border-primary @min-[400px]:gap-4 @min-[400px]:p-4",
+	props.variant === "upcoming" ? "shadow-coming-soon-glow" : "shadow-surface-overlay",
+]);
 
 const rowShellClass = computed(() =>
 	showRankBadges.value
@@ -124,17 +136,18 @@ const rankFlagOnPosterClass =
 	"absolute left-0 top-0 z-10 flex items-center justify-center rounded-br-[6px] bg-primary px-2.5 py-1 text-base font-bold leading-none text-inverted tabular-nums";
 
 const ratingInlineClass = "inline-flex items-center gap-1";
-const starIconClass = "block size-5 shrink-0 text-rating";
-const ratingTextClass = "text-base leading-snug tabular-nums";
+const starIconClass = "block size-5 shrink-0 -translate-y-[2px] text-rating";
+const ratingTextClass = "text-base leading-none tabular-nums";
 const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-base leading-snug text-fg-muted";
 const releaseDateBadgeClass
 	= "inline-flex w-fit rounded-md bg-primary px-2 py-1 text-base font-medium leading-snug text-inverted";
-const itemMetaStackClass = "flex min-w-0 flex-col gap-1.5";
-const itemMetaStackCenteredClass = "flex min-w-0 flex-col items-center gap-1.5";
+const itemMetaStackClass = "flex min-w-0 flex-1 flex-col gap-1.5";
+const itemMetaStackCenteredClass = "flex min-w-0 w-full flex-1 flex-col items-center gap-1.5";
+const upcomingPosterCellClass = "flex min-h-0 min-w-0 flex-1 flex-col gap-1.5";
 
 /** Viewport bands (tablet full-width row): ≥1100 → 5, 950–1099 → 4, &lt;950 → 3 */
 const upcomingBannerPosterGridClass
-	= "grid min-h-0 min-w-0 flex-1 grid-cols-3 gap-2 min-[950px]:grid-cols-4 min-[1100px]:grid-cols-5";
+	= "grid min-h-0 min-w-0 flex-1 grid-cols-3 items-stretch gap-2 min-[950px]:grid-cols-4 min-[1100px]:grid-cols-5";
 
 function upcomingBannerPosterCellClass(index: number) {
 	if (index === 4) return "hidden min-[1100px]:flex";
@@ -154,10 +167,7 @@ function upcomingBannerPosterCellClass(index: number) {
 					<div class="flex min-w-[12rem] max-w-sm shrink-0 flex-col gap-3">
 						<USkeleton class="size-8 shrink-0 rounded" />
 						<USkeleton class="h-9 w-full" />
-						<div class="flex flex-wrap items-center gap-2">
-							<USkeleton class="h-4 w-24" />
-							<USkeleton class="h-7 w-28 rounded-full" />
-						</div>
+						<USkeleton class="h-5 w-full max-w-xs" />
 						<USkeleton class="size-9 shrink-0 rounded-full" />
 					</div>
 					<div :class="upcomingBannerPosterGridClass">
@@ -174,9 +184,8 @@ function upcomingBannerPosterCellClass(index: number) {
 						<USkeleton class="h-8 min-w-0 flex-1" />
 						<USkeleton class="size-9 shrink-0 rounded-[8px]" />
 					</div>
-					<div class="mt-3 flex items-center gap-2">
-						<USkeleton class="h-4 w-24" />
-						<USkeleton class="h-7 w-28 rounded-full" />
+					<div class="mt-3">
+						<USkeleton class="h-5 w-full max-w-sm" />
 					</div>
 					<div class="mt-3 hidden flex-col gap-2 @max-[399px]:flex">
 						<USkeleton v-for="n in 3" :key="n" class="h-20 w-full rounded-[8px]" />
@@ -221,8 +230,13 @@ function upcomingBannerPosterCellClass(index: number) {
 					<p class="text-2xl font-semibold leading-tight text-fg-default @min-[400px]:text-3xl">
 						{{ title }}
 					</p>
+					<p
+						v-if="showSubtitle"
+						class="text-base font-medium leading-snug text-fg-muted">
+						{{ subtitle }}
+					</p>
 					<div
-						v-if="leadingGenre"
+						v-else-if="showLeadingGenre"
 						class="flex flex-wrap items-center gap-2">
 						<span class="text-base font-medium text-fg-muted">{{ leadingGenreCaption }}</span>
 						<UBadge
@@ -248,8 +262,7 @@ function upcomingBannerPosterCellClass(index: number) {
 					<div
 						v-for="({ item }, index) in topFiveRanked"
 						:key="`${item.mediaType}-${item.id}-banner`"
-						class="flex min-w-0 flex-col gap-1.5"
-						:class="upcomingBannerPosterCellClass(index)">
+						:class="[upcomingPosterCellClass, upcomingBannerPosterCellClass(index)]">
 						<div class="relative overflow-hidden rounded-[6px] bg-surface-poster">
 							<img
 								:src="`${POSTER_IMAGE_URL}${item.poster}`"
@@ -278,7 +291,7 @@ function upcomingBannerPosterCellClass(index: number) {
 							</p>
 							<span
 								v-if="releaseDateBadgeLabel(item)"
-								:class="releaseDateBadgeClass">
+								:class="[releaseDateBadgeClass, 'mt-auto']">
 								{{ releaseDateBadgeLabel(item) }}
 							</span>
 						</div>
@@ -315,8 +328,13 @@ function upcomingBannerPosterCellClass(index: number) {
 					<p class="text-2xl font-semibold leading-tight text-fg-default @min-[400px]:text-3xl">
 						{{ title }}
 					</p>
+					<p
+						v-if="showSubtitle"
+						class="mt-2 text-base font-medium leading-snug text-fg-muted">
+						{{ subtitle }}
+					</p>
 					<div
-						v-if="leadingGenre"
+						v-else-if="showLeadingGenre"
 						class="mt-2 flex flex-wrap items-center gap-2">
 						<span class="text-base font-medium text-fg-muted">{{ leadingGenreCaption }}</span>
 						<UBadge
@@ -399,7 +417,7 @@ function upcomingBannerPosterCellClass(index: number) {
 								</p>
 								<span
 									v-if="releaseDateBadgeLabel(item)"
-									:class="releaseDateBadgeClass">
+									:class="[releaseDateBadgeClass, 'mt-auto']">
 									{{ releaseDateBadgeLabel(item) }}
 								</span>
 							</div>
@@ -436,7 +454,9 @@ function upcomingBannerPosterCellClass(index: number) {
 					<div
 						v-for="{ item, rank } in topThreeRanked"
 						:key="`${item.mediaType}-${item.id}-grid`"
-						class="flex min-w-0 flex-col gap-1.5">
+						:class="variant === 'upcoming' && showReleaseDate
+							? upcomingPosterCellClass
+							: 'flex min-w-0 flex-col gap-1.5'">
 						<div
 							class="relative overflow-hidden rounded-[6px] bg-surface-poster"
 							:class="showRankBadges && rank === 1 ? 'ring-1 ring-primary/50' : ''">
@@ -468,7 +488,7 @@ function upcomingBannerPosterCellClass(index: number) {
 							</p>
 							<span
 								v-if="releaseDateBadgeLabel(item)"
-								:class="releaseDateBadgeClass">
+								:class="[releaseDateBadgeClass, 'mt-auto']">
 								{{ releaseDateBadgeLabel(item) }}
 							</span>
 						</div>

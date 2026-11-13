@@ -14,6 +14,7 @@ import {
 import type { MediaTypeHint } from "../domain/user-document/reconcileWatchlist";
 import { createVueFireUserDocumentStore } from "../domain/user-document/vueFireStore";
 import type { MediaType } from "../types/catalog";
+import type { CatalogPrefs } from "../domain/user-document/catalogPrefs";
 import type { UserList } from "../types/list";
 import type { UserMovie } from "../types/movie";
 import { catalogKey, defaultMediaType } from "../utils/catalogKey";
@@ -23,6 +24,7 @@ type UserDocumentApi = {
 	watchNext: ComputedRef<UserMovie[]>;
 	lists: ComputedRef<UserList[]>;
 	theme: ComputedRef<string>;
+	catalogPrefs: ComputedRef<CatalogPrefs>;
 	moviesInList: (listId: string) => UserMovie[];
 	listById: (listId: string) => UserList | undefined;
 	isInList: (listId: string, id: string, mediaType?: MediaType) => boolean;
@@ -35,6 +37,7 @@ type UserDocumentApi = {
 	renameList: (listId: string, name: string) => Promise<void>;
 	deleteList: (listId: string) => Promise<void>;
 	setTheme: (theme: string) => Promise<void>;
+	setCatalogPrefs: (patch: Partial<CatalogPrefs>) => Promise<void>;
 	setUsername: (username: string) => Promise<void>;
 	repairWatchlist: (hints: MediaTypeHint[]) => Promise<void>;
 	favoritesListId: typeof FAVORITES_LIST_ID;
@@ -90,6 +93,10 @@ export function provideUserDocument() {
 			version.value;
 			return document.theme();
 		}),
+		catalogPrefs: computed(() => {
+			version.value;
+			return document.catalogPrefs();
+		}),
 		moviesInList: (listId: string) => {
 			version.value;
 			return document.moviesInList(listId);
@@ -117,6 +124,7 @@ export function provideUserDocument() {
 		renameList: (listId, name) => document.renameList(listId, name),
 		deleteList: (listId) => document.deleteList(listId),
 		setTheme: (theme) => document.setTheme(theme),
+		setCatalogPrefs: (patch) => document.setCatalogPrefs(patch),
 		setUsername: (username) => document.setUsername(username),
 		repairWatchlist: (hints) => document.repairWatchlist(hints),
 		favoritesListId: FAVORITES_LIST_ID,

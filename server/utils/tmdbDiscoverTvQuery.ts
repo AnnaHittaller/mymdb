@@ -6,6 +6,9 @@ export function buildTmdbDiscoverTvParams(input: DiscoverQueryInput): URLSearchP
 	const genres = String(input.genres ?? "")
 	const keywords = String(input.keywords ?? "").trim()
 	const withCast = String(input.withCast ?? "").trim()
+	const watchProviders = String(input.watchProviders ?? "").trim()
+	const watchRegion = String(input.watchRegion ?? "").trim().toUpperCase()
+	const hasWatchRegion = /^[A-Z]{2}$/.test(watchRegion)
 	const releaseYearGte = Number(input.releaseYearGte) || 0
 	const releaseYearLte = Number(input.releaseYearLte) || 0
 	const releaseDateGte = parseIsoReleaseDate(input.releaseDateGte)
@@ -16,13 +19,17 @@ export function buildTmdbDiscoverTvParams(input: DiscoverQueryInput): URLSearchP
 		include_adult: "false",
 		language: "en-US",
 		page: String(page),
-		sort_by: hasReleaseDateWindow ? "first_air_date.asc" : "popularity.desc",
+		sort_by: "popularity.desc",
 	})
 
 	if (rating > 0) params.set("vote_average.gte", String(rating))
 	if (keywords) params.set("with_keywords", keywords)
-	else if (genres) params.set("with_genres", genres)
+	if (genres) params.set("with_genres", genres)
 	if (withCast) params.set("with_cast", withCast)
+	if (watchProviders && hasWatchRegion) {
+		params.set("with_watch_providers", watchProviders)
+		params.set("watch_region", watchRegion)
+	}
 	if (hasReleaseDateWindow) {
 		params.set("first_air_date.gte", releaseDateGte)
 		params.set("first_air_date.lte", releaseDateLte)

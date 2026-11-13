@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useCurrentUser } from 'vuefire';
-import { useFavoriteGenreHints } from '~/composables/useFavoriteGenreHints';
+import { UPCOMING_SUBLINE } from '~/constants/upcoming';
 import { useUpcomingCatalog } from '~/composables/useUpcomingCatalog';
 
 definePageMeta({
@@ -8,29 +8,15 @@ definePageMeta({
 })
 
 const user = useCurrentUser()
-const { lists, moviesInList, favoritesListId } = useUserDocument()
+const { lists, catalogPrefs } = useUserDocument()
+
+const upcomingPrefs = computed(() => (user.value ? catalogPrefs.value : null))
 const { data: trendingMovies } = useTrendingCatalog('movie', { server: true })
 const { data: trendingShows } = useTrendingCatalog('tv', { server: true })
 
-const favorites = computed(() => moviesInList(favoritesListId))
-const genreHints = useFavoriteGenreHints(favorites)
-
-const personalizationReady = ref(false)
-onMounted(() => {
-    personalizationReady.value = true
-})
-
-const activeHints = computed(() => (
-    personalizationReady.value && user.value ? genreHints.value : null
-))
-
-const { data: upcomingItems, pending: upcomingPending } = useUpcomingCatalog(activeHints, {
+const { data: upcomingItems, pending: upcomingPending } = useUpcomingCatalog(upcomingPrefs, {
     server: true,
 })
-
-const upcomingTitle = computed(() => (
-    activeHints.value ? 'Coming soon for you' : 'Coming soon'
-))
 </script>
 
 <template>
@@ -53,24 +39,23 @@ const upcomingTitle = computed(() => (
             <div
                 class="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 trending:grid-cols-3">
                 <TrendingCollectionCard
-                    class="md:col-start-1 md:row-start-1"
+                    class="md:col-start-1 md:row-start-2 trending:row-start-1"
                     title="Trending movies"
                     to="/trending/movies"
                     media-type="movie"
                     :items="trendingMovies ?? []" />
                 <TrendingCollectionCard
-                    class="md:col-span-2 md:row-start-2 trending:col-span-1 trending:row-start-auto"
-                    :title="upcomingTitle"
+                    class="order-first md:col-span-2 md:col-start-1 md:row-start-1 trending:order-none trending:col-span-1 trending:col-start-auto trending:row-start-auto"
+                    title="Coming soon"
+                    :subtitle="UPCOMING_SUBLINE"
                     to="/coming-soon"
                     media-type="mixed"
                     variant="upcoming"
                     :items="upcomingItems ?? []"
                     :pending="upcomingPending"
-                    :show-release-date="true"
-                    :leading-genre-override="activeHints?.highlightGenre ?? null"
-                    :leading-genre-caption="activeHints ? 'Based on your taste for:' : undefined" />
+                    :show-release-date="true" />
                 <TrendingCollectionCard
-                    class="md:col-start-2 md:row-start-1 trending:col-start-auto trending:row-start-auto"
+                    class="md:col-start-2 md:row-start-2 trending:col-start-auto trending:row-start-auto"
                     title="Trending shows"
                     to="/trending/shows"
                     media-type="tv"

@@ -10,7 +10,7 @@ export const discoverMenuSlots = {
 	content:
 		"max-h-60 bg-surface-popover border border-border-default rounded-lg ring-0 shadow-lg overflow-hidden",
 	viewport: "scrollbar-menu scroll-py-1",
-	item: "text-base text-fg-default data-highlighted:not-data-disabled:text-fg-default data-highlighted:not-data-disabled:before:!bg-surface-hover",
+	item: "cursor-pointer text-base text-fg-default data-highlighted:not-data-disabled:text-fg-default data-highlighted:not-data-disabled:before:!bg-surface-hover",
 };
 
 export const discoverSelectTriggerSlots = {

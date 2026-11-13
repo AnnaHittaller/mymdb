@@ -7,6 +7,7 @@ import type { MediaType } from "../../types/catalog";
 import { migrateUserDocumentV2, parseMembershipsFromFirestore } from "./migrateV2";
 import { reconcileWatchlistMovies } from "./reconcileWatchlist";
 import { SCHEMA_VERSION_V2 } from "./listConstants";
+import { DEFAULT_CATALOG_PREFS, normalizeCatalogPrefs } from "./catalogPrefs";
 import type { UserDocumentData, UserDocumentStore } from "./types";
 
 function storedMediaType(value: unknown): MediaType | undefined {
@@ -101,6 +102,9 @@ export function toUserDocument(data: unknown, uid: string): UserDocumentData | n
 		username: typeof record.username === "string" ? record.username : "",
 		email: typeof record.email === "string" ? record.email : "",
 		theme: typeof record.theme === "string" ? record.theme : "",
+		catalogPrefs: record.catalogPrefs
+			? normalizeCatalogPrefs(record.catalogPrefs)
+			: { ...DEFAULT_CATALOG_PREFS },
 		lists: lists ?? [],
 		movies,
 	};
@@ -122,6 +126,7 @@ function serialize(document: UserDocumentData) {
 		username: migrated.username,
 		email: migrated.email,
 		theme: migrated.theme,
+		catalogPrefs: migrated.catalogPrefs,
 		lists: migrated.lists.map((list) => ({
 			id: list.id,
 			kind: list.kind,

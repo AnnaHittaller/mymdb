@@ -26,6 +26,11 @@ import {
 	watchlistEquals,
 	type MediaTypeHint,
 } from "./reconcileWatchlist";
+import {
+	type CatalogPrefs,
+	DEFAULT_CATALOG_PREFS,
+	normalizeCatalogPrefs,
+} from "./catalogPrefs";
 import type { UserDocumentData, UserDocumentStore } from "./types";
 
 const NO_USER_DOCUMENT = "No user document";
@@ -216,6 +221,7 @@ export function createUserDocument(store: UserDocumentStore) {
 		lists: () => listsInDisplayOrder(snapshot?.lists ?? []),
 		moviesInList: (listId: string) => moviesInListOf(snapshot?.movies ?? [], listId),
 		theme: () => snapshot?.theme ?? "",
+		catalogPrefs: () => snapshot?.catalogPrefs ?? { ...DEFAULT_CATALOG_PREFS },
 		listById: (listId: string): UserList | undefined =>
 			snapshot?.lists.find((list) => list.id === listId),
 		isInList: (listId: string, id: string, mediaType?: MediaType) =>
@@ -368,6 +374,22 @@ export function createUserDocument(store: UserDocumentStore) {
 			store.transact((document) => {
 				const current = requireDocument(document);
 				return { ...current, theme };
+			}),
+		setCatalogPrefs: (patch: Partial<CatalogPrefs>) =>
+			store.transact((document) => {
+				const current = requireDocument(document);
+				const previous = current.catalogPrefs ?? { ...DEFAULT_CATALOG_PREFS };
+				const next = normalizeCatalogPrefs({ ...previous, ...patch });
+				if (
+					previous.region === next.region
+					&& previous.movieGenreIds.join(",") === next.movieGenreIds.join(",")
+					&& previous.tvGenreIds.join(",") === next.tvGenreIds.join(",")
+					&& previous.watchProviderIds.join(",") === next.watchProviderIds.join(",")
+					&& previous.keywordIds.join(",") === next.keywordIds.join(",")
+				) {
+					return current;
+				}
+				return { ...current, catalogPrefs: next };
 			}),
 		setUsername: (username: string) =>
 			store.transact((document) => {

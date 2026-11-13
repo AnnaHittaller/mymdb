@@ -1,43 +1,48 @@
-import type { Ref } from "vue"
+import type { MaybeRefOrGetter, Ref } from "vue"
+import { toValue } from "vue"
 import type { TrendingItem } from "~/types/catalog"
 import { UPCOMING_WINDOW_DAYS } from "~/constants/upcoming"
+import {
+	type CatalogPrefs,
+	catalogPrefsAffectUpcoming,
+	upcomingCacheKeySuffix,
+} from "~/domain/user-document/catalogPrefs"
 import { cachedTrendingList } from "~/utils/trendingCache"
-import type { FavoriteGenreHints } from "~/composables/useFavoriteGenreHints"
 
 type UpcomingQuery = {
 	days: number
 	page: number
+	region?: string
 	movie_genres?: string
 	tv_genres?: string
+	watch_providers?: string
+	keywords?: string
 }
 
-function buildQuery(
-	page: number,
-	hints: FavoriteGenreHints | null | undefined,
-): UpcomingQuery {
+function buildQuery(page: number, prefs: CatalogPrefs | null | undefined): UpcomingQuery {
 	const query: UpcomingQuery = { days: UPCOMING_WINDOW_DAYS, page }
-	if (hints?.movieIds.length) query.movie_genres = hints.movieIds.join(",")
-	if (hints?.tvIds.length) query.tv_genres = hints.tvIds.join(",")
+	if (!catalogPrefsAffectUpcoming(prefs)) return query
+	if (prefs!.watchProviderIds.length && prefs!.region) query.region = prefs!.region
+	if (prefs!.movieGenreIds.length) query.movie_genres = prefs!.movieGenreIds.join(",")
+	if (prefs!.tvGenreIds.length) query.tv_genres = prefs!.tvGenreIds.join(",")
+	if (prefs!.watchProviderIds.length) query.watch_providers = prefs!.watchProviderIds.join(",")
+	if (prefs!.keywordIds.length) query.keywords = prefs!.keywordIds.join(",")
 	return query
 }
 
 export function useUpcomingCatalog(
-	genreHints?: Ref<FavoriteGenreHints | null>,
+	catalogPrefs?: Ref<CatalogPrefs | null | undefined> | MaybeRefOrGetter<CatalogPrefs | null | undefined>,
 	options?: { lazy?: boolean, server?: boolean },
 ) {
-	const query = computed(() => buildQuery(1, genreHints?.value ?? null))
-	const cacheKey = computed(() => {
-		const hints = genreHints?.value
-		if (!hints) return "catalog-upcoming-global"
-		return `catalog-upcoming-${hints.movieIds.join("-")}-${hints.tvIds.join("-")}`
-	})
+	const query = computed(() => buildQuery(1, toValue(catalogPrefs)))
+	const cacheKey = computed(() => `catalog-upcoming-${upcomingCacheKeySuffix(toValue(catalogPrefs))}`)
 
 	return useFetch<TrendingItem[]>("/api/catalog/upcoming", {
 		key: cacheKey,
 		query,
 		lazy: options?.lazy,
 		server: options?.server ?? true,
-		watch: [query],
+		watch: [query, cacheKey],
 		getCachedData(key, nuxtApp) {
 			return cachedTrendingList(key, nuxtApp)
 		},
@@ -46,9 +51,9 @@ export function useUpcomingCatalog(
 
 export async function fetchUpcomingCatalogPage(
 	page: number,
-	hints?: FavoriteGenreHints | null,
+	prefs?: CatalogPrefs | null,
 ): Promise<TrendingItem[]> {
 	return await $fetch<TrendingItem[]>("/api/catalog/upcoming", {
-		query: buildQuery(page, hints ?? null),
+		query: buildQuery(page, prefs),
 	})
 }

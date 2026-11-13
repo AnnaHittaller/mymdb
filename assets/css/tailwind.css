@@ -10,6 +10,7 @@
  * | Sidebar / mobile nav   | bg-surface-overlay           | #212121                |
  * | Overlay panels / cards | bg-surface-overlay           | #212121                |
  * | Nav shell shadow       | shadow-surface-overlay       | black glow             |
+ * | Coming soon card glow  | shadow-coming-soon-glow      | accent, even on all sides |
  * | Nav hover              | nav-item:hover               | accent @ ~10% mix      |
  * | Nav active bg          | nav-item-active (desktop)    | accent @ ~10% mix      |
  * | Nav active + hover     | nav-item + nav-item-active   | icon/label primary @75% |
@@ -191,6 +192,10 @@
 	--color-poppy-800: #a01021;
 	--color-poppy-900: #7a0c19;
 	--color-poppy-950: #590912;
+}
+
+@utility shadow-coming-soon-glow {
+	box-shadow: 0 0 12px 2px color-mix(in srgb, var(--color-primary) 45%, transparent);
 }
 
 @utility nav-sticky-mobile {

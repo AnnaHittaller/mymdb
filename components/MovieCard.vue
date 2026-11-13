@@ -141,8 +141,8 @@ async function toggleFavorites() {
 			<CatalogMediaBadge v-if="showMediaType" overlay :media-type="resolvedMediaType" />
 			<div
 				class="absolute right-1.5 top-1.5 inline-flex items-center justify-center gap-0.5 rounded bg-surface-overlay/50 px-1.5 py-0.5 text-fg-default backdrop-blur-sm">
-				<UIcon name="i-heroicons-star-20-solid" class="block size-4 shrink-0 text-rating" />
-				<span class="mt-0.5 text-sm leading-none tabular-nums">{{ ratingLabel }}</span>
+				<UIcon name="i-heroicons-star-20-solid" class="block size-4 shrink-0 -translate-y-[2px] text-rating" />
+				<span class="text-sm leading-none tabular-nums">{{ ratingLabel }}</span>
 			</div>
 		</NuxtLink>
 		<div class="flex min-w-0 flex-col gap-0.5">

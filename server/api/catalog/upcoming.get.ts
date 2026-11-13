@@ -23,19 +23,30 @@ function parsePage(value: unknown): number {
 	return parsed < 1 ? 1 : parsed
 }
 
+function parseRegion(value: unknown): string | undefined {
+	const raw = String(value ?? "").trim().toUpperCase()
+	return /^[A-Z]{2}$/.test(raw) ? raw : undefined
+}
+
 export default defineCachedEventHandler(async (event) => {
 	const query = getQuery(event)
 	const days = parseDays(query.days)
 	const page = parsePage(query.page)
+	const region = parseRegion(query.region)
 	const movieGenreIds = parseIdList(query.movie_genres)
 	const tvGenreIds = parseIdList(query.tv_genres)
+	const watchProviderIds = parseIdList(query.watch_providers)
+	const keywordIds = parseIdList(query.keywords)
 
 	try {
 		return await upcomingCatalogTitles({
 			days,
 			page,
+			region: region ?? null,
 			movieGenreIds,
 			tvGenreIds,
+			watchProviderIds,
+			keywordIds,
 		})
 	} catch {
 		throw createError({
@@ -52,6 +63,12 @@ export default defineCachedEventHandler(async (event) => {
 		const page = String(query.page ?? 1)
 		const movieGenres = String(query.movie_genres ?? "").trim()
 		const tvGenres = String(query.tv_genres ?? "").trim()
-		return `${days}:${page}:${movieGenres}:${tvGenres}`
+		const providers = String(query.watch_providers ?? "").trim()
+		const keywords = String(query.keywords ?? "").trim()
+		const region = providers ? (parseRegion(query.region) ?? "") : ""
+		if (!movieGenres && !tvGenres && !providers && !keywords) {
+			return `${days}:${page}:shared`
+		}
+		return `${days}:${page}:${region}:${movieGenres}:${tvGenres}:${providers}:${keywords}`
 	},
 })

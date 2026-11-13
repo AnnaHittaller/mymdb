@@ -1,6 +1,7 @@
 import { doc, getDoc, setDoc, type Firestore } from "firebase/firestore";
 import type { User } from "firebase/auth";
 import type { User as AppUser } from "~/types/user";
+import { DEFAULT_CATALOG_PREFS } from "~/domain/user-document/catalogPrefs";
 import { defaultSystemLists } from "~/domain/user-document/migrateV2";
 import { SCHEMA_VERSION_V2 } from "~/domain/user-document/listConstants";
 
@@ -35,6 +36,7 @@ export async function ensureUserProfile(
 		username: profile.username,
 		email: profile.email,
 		theme: profile.theme ?? "emerald",
+		catalogPrefs: { ...DEFAULT_CATALOG_PREFS },
 		schemaVersion: SCHEMA_VERSION_V2,
 		lists: defaultSystemLists(),
 		movies: [],

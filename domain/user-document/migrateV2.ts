@@ -7,6 +7,7 @@ import {
 	SYSTEM_LIST_EPOCH,
 	WATCH_NEXT_LIST_ID,
 } from "./listConstants";
+import { DEFAULT_CATALOG_PREFS, normalizeCatalogPrefs } from "./catalogPrefs";
 import type { UserDocumentData } from "./types";
 
 function toDate(value: unknown): Date {
@@ -100,10 +101,15 @@ export function migrateUserDocumentV2(doc: UserDocumentData): UserDocumentData {
 		movie.memberships?.length ? { ...movie, memberships: [...movie.memberships] } : legacyMovieToV2(movie),
 	);
 
+	const catalogPrefs = doc.catalogPrefs
+		? normalizeCatalogPrefs(doc.catalogPrefs)
+		: { ...DEFAULT_CATALOG_PREFS };
+
 	if (isV2Document({ ...doc, lists, movies })) {
 		return {
 			...doc,
 			schemaVersion: SCHEMA_VERSION_V2,
+			catalogPrefs,
 			lists,
 			movies,
 		};
@@ -112,6 +118,7 @@ export function migrateUserDocumentV2(doc: UserDocumentData): UserDocumentData {
 	return {
 		...doc,
 		schemaVersion: SCHEMA_VERSION_V2,
+		catalogPrefs,
 		lists,
 		movies,
 	};

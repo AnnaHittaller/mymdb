@@ -42,6 +42,29 @@ const payload = (id: string, overrides: Partial<UserMovie> = {}) => ({
 });
 
 describe("user document", () => {
+	it("stores catalog recommendation prefs", async () => {
+		const document = createUserDocument(createMemoryUserDocumentStore(user()));
+		expect(document.catalogPrefs()).toEqual({
+			region: null,
+			movieGenreIds: [],
+			tvGenreIds: [],
+			watchProviderIds: [],
+			keywordIds: [],
+		});
+		await document.setCatalogPrefs({
+			region: "DE",
+			movieGenreIds: [28, 12],
+			tvGenreIds: [10759],
+		});
+		expect(document.catalogPrefs()).toEqual({
+			region: "DE",
+			movieGenreIds: [28, 12],
+			tvGenreIds: [10759],
+			watchProviderIds: [],
+			keywordIds: [],
+		});
+	});
+
 	it("exposes lists, movies in list, and membership", () => {
 		const document = createUserDocument(
 			createMemoryUserDocumentStore(
