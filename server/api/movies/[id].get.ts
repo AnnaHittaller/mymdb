@@ -1,7 +1,10 @@
+import { fetchTmdbCollection } from "~/server/utils/tmdbCollection"
 import { fetchTmdbImages } from "~/server/utils/tmdbImages"
 import { fetchTmdbKeywords } from "~/server/utils/tmdbKeywords"
+import { normalizeDetailCollection } from "~/server/utils/normalizeDetailCollection"
 import { withDetailCredits } from "~/utils/normalizeDetailCredits"
 import { buildDetailGallery, readDetailMediaSources } from "~/utils/normalizeDetailGallery"
+import type { TmdbCollectionRef } from "~/types/detailCollection"
 
 const emptyImages = { posters: [], backdrops: [] }
 
@@ -18,8 +21,20 @@ export default defineEventHandler(async (event) => {
 		const enriched = withTrailer(
 			withDetailCast(withDetailCredits(details, "movie"), "movie"),
 		)
+		const belongs = (details as { belongs_to_collection?: TmdbCollectionRef | null })
+			.belongs_to_collection
+		let collection = null
+		if (belongs?.id) {
+			try {
+				const raw = await fetchTmdbCollection(String(belongs.id))
+				collection = normalizeDetailCollection(raw)
+			} catch {
+				collection = null
+			}
+		}
 		return {
 			...enriched,
+			collection,
 			keywords: keywords.filter((keyword) => keyword.name.trim()),
 			gallery: buildDetailGallery({
 				title: sources.title,

@@ -16,7 +16,7 @@ const trailer: TmdbVideoResult = {
 };
 
 describe("buildDetailGallery", () => {
-	it("puts the trailer after the first backdrop and skips the primary poster", () => {
+	it("orders backdrops then posters and skips the primary poster", () => {
 		const items = buildDetailGallery({
 			title: "The Midnight Library",
 			primaryPosterPath: "/main.jpg",
@@ -34,12 +34,10 @@ describe("buildDetailGallery", () => {
 
 		expect(items.map((item) => item.id)).toEqual([
 			"backdrop:/wide.jpg",
-			"YouTube:abc",
 			"backdrop:/wide-2.jpg",
 			"poster:/alt.jpg",
 		]);
-		expect(items[1]).toMatchObject({ kind: "trailer", stillPath: "/wide.jpg" });
-		expect(items[3]).toMatchObject({ aspectRatio: 0.67 });
+		expect(items[2]).toMatchObject({ aspectRatio: 0.67 });
 	});
 
 	it("prefers an english poster over another language", () => {

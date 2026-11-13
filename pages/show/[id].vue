@@ -4,6 +4,7 @@ import type { DetailFact, DetailJob } from "~/types/detailFact";
 import { formatDetailYear, formatRatingOutOfTen, formatRuntimeMinutes } from "~/utils/formatDetailFacts";
 import { formatCreditNames } from "~/utils/normalizeDetailCredits";
 import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
+import { buildTvSeasonSummaries } from "~/utils/buildTvSeasonSummaries";
 
 definePageMeta({
     layout: "default",
@@ -29,6 +30,7 @@ const [{ data, pending, error }, { data: recommendations }] = await Promise.all(
 
 const show = computed(() => data.value)
 const showsWithPoster = computed(() => recommendations.value ?? [])
+const episodeSeasons = computed(() => buildTvSeasonSummaries(show.value))
 
 const listPayload = computed(() => {
     const current = show.value
@@ -110,7 +112,8 @@ const jobs = computed<DetailJob[]>(() => {
         :media-id="showId"
         media-type="tv"
         :trailer="show.trailer"
-        :list-payload="listPayload">
+        :list-payload="listPayload"
+        :episode-seasons="episodeSeasons">
         <template #related>
             <div v-if="showsWithPoster.length > 0" class="flex min-w-0 flex-col gap-3">
                 <Heading flush tier="section">You may also like</Heading>

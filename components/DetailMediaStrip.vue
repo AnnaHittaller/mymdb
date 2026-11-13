@@ -7,18 +7,21 @@ import {
 	POSTER_IMAGE_URL,
 } from "~/constants/movie";
 import type { DetailGalleryImage, DetailGalleryItem } from "~/types/detailGallery";
-import type { TrailerRef } from "~/types/trailer";
 
 const props = defineProps<{
 	items: DetailGalleryItem[];
 }>();
 
-const emit = defineEmits<{
-	play: [trailer: TrailerRef];
-}>();
-
 const lightboxOpen = ref(false);
 const lightboxIndex = ref(0);
+
+const {
+	scrollEl,
+	canScrollLeft,
+	canScrollRight,
+	isGrabbing,
+	consumeDragClick,
+} = useHorizontalScrollStrip();
 
 const images = computed(() =>
 	props.items.filter((item): item is DetailGalleryImage => item.kind === "image"),
@@ -26,12 +29,13 @@ const images = computed(() =>
 
 const activeImage = computed(() => images.value[lightboxIndex.value] ?? null);
 
-function thumbUrl(item: DetailGalleryItem): string | null {
-	if (item.kind === "trailer") {
-		return item.stillPath ? `${BACKDROP_COMPACT_IMAGE_URL}${item.stillPath}` : null;
-	}
-	const base = item.variant === "poster" ? POSTER_IMAGE_URL : BACKDROP_COMPACT_IMAGE_URL;
-	return `${base}${item.filePath}`;
+const lightboxNavDisabledClass =
+	"disabled:pointer-events-none disabled:border-border-default disabled:bg-transparent disabled:text-fg-muted disabled:opacity-50";
+
+function thumbUrl(image: DetailGalleryImage): string {
+	const base =
+		image.variant === "poster" ? POSTER_IMAGE_URL : BACKDROP_COMPACT_IMAGE_URL;
+	return `${base}${image.filePath}`;
 }
 
 function fullUrl(image: DetailGalleryImage): string {
@@ -39,13 +43,8 @@ function fullUrl(image: DetailGalleryImage): string {
 	return `${base}${image.filePath}`;
 }
 
-function openItem(item: DetailGalleryItem) {
-	if (item.kind === "trailer") {
-		emit("play", item.trailer);
-		return;
-	}
-	const index = images.value.findIndex((image) => image.id === item.id);
-	if (index < 0) return;
+function openImage(index: number) {
+	if (consumeDragClick()) return;
 	lightboxIndex.value = index;
 	lightboxOpen.value = true;
 }
@@ -60,39 +59,49 @@ function showNext() {
 </script>
 
 <template>
-	<section v-if="items.length > 0" class="flex min-w-0 flex-col gap-3">
-		<Heading flush tier="section">
-			More images & trailers
+	<section v-if="images.length > 0" class="flex min-w-0 flex-col gap-3">
+		<Heading flush tier="section" class="mb-4">
+			More images
 		</Heading>
-		<div class="flex h-40 gap-3 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory">
-			<button
-				v-for="item in items"
-				:key="item.id"
-				type="button"
-				class="relative h-full shrink-0 snap-start overflow-hidden rounded-lg bg-surface-poster focus-visible:outline-3 focus-visible:outline-primary/25"
-				:style="{ aspectRatio: String(item.aspectRatio) }"
-				:aria-label="item.kind === 'trailer' ? `Play ${item.name}` : `View ${item.alt}`"
-				@click="openItem(item)">
-				<img
-					v-if="thumbUrl(item)"
-					:src="thumbUrl(item) || ''"
-					:alt="item.kind === 'trailer' ? '' : item.alt"
-					:width="Math.round(160 * item.aspectRatio)"
-					height="160"
-					loading="lazy"
-					decoding="async"
-					class="size-full object-cover">
-				<span
-					v-if="item.kind === 'trailer'"
-					class="absolute inset-0 flex items-center justify-center bg-surface-page/25">
-					<span class="flex size-11 items-center justify-center rounded-full bg-surface-overlay/90 text-fg-default">
-						<UIcon name="i-heroicons-play-20-solid" class="size-6" />
-					</span>
-					<span class="absolute inset-x-0 bottom-0 truncate bg-surface-page/80 px-2 py-1 text-left text-xs text-fg-default">
-						{{ item.name }}
-					</span>
-				</span>
-			</button>
+		<div class="relative min-w-0">
+			<div
+				ref="scrollEl"
+				role="region"
+				aria-label="More images, scroll horizontally"
+				tabindex="0"
+				class="flex h-40 gap-3 overflow-x-auto overscroll-x-contain pb-1 scrollbar-none select-none touch-pan-x"
+				:class="isGrabbing ? 'cursor-grabbing' : 'cursor-grab'">
+				<button
+					v-for="(image, index) in images"
+					:key="image.id"
+					type="button"
+					class="relative h-full shrink-0 cursor-pointer overflow-hidden rounded-lg bg-surface-poster focus-visible:outline-3 focus-visible:outline-primary/25"
+					:style="{ aspectRatio: String(image.aspectRatio) }"
+					:aria-label="`View ${image.alt}`"
+					@click="openImage(index)">
+					<img
+						:src="thumbUrl(image)"
+						:alt="image.alt"
+						:width="Math.round(160 * image.aspectRatio)"
+						height="160"
+						loading="lazy"
+						decoding="async"
+						draggable="false"
+						class="pointer-events-none size-full object-cover">
+				</button>
+			</div>
+			<div
+				v-if="canScrollLeft"
+				class="pointer-events-none absolute inset-y-0 start-0 z-10 flex w-10 items-center justify-start bg-gradient-to-r from-surface-page via-surface-page/80 to-transparent ps-0.5"
+				aria-hidden="true">
+				<UIcon name="i-heroicons-chevron-left-20-solid" class="size-5 text-fg-muted" />
+			</div>
+			<div
+				v-if="canScrollRight"
+				class="pointer-events-none absolute inset-y-0 end-0 z-10 flex w-10 items-center justify-end bg-gradient-to-l from-surface-page via-surface-page/80 to-transparent pe-0.5"
+				aria-hidden="true">
+				<UIcon name="i-heroicons-chevron-right-20-solid" class="size-5 text-fg-muted" />
+			</div>
 		</div>
 
 		<UModal
@@ -104,12 +113,15 @@ function showNext() {
 				content: 'w-[calc(100vw-2rem)] max-w-5xl',
 			}">
 			<template #body>
-				<img
-					v-if="activeImage"
-					:src="fullUrl(activeImage)"
-					:alt="activeImage.alt"
-					class="max-h-[70vh] w-full rounded-md object-contain"
-					decoding="async">
+				<div
+					class="flex h-[min(70vh,40rem)] w-full items-center justify-center rounded-md bg-surface-inset">
+					<img
+						v-if="activeImage"
+						:src="fullUrl(activeImage)"
+						:alt="activeImage.alt"
+						class="max-h-full max-w-full object-contain"
+						decoding="async">
+				</div>
 				<div v-if="images.length > 1" class="mt-4 flex items-center justify-between gap-3">
 					<UButton
 						type="button"
@@ -118,6 +130,7 @@ function showNext() {
 						icon="i-heroicons-chevron-left"
 						label="Previous"
 						:disabled="lightboxIndex === 0"
+						:class="lightboxNavDisabledClass"
 						@click="showPrevious" />
 					<UButton
 						type="button"
@@ -126,6 +139,7 @@ function showNext() {
 						trailing-icon="i-heroicons-chevron-right"
 						label="Next"
 						:disabled="lightboxIndex >= images.length - 1"
+						:class="lightboxNavDisabledClass"
 						@click="showNext" />
 				</div>
 			</template>

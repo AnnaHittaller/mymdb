@@ -1,6 +1,7 @@
 import type { MediaType } from "./catalog";
 import type { DetailCastMember } from "./detailCast";
 import type { DetailKeyCredits } from "./detailCredits";
+import type { DetailCollection, TmdbCollectionRef } from "./detailCollection";
 import type { DetailGalleryItem, DetailKeyword } from "./detailGallery";
 import type { ListMembership } from "./list";
 import type { TrailerRef } from "./trailer";
@@ -34,7 +35,7 @@ export interface UserMovie {
 export interface Movie {
 	adult: boolean;
 	backdrop_path: string;
-	belongs_to_collection: null;
+	belongs_to_collection: TmdbCollectionRef | null;
 	budget: number;
 	genres: Genre[];
 	homepage: string;
@@ -63,6 +64,7 @@ export interface Movie {
 	detailCredits: DetailKeyCredits;
 	keywords: DetailKeyword[];
 	gallery: DetailGalleryItem[];
+	collection?: DetailCollection | null;
 	trailer?: TrailerRef | null;
 }
 

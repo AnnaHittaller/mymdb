@@ -35,8 +35,9 @@ const props = withDefaults(
 		showMediaType?: boolean;
 		listId?: string;
 		editing?: boolean;
+		highlighted?: boolean;
 	}>(),
-	{ showMediaType: false, editing: false },
+	{ showMediaType: false, editing: false, highlighted: false },
 );
 
 const emit = defineEmits<{
@@ -125,7 +126,8 @@ async function toggleFavorites() {
 
 <template>
 	<article
-		class="flex w-full flex-col gap-2 rounded-[12px] border border-border-default bg-surface-overlay p-3 backdrop-blur-md">
+		class="flex w-full flex-col gap-2 rounded-[12px] border border-border-default bg-surface-overlay p-3 backdrop-blur-md"
+		:class="highlighted ? 'ring-2 ring-primary' : undefined">
 		<NuxtLink :to="detailPath" class="relative block">
 			<img
 				v-if="posterPath"

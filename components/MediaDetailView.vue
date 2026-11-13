@@ -6,7 +6,9 @@ import type { DetailGalleryItem, DetailKeyword } from "~/types/detailGallery";
 import type { Genre } from "~/types/movie";
 import type { TrailerRef } from "~/types/trailer";
 import type { ToggleMoviePayload } from "~/domain/user-document/createUserDocument";
+import type { DetailCollection } from "~/types/detailCollection";
 import type { DetailFact, DetailJob } from "~/types/detailFact";
+import type { TvSeasonSummary } from "~/types/tv";
 
 const props = defineProps<{
 	title: string;
@@ -23,6 +25,8 @@ const props = defineProps<{
 	mediaType: MediaType;
 	trailer?: TrailerRef | null;
 	listPayload: ToggleMoviePayload | null;
+	collection?: DetailCollection | null;
+	episodeSeasons?: TvSeasonSummary[];
 }>();
 
 const {
@@ -127,7 +131,15 @@ async function onWatchTrailer() {
 				</div>
 
 				<DetailCastSection :cast="cast" />
-				<DetailMediaStrip :items="gallery" @play="play" />
+				<DetailMediaStrip :items="gallery" />
+				<DetailCollectionStrip
+					v-if="collection?.parts.length"
+					:collection="collection"
+					:current-movie-id="mediaId" />
+				<DetailEpisodesSection
+					v-if="mediaType === 'tv' && episodeSeasons?.length"
+					:show-id="mediaId"
+					:seasons="episodeSeasons" />
 			</div>
 		</div>
 

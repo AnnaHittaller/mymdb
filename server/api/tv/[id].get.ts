@@ -1,6 +1,8 @@
 import { fetchTmdbImages } from "~/server/utils/tmdbImages"
 import { fetchTmdbKeywords } from "~/server/utils/tmdbKeywords"
+import { normalizeTvSeasons } from "~/server/utils/normalizeTvSeasons"
 import { withDetailCredits } from "~/utils/normalizeDetailCredits"
+import type { TvSeasonSummary } from "~/types/tv"
 import { buildDetailGallery, readDetailMediaSources } from "~/utils/normalizeDetailGallery"
 
 const emptyImages = { posters: [], backdrops: [] }
@@ -20,6 +22,9 @@ export default defineEventHandler(async (event) => {
 		)
 		return {
 			...enriched,
+			seasons: normalizeTvSeasons(
+				details as { seasons?: TvSeasonSummary[]; number_of_seasons?: number },
+			),
 			keywords: keywords.filter((keyword) => keyword.name.trim()),
 			gallery: buildDetailGallery({
 				title: sources.title,

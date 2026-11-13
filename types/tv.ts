@@ -4,6 +4,17 @@ import type { DetailKeyCredits } from "./detailCredits";
 import type { DetailGalleryItem, DetailKeyword } from "./detailGallery";
 import type { TrailerRef } from "./trailer";
 
+export interface TvSeasonSummary {
+	air_date: string;
+	episode_count: number;
+	id: number;
+	name: string;
+	overview: string;
+	poster_path: string | null;
+	season_number: number;
+	vote_average: number;
+}
+
 export interface TvSeries {
 	adult?: boolean;
 	backdrop_path: string;
@@ -29,5 +40,6 @@ export interface TvSeries {
 	detailCredits: DetailKeyCredits;
 	keywords: DetailKeyword[];
 	gallery: DetailGalleryItem[];
+	seasons?: TvSeasonSummary[];
 	trailer?: TrailerRef | null;
 }

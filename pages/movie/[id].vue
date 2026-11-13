@@ -92,7 +92,8 @@ const jobs = computed<DetailJob[]>(() => {
         :media-id="movieId"
         media-type="movie"
         :trailer="movie.trailer"
-        :list-payload="listPayload">
+        :list-payload="listPayload"
+        :collection="movie.collection ?? null">
         <template #related>
             <div v-if="moviesWithPoster.length > 0" class="flex min-w-0 flex-col gap-3">
                 <Heading flush tier="section">You may also like</Heading>

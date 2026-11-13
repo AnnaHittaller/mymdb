@@ -1,6 +1,5 @@
-import type { DetailGalleryImage, DetailGalleryItem, DetailGalleryTrailer } from "~/types/detailGallery";
+import type { DetailGalleryImage, DetailGalleryItem } from "~/types/detailGallery";
 import type { TmdbVideoResult } from "~/types/trailer";
-import { listPlayableTrailers } from "./tmdbVideo";
 
 export interface TmdbGalleryImage {
 	file_path?: string | null;
@@ -15,8 +14,6 @@ const POSTER_ASPECT = 2 / 3;
 const BACKDROP_ASPECT = 16 / 9;
 const BACKDROP_LIMIT = 8;
 const POSTER_LIMIT = 6;
-const TRAILER_LIMIT = 6;
-
 function languageRank(iso: string | null | undefined): number {
 	if (iso === "en") return 0;
 	if (!iso) return 1;
@@ -130,18 +127,5 @@ export function buildDetailGallery(input: {
 		input.title,
 	);
 
-	const stillPath = backdrops[0]?.filePath ?? null;
-	const trailers: DetailGalleryTrailer[] = listPlayableTrailers(input.videos ?? [])
-		.slice(0, TRAILER_LIMIT)
-		.map((trailer) => ({
-			kind: "trailer",
-			id: `${trailer.site}:${trailer.key}`,
-			aspectRatio: BACKDROP_ASPECT,
-			name: trailer.name,
-			trailer,
-			stillPath,
-		}));
-
-	if (!backdrops.length) return [...trailers, ...posters];
-	return [backdrops[0]!, ...trailers, ...backdrops.slice(1), ...posters];
+	return [...backdrops, ...posters];
 }

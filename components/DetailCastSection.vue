@@ -25,7 +25,7 @@ const overlayDescription = computed(() =>
 
 <template>
 	<section v-if="cast.length > 0" class="flex min-w-0 flex-col gap-3">
-		<div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+		<div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 mb-4">
 			<Heading flush tier="section" class="min-w-0 flex-1">
 				Cast
 			</Heading>
@@ -38,7 +38,8 @@ const overlayDescription = computed(() =>
 				label="See full cast"
 				@click="fullCastOpen = true" />
 		</div>
-		<div class="flex flex-wrap gap-4">
+		<div
+			class="grid gap-4 justify-items-center [grid-template-columns:repeat(auto-fill,minmax(6rem,1fr))]">
 			<DetailCastCard
 				v-for="member in previewCast"
 				:key="member.creditId"
@@ -52,7 +53,8 @@ const overlayDescription = computed(() =>
 			:description="overlayDescription"
 			:ui="browsingSlideoverUi">
 			<template #body>
-				<div class="flex flex-wrap gap-4 justify-between">
+				<div
+					class="grid gap-4 justify-items-center [grid-template-columns:repeat(auto-fill,minmax(6rem,1fr))]">
 					<DetailCastCard
 						v-for="member in cast"
 						:key="member.creditId"
@@ -68,7 +70,8 @@ const overlayDescription = computed(() =>
 			:dismissible="true"
 			:ui="browsingDrawerUi">
 			<template #body>
-				<div class="flex flex-wrap gap-4 py-4 justify-between">
+				<div
+					class="grid gap-4 py-4 justify-items-center [grid-template-columns:repeat(auto-fill,minmax(6rem,1fr))]">
 					<DetailCastCard
 						v-for="member in cast"
 						:key="member.creditId"

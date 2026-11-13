@@ -50,7 +50,7 @@ function onShare() {
 
 <template>
 	<div>
-		<div class="flex items-center justify-center gap-4">
+		<div class="flex items-center justify-center gap-8">
 			<UButton
 				v-if="!user"
 				color="custom"
@@ -91,11 +91,10 @@ function onShare() {
 				variant="iconbutton"
 				size="icon"
 				square
-				:ui="
-					inFavorites
-						? { ...detailActionUi, leadingIcon: '!size-6 text-primary' }
-						: detailActionUi
-				"
+				:ui="inFavorites
+					? { ...detailActionUi, leadingIcon: '!size-6 text-primary' }
+					: detailActionUi
+					"
 				:icon="inFavorites ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
 				:aria-label="favoritesLabel"
 				:disabled="!payload"
