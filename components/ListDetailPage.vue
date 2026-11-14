@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { refDebounced } from "@vueuse/core";
+import { discoverFilterContent } from "~/constants/discoverFilterUi";
 import { browsingModalUi } from "~/constants/browsingOverlayUi";
+import { MOVIE_SEARCH_DEBOUNCE_MS } from "~/composables/useMovieSearch";
 import type { UserList } from "~/types/list";
 import type { UserMovie } from "~/types/movie";
+import { mergeGenreNames } from "~/utils/filterLibraryMovies";
 import { defaultMediaType } from "~/utils/catalogKey";
 
 const props = defineProps<{
@@ -12,25 +15,95 @@ const props = defineProps<{
 const { moviesInList, renameList, deleteList, removeFromList } = useUserDocument();
 const router = useRouter();
 
+const filterMenuControl = { highlightOnHover: true };
+const filterFieldClass = "w-full min-w-0";
+const listFilterGridClass
+	= "grid w-full min-w-0 gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,11rem),1fr))]";
+
+type GenreList = {
+	genres: { id: number; name: string }[];
+};
+
 const editing = ref(false);
 const draftName = ref("");
-const searchTerm = ref("");
-const debouncedSearchTerm = refDebounced(searchTerm, 700);
 const deleteConfirmOpen = ref(false);
 const deleting = ref(false);
 
 const listMovies = computed(() => moviesInList(props.list.id));
+const { state: filterState, filteredMovies, filtersActive, clearFilters } = useLibraryListFilters(
+	listMovies,
+);
 
-const filteredMovies = computed(() => {
-	const term = debouncedSearchTerm.value.toLowerCase();
-	return listMovies.value.filter((movie: UserMovie) => movie.title.toLowerCase().includes(term));
+const searchTerm = ref("");
+const debouncedSearchTerm = refDebounced(searchTerm, MOVIE_SEARCH_DEBOUNCE_MS);
+
+watch(debouncedSearchTerm, (value) => {
+	filterState.titleQuery = value;
+}, { immediate: true });
+
+const { data: movieGenreList } = await useFetch<GenreList>("/api/movies/genres", {
+	key: "list-movie-genres",
 });
+const { data: tvGenreList } = await useFetch<GenreList>("/api/tv/genres", {
+	key: "list-tv-genres",
+});
+
+const mergedGenreNames = computed(() =>
+	mergeGenreNames(
+		movieGenreList.value?.genres ?? [],
+		tvGenreList.value?.genres ?? [],
+	),
+);
+
+const genreItems = computed(() =>
+	mergedGenreNames.value.map((name) => ({ label: name, value: name })),
+);
 
 const displayTitle = computed(() => props.list.name);
 
 const countLabel = computed(() => {
 	const n = listMovies.value.length;
 	return n === 1 ? "1 title" : `${n} titles`;
+});
+
+const showingLabel = computed(() => {
+	if (!filtersActive.value) return "";
+	const n = filteredMovies.value.length;
+	return n === 1 ? "Showing 1 title" : `Showing ${n} titles`;
+});
+
+type FilterChip = {
+	id: string;
+	label: string;
+	removeLabel: string;
+};
+
+const filterChips = computed<FilterChip[]>(() => {
+	const chips: FilterChip[] = [];
+	const title = filterState.titleQuery.trim();
+	if (title) {
+		chips.push({
+			id: "title",
+			label: `Title: «${title}»`,
+			removeLabel: "Clear title filter",
+		});
+	}
+	if (filterState.media !== "all") {
+		const label = filterState.media === "tv" ? "Shows" : "Movies";
+		chips.push({
+			id: "media",
+			label,
+			removeLabel: `Show all movies and shows`,
+		});
+	}
+	for (const name of filterState.genreNames) {
+		chips.push({
+			id: `genre-${name}`,
+			label: name,
+			removeLabel: `Remove genre ${name}`,
+		});
+	}
+	return chips;
 });
 
 watch(
@@ -74,6 +147,30 @@ async function confirmDeleteList() {
 async function removeMovie(movie: UserMovie) {
 	await removeFromList(props.list.id, movie.id, defaultMediaType(movie.mediaType));
 }
+
+function onClearSearch() {
+	searchTerm.value = "";
+}
+
+function removeFilterChip(chipId: string) {
+	if (chipId === "title") {
+		searchTerm.value = "";
+		return;
+	}
+	if (chipId === "media") {
+		filterState.media = "all";
+		return;
+	}
+	if (chipId.startsWith("genre-")) {
+		const name = chipId.slice("genre-".length);
+		filterState.genreNames = filterState.genreNames.filter((genre) => genre !== name);
+	}
+}
+
+function onClearFilters() {
+	searchTerm.value = "";
+	clearFilters();
+}
 </script>
 
 <template>
@@ -115,31 +212,61 @@ async function removeMovie(movie: UserMovie) {
 			</div>
 		</div>
 		</div>
-		<UInput
-			size="xl"
-			placeholder="Filter for title..."
+		<CatalogSearchInput
 			v-model="searchTerm"
-			name="search"
-			:ui="{ base: 'text-xl placeholder:italic', trailing: 'pointer-events-none' }"
-			class="relative mb-8 w-full">
-			<template #trailing>
-				<UButton
-					v-show="searchTerm !== ''"
-					color="neutral"
-					variant="link"
-					icon="i-heroicons-x-mark-20-solid"
-					square
-					class="pointer-events-auto pr-10"
-					@click="searchTerm = ''" />
-				<div
-					class="search-btn absolute right-0 top-0 flex h-full items-center justify-center rounded-r-md bg-primary">
-					<UIcon name="i-heroicons-magnifying-glass-20-solid" class="text-xl text-fg-on-accent" />
-				</div>
-			</template>
-		</UInput>
+			placeholder="Filter by title"
+			aria-label="Filter list by title"
+			name="list-title-filter"
+			trailing-icon="i-heroicons-funnel-20-solid"
+			trailing-icon-label="Filter"
+			class="mb-4"
+			@clear="onClearSearch" />
+		<div :class="[listFilterGridClass, 'mb-10']">
+			<LibraryMediaToggle v-model="filterState.media" class="min-w-0" />
+			<USelectMenu
+				v-model="filterState.genreNames"
+				v-bind="filterMenuControl"
+				:content="discoverFilterContent"
+				:items="genreItems"
+				value-key="value"
+				multiple
+				placeholder="Any Genres"
+				:class="filterFieldClass">
+				<template #default>
+					<span class="truncate text-fg-default">Any Genres</span>
+				</template>
+			</USelectMenu>
+			<div
+				class="flex min-h-11 w-full min-w-0 items-center justify-between gap-3 rounded-[8px] border border-border-default bg-surface-inset px-3 py-2">
+				<span class="text-base font-medium text-fg-default">Best rating first</span>
+				<USwitch
+					v-model="filterState.sortByBestRating"
+					aria-label="Sort by best rating" />
+			</div>
+		</div>
+		<div v-if="filtersActive" class="mb-6 flex flex-wrap items-center gap-2">
+			<p class="w-full text-base font-medium text-fg-muted">
+				Active filters
+			</p>
+			<DiscoverFilterChip
+				v-for="chip in filterChips"
+				:key="chip.id"
+				:label="chip.label"
+				:remove-label="chip.removeLabel"
+				@remove="removeFilterChip(chip.id)" />
+			<UButton
+				label="Clear all"
+				variant="outline"
+				size="lg"
+				class="ml-auto sm:ml-0"
+				@click="onClearFilters" />
+		</div>
 		<div class="flex flex-col items-stretch">
-			<Heading v-if="debouncedSearchTerm !== ''">Results</Heading>
-			<p v-if="debouncedSearchTerm !== '' && filteredMovies.length === 0" class="text-xl md:text-2xl">
+			<p v-if="showingLabel" class="mb-2 text-base text-fg-muted">
+				{{ showingLabel }}
+			</p>
+			<Heading v-if="debouncedSearchTerm.trim() !== ''">Results</Heading>
+			<p v-if="filtersActive && filteredMovies.length === 0" class="text-xl md:text-2xl">
 				No matching results can be found.
 			</p>
 			<p v-if="listMovies.length === 0" class="text-xl md:text-2xl">This list is empty.</p>

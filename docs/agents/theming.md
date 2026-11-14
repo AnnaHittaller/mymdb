@@ -41,7 +41,6 @@ See THEME MAP in `tailwind.css` for the complete list (elevated surfaces, border
 - **Triggers:** `discover-filter-control` on `USelect` / `USelectMenu` **base** and `UInputMenu` **root**; inner field is `discover-filter-input` on `UInputMenu` **base** (the real `<input>`).
 - **Variant `none`:** avoids Nuxt `outline` rings; fills/borders come from the utilities (`!bg-default`, `border-border-default`, …).
 - **8px radius:** `rounded-[8px]` on the shared `filterTrigger` string in `discoverFilterUi.ts` (theme default is `rounded-md`).
-- **Actor search placeholder:** theme sets `placeholder:text-dimmed` on the input **base** slot — override with page `:ui="castActorInputUi"` (highest priority for that field only).
 - **Menu scroll lock:** browse filter controls use `:content="discoverFilterContent"` (`position: 'popper'`, `bodyLock: true` in **`discoverFilterUi.ts`**). **`UApp`** sets **`scroll-body="false"`** (`app.vue`). **`useScrollbarGutter()`** toggles **`html.scrollbar-gutter-stable`** only when the document overflows vertically, so short pages (lists, profile) do not reserve gutter space.
 - **`inputMenu.slots.placeholder`:** not used for typed placeholders; use the `placeholder` prop + **base** slot classes instead.
 

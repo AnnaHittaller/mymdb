@@ -1,4 +1,7 @@
+import type { DiscoverSortKey } from "~/constants/discoverFilters"
 import type { BrowseListing, BrowseMode, CatalogCard, MediaType } from "~/types/catalog"
+import { DISCOVER_SORT_DEFAULT } from "~/constants/discoverFilters"
+import { discoverSortQueryValue, normalizeDiscoverSort } from "~/utils/discoverSort"
 import { MAX_CATALOG_KEYWORD_PREFS } from "~/domain/user-document/catalogPrefs"
 import {
 	CATALOG_DISCOVER_PAGE_SIZE,
@@ -36,6 +39,7 @@ function genreIdList(value: string): number[] {
 }
 
 const CLEAR_DISCOVER_FILTER_PARAMS = {
+	sort: undefined,
 	rating: undefined,
 	genres: undefined,
 	keywords: undefined,
@@ -77,6 +81,7 @@ export function useCatalogListing() {
 		return {
 			q: q.value || undefined,
 			media: media.value === "tv" ? "tv" : undefined,
+			sort: discoverSortQueryValue(sort.value),
 			rating: rating.value > 0 ? String(rating.value) : undefined,
 			genres: genreIds.value.length ? genreIds.value.join(",") : undefined,
 			with_cast: castPeople.value.length ? encodeWithCastParam(castPeople.value) : undefined,
@@ -105,6 +110,19 @@ export function useCatalogListing() {
 				media: next === "tv" ? "tv" : undefined,
 				...CLEAR_DISCOVER_FILTER_PARAMS,
 			}))
+		},
+	})
+
+	const sort = computed<DiscoverSortKey>({
+		get: () => normalizeDiscoverSort(queryParam(route.query.sort)),
+		set: (next: DiscoverSortKey) => {
+			const normalized = normalizeDiscoverSort(next)
+			const current = normalizeDiscoverSort(queryParam(route.query.sort))
+			if (normalized === current) return
+			const patch = { sort: discoverSortQueryValue(normalized) }
+			void writeQuery(
+				discoverSortQueryValue(normalized) ? patchLeavingSearch(patch) : patch,
+			)
 		},
 	})
 
@@ -166,7 +184,8 @@ export function useCatalogListing() {
 	})
 
 	const filtersActive = computed(() =>
-		rating.value > 0
+		sort.value !== DISCOVER_SORT_DEFAULT
+		|| rating.value > 0
 		|| genreIds.value.length > 0
 		|| castPeople.value.length > 0
 		|| keywordEntries.value.length > 0
@@ -182,6 +201,7 @@ export function useCatalogListing() {
 		return [
 			"discover",
 			media.value,
+			sort.value,
 			rating.value,
 			genreIds.value.join(","),
 			castIdsFromWithCastParam(withCastParam.value),
@@ -212,6 +232,7 @@ export function useCatalogListing() {
 					: {
 						media: media.value,
 						page: requestedPage,
+						sort: discoverSortQueryValue(sort.value),
 						rating: rating.value > 0 ? rating.value : undefined,
 						genres: genreIds.value.length ? genreIds.value.join(",") : undefined,
 						with_cast: castIds || undefined,
@@ -314,6 +335,7 @@ export function useCatalogListing() {
 		q,
 		mode,
 		media,
+		sort,
 		rating,
 		genreIds,
 		releaseYearFrom,

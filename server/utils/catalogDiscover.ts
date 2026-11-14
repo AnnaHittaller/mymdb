@@ -28,6 +28,7 @@ export async function discoverCatalogTitles(
 		const config = useRuntimeConfig()
 		const discoverInput = {
 			page: asString(query.page) || "1",
+			sort: asString(query.sort),
 			rating: asString(query.rating) || "0",
 			genres: asString(query.genres),
 			keywords: keywordIdsForDiscover(asString(query.keywords)),

@@ -64,6 +64,30 @@ describe("buildTmdbDiscoverMovieParams — streaming", () => {
 	})
 })
 
+describe("discover sort", () => {
+	it("maps rating and release sorts for movies", () => {
+		const highestRated = buildTmdbDiscoverMovieParams({ page: 1, sort: "rating.desc" })
+		expect(highestRated.get("sort_by")).toBe("vote_average.desc")
+		expect(highestRated.get("vote_count.gte")).toBe("200")
+		const lowestRated = buildTmdbDiscoverMovieParams({ page: 1, sort: "rating.asc" })
+		expect(lowestRated.get("vote_count.gte")).toBe("200")
+		expect(
+			buildTmdbDiscoverMovieParams({ page: 1, sort: "release.desc" }).get("sort_by"),
+		).toBe("primary_release_date.desc")
+		expect(buildTmdbDiscoverMovieParams({ page: 1 }).get("vote_count.gte")).toBeNull()
+	})
+
+	it("maps release sort to first air date for TV", () => {
+		expect(
+			buildTmdbDiscoverTvParams({ page: 1, sort: "release.desc" }).get("sort_by"),
+		).toBe("first_air_date.desc")
+	})
+
+	it("ignores unknown sort keys", () => {
+		expect(buildTmdbDiscoverMovieParams({ page: 1, sort: "nope" }).get("sort_by")).toBe("popularity.desc")
+	})
+})
+
 describe("buildTmdbDiscoverTvParams", () => {
 	it("uses first air date window when both dates set", () => {
 		const params = buildTmdbDiscoverTvParams({

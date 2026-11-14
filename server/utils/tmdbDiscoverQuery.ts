@@ -1,5 +1,9 @@
+import { DISCOVER_RATING_SORT_MIN_VOTE_COUNT } from "../../constants/discoverFilters"
+import { isDiscoverRatingSort, normalizeDiscoverSort, tmdbDiscoverSortBy } from "../../utils/discoverSort"
+
 export type DiscoverQueryInput = {
 	page: number | string
+	sort?: string
 	rating?: number | string
 	genres?: string
 	keywords?: string
@@ -37,14 +41,18 @@ export function buildTmdbDiscoverMovieParams(input: DiscoverQueryInput): URLSear
 	const region = String(input.region ?? "").trim().toUpperCase()
 	const hasRegion = /^[A-Z]{2}$/.test(region)
 
+	const sortKey = normalizeDiscoverSort(input.sort)
 	const params = new URLSearchParams({
 		include_adult: "false",
 		include_video: "false",
 		language: "en-US",
 		page: String(page),
-		sort_by: "popularity.desc",
+		sort_by: tmdbDiscoverSortBy(String(input.sort ?? ""), "movie"),
 	})
 
+	if (isDiscoverRatingSort(sortKey)) {
+		params.set("vote_count.gte", String(DISCOVER_RATING_SORT_MIN_VOTE_COUNT))
+	}
 	if (rating > 0) params.set("vote_average.gte", String(rating))
 	if (keywords) params.set("with_keywords", keywords)
 	if (genres) params.set("with_genres", genres)

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { refDebounced, useWindowSize } from "@vueuse/core";
-import { castActorInputUi, discoverFilterContent } from "~/constants/discoverFilterUi";
+import { discoverFilterContent } from "~/constants/discoverFilterUi";
 import {
 	fetchPersonSuggestions,
 	PERSON_SEARCH_DEBOUNCE_MS,
@@ -17,6 +17,7 @@ import {
 	useRecentSearches,
 } from "~/composables/useRecentSearches";
 import { searchQuerySchema } from "~/schemas/schemas";
+import { DISCOVER_SORT_DEFAULT, discoverSortItems, ratingItems } from "~/constants/discoverFilters";
 
 type GenreList = {
 	genres: { id: number, name: string }[]
@@ -46,17 +47,6 @@ const browseFilterGridClass
 const browseChipClass
 	= "rounded-md bg-surface-hover px-2 py-1 text-base text-fg-default transition-colors hover:bg-surface-inset";
 
-const ratingItems = [
-	{ label: "Any rating", value: 0 },
-	{ label: "8+", value: 8 },
-	{ label: "7+", value: 7 },
-	{ label: "6+", value: 6 },
-	{ label: "5+", value: 5 },
-	{ label: "4+", value: 4 },
-	{ label: "3+", value: 3 },
-	{ label: "2+", value: 2 },
-];
-
 const currentYear = new Date().getFullYear();
 const yearChoices = Array.from({ length: currentYear - 1899 }, (_, index) => {
 	const year = currentYear - index;
@@ -73,6 +63,7 @@ const {
 	q,
 	mode,
 	media,
+	sort,
 	rating,
 	genreIds,
 	releaseYearFrom,
@@ -151,8 +142,18 @@ const castHint = computed(() =>
 		: "Movies starring all selected actors.",
 );
 
+const sortLabelByValue = new Map(discoverSortItems.map((item) => [item.value, item.label]));
+
 const filterChips = computed<FilterChip[]>(() => {
 	const chips: FilterChip[] = [];
+	if (sort.value !== DISCOVER_SORT_DEFAULT) {
+		const label = sortLabelByValue.get(sort.value) ?? sort.value;
+		chips.push({
+			id: "sort",
+			label: `Sort: ${label}`,
+			removeLabel: "Reset sort to popularity",
+		});
+	}
 	if (rating.value > 0) {
 		chips.push({
 			id: "rating",
@@ -310,6 +311,10 @@ function onCastPick(value: number | undefined) {
 }
 
 function removeFilterChip(chipId: string) {
+	if (chipId === "sort") {
+		sort.value = DISCOVER_SORT_DEFAULT;
+		return;
+	}
 	if (chipId === "rating") {
 		rating.value = 0;
 		return;
@@ -377,44 +382,10 @@ function onClearFilters() {
 						class="w-full"
 						@submit="onExplicitSearch">
 						<UFormField name="query" class="w-full">
-							<UInput
+							<CatalogSearchInput
 								v-model="state.query"
-								type="search"
-								name="query"
-								placeholder="Search by title"
-								aria-label="Search movies and shows"
-								autocomplete="off"
-								enterkeyhint="search"
-								size="xl"
-								:ui="{
-									base: 'text-lg placeholder:italic [appearance:textfield]',
-									trailing: 'pe-1',
-								}"
-								class="search-page-input w-full">
-								<template #trailing>
-									<div class="flex shrink-0 items-center gap-0.5">
-										<UButton
-											v-show="state.query !== ''"
-											type="button"
-											color="neutral"
-											variant="ghost"
-											icon="i-heroicons-x-mark-20-solid"
-											size="sm"
-											square
-											aria-label="Clear search"
-											@click="onClearQuery" />
-										<UButton
-											type="submit"
-											color="primary"
-											variant="ghost"
-											icon="i-heroicons-magnifying-glass-20-solid"
-											size="sm"
-											square
-											aria-label="Search"
-											:ui="{ base: 'font-medium justify-center' }" />
-									</div>
-								</template>
-							</UInput>
+								submit-on-trailing
+								@clear="onClearQuery" />
 						</UFormField>
 
 						<div
@@ -455,6 +426,11 @@ function onClearFilters() {
 					<div :class="browseFilterGridClass">
 						<DiscoverMediaToggle v-model="media" class="min-w-0" />
 						<USelect
+							v-model="sort"
+							:content="discoverFilterContent"
+							:items="discoverSortItems"
+							:class="filterFieldClass" />
+						<USelect
 							v-model="rating"
 							:content="discoverFilterContent"
 							:items="ratingItems"
@@ -493,7 +469,6 @@ function onClearFilters() {
 							value-key="value"
 							placeholder="Search actors"
 							:class="filterFieldClass"
-							:ui="castActorInputUi"
 							@update:model-value="onCastPick" />
 						<UInputMenu
 							:key="keywordInputKey"
@@ -558,11 +533,5 @@ function onClearFilters() {
 </template>
 
 <style scoped>
-.search-page-input :deep(input) {
-
-	&::-webkit-search-cancel-button,
-	&::-webkit-search-decoration {
-		display: none;
-	}
-}
+/* Scoped slot reserved for page-local overrides (search input styles live in CatalogSearchInput). */
 </style>

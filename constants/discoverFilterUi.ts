@@ -38,7 +38,3 @@ export const discoverFilterContent = {
 	position: "popper",
 } as const;
 
-/** InputMenu `base` is the `<input>`; page `:ui` overrides theme `placeholder:text-dimmed`. */
-export const castActorInputUi = {
-	base: "discover-filter-input text-base text-fg-default placeholder:text-fg-default",
-};

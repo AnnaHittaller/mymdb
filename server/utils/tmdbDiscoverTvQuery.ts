@@ -1,3 +1,5 @@
+import { DISCOVER_RATING_SORT_MIN_VOTE_COUNT } from "../../constants/discoverFilters"
+import { isDiscoverRatingSort, normalizeDiscoverSort, tmdbDiscoverSortBy } from "../../utils/discoverSort"
 import { parseIsoReleaseDate, type DiscoverQueryInput } from "./tmdbDiscoverQuery";
 
 export function buildTmdbDiscoverTvParams(input: DiscoverQueryInput): URLSearchParams {
@@ -15,13 +17,17 @@ export function buildTmdbDiscoverTvParams(input: DiscoverQueryInput): URLSearchP
 	const releaseDateLte = parseIsoReleaseDate(input.releaseDateLte)
 	const hasReleaseDateWindow = Boolean(releaseDateGte && releaseDateLte)
 
+	const sortKey = normalizeDiscoverSort(input.sort)
 	const params = new URLSearchParams({
 		include_adult: "false",
 		language: "en-US",
 		page: String(page),
-		sort_by: "popularity.desc",
+		sort_by: tmdbDiscoverSortBy(String(input.sort ?? ""), "tv"),
 	})
 
+	if (isDiscoverRatingSort(sortKey)) {
+		params.set("vote_count.gte", String(DISCOVER_RATING_SORT_MIN_VOTE_COUNT))
+	}
 	if (rating > 0) params.set("vote_average.gte", String(rating))
 	if (keywords) params.set("with_keywords", keywords)
 	if (genres) params.set("with_genres", genres)
