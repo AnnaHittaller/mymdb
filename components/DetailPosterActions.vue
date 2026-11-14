@@ -9,6 +9,7 @@ const route = useRoute();
 const user = useCurrentUser();
 const { isInFavorites, setFavorites } = useUserDocument();
 const { notifyListError } = useListCapToast();
+const { shareCatalogTitle } = useCatalogShare();
 
 const pickerOpen = ref(false);
 
@@ -42,9 +43,14 @@ async function toggleFavorites() {
 	}
 }
 
-function onShare() {
-	// Share is added in a later change.
-	return;
+async function onShare() {
+	const payload = props.payload;
+	if (!payload) return;
+	await shareCatalogTitle({
+		id: payload.id,
+		mediaType: payload.mediaType ?? "movie",
+		title: payload.title,
+	});
 }
 </script>
 

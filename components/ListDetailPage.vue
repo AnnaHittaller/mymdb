@@ -28,6 +28,7 @@ const editing = ref(false);
 const draftName = ref("");
 const deleteConfirmOpen = ref(false);
 const deleting = ref(false);
+const shareOpen = ref(false);
 
 const listMovies = computed(() => moviesInList(props.list.id));
 const { state: filterState, filteredMovies, filtersActive, clearFilters } = useLibraryListFilters(
@@ -196,6 +197,13 @@ function onClearFilters() {
 					v-if="!editing"
 					variant="outline"
 					size="lg"
+					label="Share"
+					icon="i-heroicons-share"
+					@click="shareOpen = true" />
+				<UButton
+					v-if="!editing"
+					variant="outline"
+					size="lg"
 					label="Edit list"
 					icon="i-heroicons-pencil-square"
 					@click="startEdit" />
@@ -282,6 +290,7 @@ function onClearFilters() {
 					@remove-from-list="removeMovie(movie)" />
 			</div>
 		</div>
+		<ShareListModal v-model:open="shareOpen" :list-id="list.id" :list-name="list.name" />
 		<UModal v-model:open="deleteConfirmOpen" title="Delete this list?" :ui="browsingModalUi">
 			<template #body>
 				<p class="text-base text-fg-muted">

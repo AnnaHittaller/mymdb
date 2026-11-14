@@ -5,6 +5,7 @@ import { formatDetailYear, formatRatingOutOfTen, formatRuntimeMinutes } from "~/
 import { formatCreditNames } from "~/utils/normalizeDetailCredits";
 import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
 import { buildTvSeasonSummaries } from "~/utils/buildTvSeasonSummaries";
+import { catalogMetaDescription, catalogPosterOgImage } from "~/utils/catalogSeoMeta";
 
 definePageMeta({
     layout: "default",
@@ -52,6 +53,34 @@ const listPayload = computed(() => {
 function countLabel(count: number, singular: string, plural: string): string {
     return `${count} ${count === 1 ? singular : plural}`
 }
+
+const requestUrl = useRequestURL();
+
+useSeoMeta({
+	title: () => (show.value?.name ? `${show.value.name} · MyMDb` : "MyMDb"),
+	description: () =>
+		catalogMetaDescription(
+			show.value?.overview,
+			show.value?.name ? `Watch ${show.value.name} on MyMDb.` : "TV show on MyMDb.",
+		),
+	ogTitle: () => show.value?.name,
+	ogDescription: () =>
+		catalogMetaDescription(
+			show.value?.overview,
+			show.value?.name ? `Watch ${show.value.name} on MyMDb.` : "TV show on MyMDb.",
+		),
+	ogImage: () => catalogPosterOgImage(show.value?.poster_path),
+	ogUrl: () => `${requestUrl.origin}/show/${showId.value}`,
+	ogType: "website",
+	twitterCard: "summary_large_image",
+	twitterTitle: () => show.value?.name,
+	twitterDescription: () =>
+		catalogMetaDescription(
+			show.value?.overview,
+			show.value?.name ? `Watch ${show.value.name} on MyMDb.` : "TV show on MyMDb.",
+		),
+	twitterImage: () => catalogPosterOgImage(show.value?.poster_path),
+});
 
 const facts = computed<DetailFact[]>(() => {
     const current = show.value

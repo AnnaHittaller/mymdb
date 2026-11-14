@@ -9,6 +9,7 @@ const props = defineProps<{
 
 const { isOnAnyList, isInFavorites, setFavorites } = useUserDocument();
 const { notifyListError } = useListCapToast();
+const { shareCatalogTitle } = useCatalogShare();
 
 const pickerOpen = ref(false);
 
@@ -43,17 +44,25 @@ async function toggleFavorites() {
 		notifyListError(error);
 	}
 }
+
+async function onShare() {
+	await shareCatalogTitle({
+		id: props.item.id,
+		mediaType: mediaType.value,
+		title: props.item.title,
+	});
+}
 </script>
 
 <template>
-	<div class="flex h-8 max-h-8 min-h-8 shrink-0 flex-nowrap items-center gap-4">
+	<div class="flex h-8 max-h-8 min-h-8 shrink-0 flex-nowrap items-center gap-4 pt-1">
 		<button
 			type="button"
 			class="flex h-8 cursor-pointer items-center leading-none transition-colors duration-200"
 			:class="bookmarkClass"
 			aria-label="Save to list"
 			@click="pickerOpen = true">
-			<IconAddToList class="size-8" />
+			<IconAddToList class="size-7" />
 		</button>
 		<button
 			type="button"
@@ -62,7 +71,14 @@ async function toggleFavorites() {
 			@click="toggleFavorites">
 			<UIcon
 				:name="inFavorites ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
-				:class="inFavorites ? 'size-8 text-primary' : 'size-8 text-fg-subtle hover:text-primary'" />
+				:class="inFavorites ? 'size-7 text-primary' : 'size-7 text-fg-subtle hover:text-primary'" />
+		</button>
+		<button
+			type="button"
+			class="flex h-8 cursor-pointer items-center leading-none text-fg-subtle transition-colors duration-200 hover:text-primary"
+			aria-label="Share"
+			@click="onShare">
+			<UIcon name="i-heroicons-share" class="size-7" />
 		</button>
 		<ListPickerOverlay v-model:open="pickerOpen" :movie-payload="moviePayload" />
 	</div>

@@ -47,6 +47,7 @@ const emit = defineEmits<{
 const user = useCurrentUser();
 const { isOnAnyList, isInFavorites, setFavorites } = useUserDocument();
 const { notifyListError } = useListCapToast();
+const { shareCatalogTitle } = useCatalogShare();
 
 const pickerOpen = ref(false);
 
@@ -122,6 +123,14 @@ async function toggleFavorites() {
 		notifyListError(error);
 	}
 }
+
+async function onShare() {
+	await shareCatalogTitle({
+		id: movieId.value,
+		mediaType: resolvedMediaType.value,
+		title: props.movie.title,
+	});
+}
 </script>
 
 <template>
@@ -154,9 +163,9 @@ async function toggleFavorites() {
 			</p>
 		</div>
 		<div
-			v-if="user"
-			class="flex h-6 max-h-6 min-h-6 shrink-0 flex-nowrap items-center gap-3 transition-colors duration-200">
-			<template v-if="!editing">
+			v-if="user || !editing"
+			class="flex h-6 max-h-6 min-h-6 w-full shrink-0 flex-nowrap items-center gap-3 transition-colors duration-200">
+			<template v-if="user && !editing">
 				<button
 					type="button"
 					class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200"
@@ -175,6 +184,14 @@ async function toggleFavorites() {
 						:class="inFavorites ? 'size-6 text-primary' : 'size-6 text-fg-subtle hover:text-primary'" />
 				</button>
 			</template>
+			<button
+				v-if="!editing"
+				type="button"
+				class="ml-auto flex h-6 cursor-pointer items-center leading-none text-fg-subtle transition-colors duration-200 hover:text-primary"
+				aria-label="Share"
+				@click="onShare">
+				<UIcon name="i-heroicons-share" class="size-6" />
+			</button>
 			<button
 				v-if="editing && listId"
 				type="button"

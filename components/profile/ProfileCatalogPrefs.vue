@@ -3,6 +3,7 @@ import { discoverFilterContent } from "~/constants/discoverFilterUi"
 import {
 	MAX_CATALOG_GENRE_PREFS,
 	MAX_CATALOG_KEYWORD_PREFS,
+	normalizeCatalogPrefs,
 } from "~/domain/user-document/catalogPrefs"
 import { PROFILE_WATCH_PROVIDER_LIMIT, WATCH_PROVIDERS_CLIENT_REV } from "~/constants/watchProviders"
 import type { TmdbWatchProvider } from "~/server/utils/tmdbWatchProviders"
@@ -63,6 +64,7 @@ const selectedMovieGenres = ref<number[]>([])
 const selectedTvGenres = ref<number[]>([])
 const selectedProviderIds = ref<number[]>([])
 const selectedKeywordIds = ref<number[]>([])
+const keywordIdsForUi = computed(() => selectedKeywordIds.value ?? [])
 const keywordLabels = ref<Record<number, string>>({})
 
 const watchProviders = ref<WatchProvidersResponse | null>(null)
@@ -72,12 +74,13 @@ const providersError = ref(false)
 watch(
 	catalogPrefs,
 	(prefs) => {
-		selectedRegion.value = prefs.region
-		selectedMovieGenres.value = [...prefs.movieGenreIds]
-		selectedTvGenres.value = [...prefs.tvGenreIds]
-		selectedProviderIds.value = [...prefs.watchProviderIds]
-		selectedKeywordIds.value = [...prefs.keywordIds]
-		void resolveKeywordLabels(prefs.keywordIds)
+		const normalized = normalizeCatalogPrefs(prefs)
+		selectedRegion.value = normalized.region
+		selectedMovieGenres.value = [...normalized.movieGenreIds]
+		selectedTvGenres.value = [...normalized.tvGenreIds]
+		selectedProviderIds.value = [...normalized.watchProviderIds]
+		selectedKeywordIds.value = [...normalized.keywordIds]
+		void resolveKeywordLabels(normalized.keywordIds)
 	},
 	{ immediate: true },
 )
@@ -116,7 +119,7 @@ const {
 	suggestions: keywordSuggestions,
 	inputKey: keywordInputKey,
 	resetKeywordInput,
-} = useKeywordSuggestionInput(() => selectedKeywordIds.value)
+} = useKeywordSuggestionInput(keywordIdsForUi)
 
 async function resolveKeywordLabels(ids: number[]) {
 	if (!ids.length) {
@@ -251,14 +254,14 @@ async function removeKeyword(id: number) {
 					:content="discoverFilterContent"
 					v-bind="filterMenuControl"
 					class="w-full min-w-0"
-					:disabled="selectedKeywordIds.length >= MAX_CATALOG_KEYWORD_PREFS"
+					:disabled="keywordIdsForUi.length >= MAX_CATALOG_KEYWORD_PREFS"
 					@update:model-value="onKeywordPick" />
 			</UFormField>
 		</div>
 		<div class="space-y-2">
-			<div v-if="selectedKeywordIds.length" class="flex flex-wrap gap-2">
+			<div v-if="keywordIdsForUi.length" class="flex flex-wrap gap-2">
 				<DiscoverFilterChip
-					v-for="id in selectedKeywordIds"
+					v-for="id in keywordIdsForUi"
 					:key="id"
 					:label="keywordChipLabel(id)"
 					:remove-label="`Remove ${keywordChipLabel(id)}`"

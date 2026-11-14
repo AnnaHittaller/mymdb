@@ -4,6 +4,7 @@ import type { DetailFact, DetailJob } from "~/types/detailFact";
 import { formatDetailYear, formatRatingOutOfTen, formatRuntimeMinutes } from "~/utils/formatDetailFacts";
 import { formatCreditNames } from "~/utils/normalizeDetailCredits";
 import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
+import { catalogMetaDescription, catalogPosterOgImage } from "~/utils/catalogSeoMeta";
 
 definePageMeta({
     layout: "default",
@@ -59,6 +60,34 @@ const facts = computed<DetailFact[]>(() => {
     if (rating) items.push({ icon: "i-heroicons-star-20-solid", text: rating, tone: "rating" })
     return items
 })
+
+const requestUrl = useRequestURL();
+
+useSeoMeta({
+	title: () => (movie.value?.title ? `${movie.value.title} · MyMDb` : "MyMDb"),
+	description: () =>
+		catalogMetaDescription(
+			movie.value?.overview,
+			movie.value?.title ? `Watch ${movie.value.title} on MyMDb.` : "Movie on MyMDb.",
+		),
+	ogTitle: () => movie.value?.title,
+	ogDescription: () =>
+		catalogMetaDescription(
+			movie.value?.overview,
+			movie.value?.title ? `Watch ${movie.value.title} on MyMDb.` : "Movie on MyMDb.",
+		),
+	ogImage: () => catalogPosterOgImage(movie.value?.poster_path),
+	ogUrl: () => `${requestUrl.origin}/movie/${movieId.value}`,
+	ogType: "website",
+	twitterCard: "summary_large_image",
+	twitterTitle: () => movie.value?.title,
+	twitterDescription: () =>
+		catalogMetaDescription(
+			movie.value?.overview,
+			movie.value?.title ? `Watch ${movie.value.title} on MyMDb.` : "Movie on MyMDb.",
+		),
+	twitterImage: () => catalogPosterOgImage(movie.value?.poster_path),
+});
 
 const jobs = computed<DetailJob[]>(() => {
     const credits = movie.value?.detailCredits

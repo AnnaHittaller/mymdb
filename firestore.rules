@@ -20,5 +20,10 @@ service cloud.firestore {
       allow update: if isOwner();
       allow delete: if isOwner();
     }
+
+    // Public list snapshots — server (Admin SDK) only; no client read/write.
+    match /publishedLists/{shareId} {
+      allow read, write: if false;
+    }
   }
 }

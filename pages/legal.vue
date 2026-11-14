@@ -103,6 +103,9 @@ const sections = [
 				<NuxtLink to="/profile" class="text-primary hover:underline">Profile</NuxtLink>.
 				You can also complain to your EU data-protection authority.
 			</p>
+			<p>
+				When you use Share on a list, the app stores a public copy of that list’s name, the titles on it (with display metadata such as poster images), and the username shown at share time. Anyone with the link can open that snapshot without signing in. The copy is not updated when you edit the list; sharing again creates a new link. The app does not keep a dashboard of links you created.
+			</p>
 			<p>MyMDb is not directed at anyone under 16.</p>
 		</section>
 
