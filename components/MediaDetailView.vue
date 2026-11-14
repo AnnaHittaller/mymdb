@@ -74,8 +74,10 @@ async function onWatchTrailer() {
 
 <template>
 	<div class="flex flex-col gap-10 md:gap-12">
-		<div
-			class="grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] md:items-start md:gap-x-10 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,28rem)_minmax(0,1fr)] xl:gap-x-16">
+		<div class="flex flex-col gap-1 max-md:gap-0 md:gap-3">
+			<StackBackButton />
+			<div
+				class="grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] md:items-start md:gap-x-10 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,28rem)_minmax(0,1fr)] xl:gap-x-16">
 			<aside
 				class="flex w-full min-w-0 flex-col items-center gap-4 md:sticky md:top-4 md:items-stretch md:self-start">
 				<div
@@ -158,6 +160,7 @@ async function onWatchTrailer() {
 					:show-id="mediaId"
 					:seasons="episodeSeasons" />
 			</div>
+		</div>
 		</div>
 
 		<div class="min-w-0 w-full">

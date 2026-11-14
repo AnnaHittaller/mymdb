@@ -17,8 +17,7 @@ defineProps<{
 			class="inline-flex items-center gap-1.5 leading-none">
 			<UIcon
 				:name="fact.icon"
-				class="block size-5 shrink-0 -translate-y-0.5 leading-none"
-				:class="fact.tone === 'rating' ? 'text-rating' : 'text-fg-default'" />
+				class="block size-5 shrink-0 -translate-y-0.5 leading-none text-primary" />
 			<span class="leading-none text-fg-default">{{ fact.text }}</span>
 		</span>
 		<span
@@ -28,7 +27,7 @@ defineProps<{
 			<span aria-hidden="true" class="leading-none text-fg-subtle">|</span>
 			<UIcon
 				:name="job.icon"
-				class="block size-5 shrink-0 -translate-y-0.5 leading-none text-fg-default" />
+				class="block size-5 shrink-0 -translate-y-0.5 leading-none text-primary" />
 			<span class="leading-none text-fg-default">{{ job.text }}</span>
 		</span>
 	</div>

@@ -78,7 +78,9 @@ async function removeMovie(movie: UserMovie) {
 
 <template>
 	<div class="min-w-0 max-w-full">
-		<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+		<div class="flex flex-col gap-1 max-md:gap-0">
+			<StackBackButton />
+			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
 			<div class="flex min-w-0 flex-1 flex-wrap items-center gap-3">
 				<Heading v-if="!editing || !list.renamable" class="min-w-0">
 					<span>{{ displayTitle }}</span>
@@ -111,6 +113,7 @@ async function removeMovie(movie: UserMovie) {
 						@click="deleteConfirmOpen = true" />
 				</template>
 			</div>
+		</div>
 		</div>
 		<UInput
 			size="xl"

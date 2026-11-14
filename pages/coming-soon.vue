@@ -71,7 +71,10 @@ function toCardMovie(item: TrendingItem) {
 
 <template>
 	<div>
-		<Heading class="pb-2">Coming soon</Heading>
+		<div class="flex flex-col gap-1 max-md:gap-0">
+			<StackBackButton />
+			<Heading class="pb-2 max-md:pb-1">Coming soon</Heading>
+		</div>
 		<p class="pb-8 text-lg text-fg-muted">{{ UPCOMING_SUBLINE }}</p>
 		<div class="flex flex-col items-stretch">
 			<p v-if="error && items.length === 0" class="text-lg">Couldn't load upcoming titles.</p>
