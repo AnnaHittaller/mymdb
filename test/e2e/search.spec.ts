@@ -119,6 +119,20 @@ test.describe("search page", () => {
 		expect(afterToggle.searchParams.get("media")).toBe("tv");
 	});
 
+	test("keyword filter deep link shows active chip and results", async ({ page, goto }) => {
+		await registerAndLandHome(page, goto);
+		const keywordParam = encodeURIComponent("818:based on novel");
+		await goto(`/browse?keywords=${keywordParam}`, { waitUntil: "hydration" });
+
+		await expect(page).toHaveURL(/keywords=818/, { timeout: 15_000 });
+		await expect(
+			page.getByRole("button", { name: "Remove keyword based on novel" }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(page.locator(".movie-grid").locator("a").first()).toBeVisible({
+			timeout: 30_000,
+		});
+	});
+
 	test("search and discover urls redirect to browse", async ({ page, goto }) => {
 		await registerAndLandHome(page, goto);
 

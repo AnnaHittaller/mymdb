@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { refDebounced } from "@vueuse/core"
 import { discoverFilterContent } from "~/constants/discoverFilterUi"
 import {
 	MAX_CATALOG_GENRE_PREFS,
@@ -23,16 +22,9 @@ type CountryItem = {
 	value: string | null
 }
 
-type KeywordSearchResponse = {
-	results: { id: number, name: string }[]
-}
-
 type WatchProvidersResponse = {
 	providers: TmdbWatchProvider[]
 }
-
-const KEYWORD_SEARCH_DEBOUNCE_MS = 400
-const KEYWORD_SEARCH_MIN_LENGTH = 2
 
 const filterMenuControl = { highlightOnHover: true }
 
@@ -119,29 +111,12 @@ watch(
 	{ immediate: true },
 )
 
-const keywordSearchTerm = ref("")
-const debouncedKeywordSearch = refDebounced(keywordSearchTerm, KEYWORD_SEARCH_DEBOUNCE_MS)
-const keywordSuggestions = ref<{ label: string, value: number }[]>([])
-const keywordInputKey = ref(0)
-
-watch(debouncedKeywordSearch, async (term) => {
-	if (term.trim().length < KEYWORD_SEARCH_MIN_LENGTH) {
-		keywordSuggestions.value = []
-		return
-	}
-	try {
-		const response = await $fetch<KeywordSearchResponse>("/api/keywords/search", {
-			query: { query: term.trim() },
-		})
-		const blocked = new Set(selectedKeywordIds.value)
-		keywordSuggestions.value = response.results
-			.filter((entry) => !blocked.has(entry.id))
-			.slice(0, 8)
-			.map((entry) => ({ label: entry.name, value: entry.id }))
-	} catch {
-		keywordSuggestions.value = []
-	}
-})
+const {
+	searchTerm: keywordSearchTerm,
+	suggestions: keywordSuggestions,
+	inputKey: keywordInputKey,
+	resetKeywordInput,
+} = useKeywordSuggestionInput(() => selectedKeywordIds.value)
 
 async function resolveKeywordLabels(ids: number[]) {
 	if (!ids.length) {
@@ -203,9 +178,7 @@ async function onKeywordPick(id: number | undefined) {
 	const nextIds = [...selectedKeywordIds.value, id]
 	selectedKeywordIds.value = nextIds
 	if (picked) keywordLabels.value = { ...keywordLabels.value, [id]: picked.label }
-	keywordSearchTerm.value = ""
-	keywordSuggestions.value = []
-	keywordInputKey.value += 1
+	resetKeywordInput()
 	await setCatalogPrefs({ keywordIds: nextIds })
 }
 

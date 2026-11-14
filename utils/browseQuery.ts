@@ -5,7 +5,9 @@ export type BrowseCastPerson = {
 	name: string
 }
 
-function parseCastSegment(segment: string): BrowseCastPerson | null {
+export type BrowseKeyword = BrowseCastPerson
+
+function parseIdNameSegment(segment: string): BrowseCastPerson | null {
 	const trimmed = segment.trim()
 	if (!trimmed) return null
 	let decoded = trimmed
@@ -34,7 +36,7 @@ export function encodeWithCastParam(people: BrowseCastPerson[]): string {
 export function decodeWithCastParam(value: string): BrowseCastPerson[] {
 	if (!value.trim()) return []
 	return value.split(",").flatMap((segment) => {
-		const person = parseCastSegment(segment)
+		const person = parseIdNameSegment(segment)
 		return person ? [person] : []
 	})
 }
@@ -44,4 +46,20 @@ export function castIdsFromWithCastParam(value: string): string {
 	return decodeWithCastParam(value)
 		.map((person) => String(person.id))
 		.join(",")
+}
+
+/** URL value: comma-separated `encodeURIComponent(id:name)` pairs. */
+export function encodeKeywordsParam(keywords: BrowseKeyword[]): string {
+	return encodeWithCastParam(keywords)
+}
+
+export function decodeKeywordsParam(value: string): BrowseKeyword[] {
+	return decodeWithCastParam(value)
+}
+
+/** TMDB discover `with_keywords`: pipe-separated ids (OR). */
+export function keywordIdsForDiscover(value: string): string {
+	return decodeKeywordsParam(value)
+		.map((keyword) => String(keyword.id))
+		.join("|")
 }

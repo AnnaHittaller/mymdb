@@ -1,7 +1,7 @@
 import type { CatalogCard, MediaType } from "~/types/catalog"
 import type { TmdbMediaRow } from "~/server/utils/tmdbNormalize"
 import { toCatalogCard } from "~/server/utils/tmdbNormalize"
-import { castIdsFromWithCastParam } from "~/utils/browseQuery"
+import { castIdsFromWithCastParam, keywordIdsForDiscover } from "~/utils/browseQuery"
 
 type TmdbDiscoverResult = TmdbMediaRow & {
 	popularity: number
@@ -30,6 +30,7 @@ export async function discoverCatalogTitles(
 			page: asString(query.page) || "1",
 			rating: asString(query.rating) || "0",
 			genres: asString(query.genres),
+			keywords: keywordIdsForDiscover(asString(query.keywords)),
 			withCast: castIdsFromWithCastParam(asString(query.with_cast)),
 			releaseYearGte: asString(query.release_year_gte) || "0",
 			releaseYearLte: asString(query.release_year_lte) || "0",

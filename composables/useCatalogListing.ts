@@ -1,10 +1,14 @@
 import type { BrowseListing, BrowseMode, CatalogCard, MediaType } from "~/types/catalog"
+import { MAX_CATALOG_KEYWORD_PREFS } from "~/domain/user-document/catalogPrefs"
 import {
 	CATALOG_DISCOVER_PAGE_SIZE,
 	castIdsFromWithCastParam,
+	decodeKeywordsParam,
 	decodeWithCastParam,
+	encodeKeywordsParam,
 	encodeWithCastParam,
 	type BrowseCastPerson,
+	type BrowseKeyword,
 } from "~/utils/browseQuery"
 
 type BrowsePayload = BrowseListing & {
@@ -34,6 +38,7 @@ function genreIdList(value: string): number[] {
 const CLEAR_DISCOVER_FILTER_PARAMS = {
 	rating: undefined,
 	genres: undefined,
+	keywords: undefined,
 	with_cast: undefined,
 	release_year_gte: undefined,
 	release_year_lte: undefined,
@@ -43,6 +48,7 @@ function discoverFiltersInQuery(route: ReturnType<typeof useRoute>): boolean {
 	return positiveInt(queryParam(route.query.rating)) > 0
 		|| genreIdList(queryParam(route.query.genres)).length > 0
 		|| decodeWithCastParam(queryParam(route.query.with_cast)).some((person) => person.name)
+		|| decodeKeywordsParam(queryParam(route.query.keywords)).some((keyword) => keyword.name)
 		|| positiveInt(queryParam(route.query.release_year_gte)) > 0
 		|| positiveInt(queryParam(route.query.release_year_lte)) > 0
 }
@@ -61,6 +67,12 @@ export function useCatalogListing() {
 	const q = computed(() => queryParam(route.query.q).trim())
 	const mode = computed<BrowseMode>(() => (q.value ? "search" : "discover"))
 
+	const keywordsParam = computed(() => queryParam(route.query.keywords))
+
+	const keywordEntries = computed(() =>
+		decodeKeywordsParam(keywordsParam.value).filter((keyword) => keyword.name),
+	)
+
 	function currentQuery(): Record<string, string | undefined> {
 		return {
 			q: q.value || undefined,
@@ -68,6 +80,7 @@ export function useCatalogListing() {
 			rating: rating.value > 0 ? String(rating.value) : undefined,
 			genres: genreIds.value.length ? genreIds.value.join(",") : undefined,
 			with_cast: castPeople.value.length ? encodeWithCastParam(castPeople.value) : undefined,
+			keywords: keywordEntries.value.length ? encodeKeywordsParam(keywordEntries.value) : undefined,
 			release_year_gte: releaseYearFrom.value > 0 ? String(releaseYearFrom.value) : undefined,
 			release_year_lte: releaseYearTo.value > 0 ? String(releaseYearTo.value) : undefined,
 		}
@@ -156,6 +169,7 @@ export function useCatalogListing() {
 		rating.value > 0
 		|| genreIds.value.length > 0
 		|| castPeople.value.length > 0
+		|| keywordEntries.value.length > 0
 		|| releaseYearFrom.value > 0
 		|| releaseYearTo.value > 0,
 	)
@@ -171,6 +185,7 @@ export function useCatalogListing() {
 			rating.value,
 			genreIds.value.join(","),
 			castIdsFromWithCastParam(withCastParam.value),
+			keywordsParam.value,
 			releaseYears.value.from,
 			releaseYears.value.to,
 		].join("|")
@@ -200,6 +215,7 @@ export function useCatalogListing() {
 						rating: rating.value > 0 ? rating.value : undefined,
 						genres: genreIds.value.length ? genreIds.value.join(",") : undefined,
 						with_cast: castIds || undefined,
+						keywords: keywordsParam.value || undefined,
 						release_year_gte: releaseYears.value.from || undefined,
 						release_year_lte: releaseYears.value.to || undefined,
 					},
@@ -266,6 +282,21 @@ export function useCatalogListing() {
 		})
 	}
 
+	function addKeyword(keyword: BrowseKeyword) {
+		if (!keyword.name || keywordEntries.value.some((entry) => entry.id === keyword.id)) return
+		if (keywordEntries.value.length >= MAX_CATALOG_KEYWORD_PREFS) return
+		void writeQuery(patchLeavingSearch({
+			keywords: encodeKeywordsParam([...keywordEntries.value, keyword]),
+		}))
+	}
+
+	function removeKeyword(id: number) {
+		const next = keywordEntries.value.filter((keyword) => keyword.id !== id)
+		void writeQuery({
+			keywords: next.length ? encodeKeywordsParam(next) : undefined,
+		})
+	}
+
 	function clearFilters() {
 		void writeQuery({ ...CLEAR_DISCOVER_FILTER_PARAMS })
 	}
@@ -288,6 +319,7 @@ export function useCatalogListing() {
 		releaseYearFrom,
 		releaseYearTo,
 		castPeople,
+		keywordEntries,
 		filtersActive,
 		discoverDimmed,
 		searchDimmed,
@@ -302,6 +334,8 @@ export function useCatalogListing() {
 		clearSearch,
 		addCast,
 		removeCast,
+		addKeyword,
+		removeKeyword,
 		clearFilters,
 	}
 }

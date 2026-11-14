@@ -41,6 +41,18 @@ const genreLine = computed(() => props.genres.map((genre) => genre.name).join(" 
 
 const visibleKeywords = computed(() => props.keywords.slice(0, 20));
 
+const keywordBrowseLinkClass =
+	"inline-flex rounded-full outline-none focus-visible:ring-2 focus-visible:ring-primary hover:[&_.keyword-badge]:bg-surface-hover";
+
+function browseKeywordQuery(keyword: DetailKeyword) {
+	return {
+		path: "/browse",
+		query: {
+			keywords: encodeKeywordsParam([{ id: keyword.id, name: keyword.name }]),
+		},
+	}
+}
+
 const mobilePosterClass =
 	"aspect-[2/3] h-auto max-h-[37.5rem] w-[min(100%,400px)] max-w-full object-cover";
 const desktopPosterClass = "md:w-full md:max-h-[calc(100dvh-8.5rem)] md:max-w-none";
@@ -117,15 +129,20 @@ async function onWatchTrailer() {
 							Keywords
 						</p>
 						<div class="flex flex-wrap gap-2.5">
-							<UBadge
+							<NuxtLink
 								v-for="keyword in visibleKeywords"
 								:key="keyword.id"
-								color="neutral"
-								variant="subtle"
-								size="lg"
-								class="rounded-full text-base">
-								{{ keyword.name }}
-							</UBadge>
+								:to="browseKeywordQuery(keyword)"
+								:class="keywordBrowseLinkClass"
+								:aria-label="`Browse titles tagged «${keyword.name}»`">
+								<UBadge
+									color="neutral"
+									variant="subtle"
+									size="lg"
+									class="keyword-badge rounded-full text-base">
+									{{ keyword.name }}
+								</UBadge>
+							</NuxtLink>
 						</div>
 					</div>
 				</div>

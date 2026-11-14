@@ -10,6 +10,7 @@ import {
 	MOVIE_SEARCH_DEBOUNCE_MS,
 	MOVIE_SEARCH_MIN_LENGTH,
 } from "~/composables/useMovieSearch";
+import { MAX_CATALOG_KEYWORD_PREFS } from "~/domain/user-document/catalogPrefs";
 import {
 	RECENT_SEARCHES_DESKTOP_DISPLAY,
 	RECENT_SEARCHES_MOBILE_DISPLAY,
@@ -64,8 +65,11 @@ const yearChoices = Array.from({ length: currentYear - 1899 }, (_, index) => {
 const yearFromItems = [{ label: "From (any year)", value: 0 }, ...yearChoices];
 const yearToItems = [{ label: "To (any year)", value: 0 }, ...yearChoices];
 
+const catalogListing = useCatalogListing();
+
+await catalogListing.ready;
+
 const {
-	ready,
 	q,
 	mode,
 	media,
@@ -74,6 +78,7 @@ const {
 	releaseYearFrom,
 	releaseYearTo,
 	castPeople,
+	keywordEntries,
 	filtersActive,
 	discoverDimmed,
 	searchDimmed,
@@ -88,10 +93,10 @@ const {
 	clearSearch,
 	addCast,
 	removeCast,
+	addKeyword,
+	removeKeyword,
 	clearFilters,
-} = useCatalogListing();
-
-await ready;
+} = catalogListing;
 
 const { recents } = useRecentSearches();
 
@@ -113,6 +118,17 @@ const debouncedCastSearch = refDebounced(castSearchTerm, PERSON_SEARCH_DEBOUNCE_
 const castSuggestionItems = ref<CastMenuItem[]>([]);
 const castInputKey = ref(0);
 let castSearchAbort: AbortController | null = null;
+
+const keywordExcludeIds = computed(() => keywordEntries.value.map((keyword) => keyword.id));
+const {
+	searchTerm: keywordSearchTerm,
+	suggestions: keywordSuggestionItems,
+	inputKey: keywordInputKey,
+	resetKeywordInput,
+} = useKeywordSuggestionInput(keywordExcludeIds);
+const keywordPickerDisabled = computed(
+	() => keywordEntries.value.length >= MAX_CATALOG_KEYWORD_PREFS,
+);
 
 const genreUrl = computed(() => (media.value === "tv" ? "/api/tv/genres" : "/api/movies/genres"));
 const { data: genreList } = await useFetch<GenreList>(() => genreUrl.value, {
@@ -173,6 +189,13 @@ const filterChips = computed<FilterChip[]>(() => {
 			removeLabel: `Remove ${person.name}`,
 		});
 	}
+	for (const keyword of keywordEntries.value) {
+		chips.push({
+			id: `keyword-${keyword.id}`,
+			label: keyword.name,
+			removeLabel: `Remove keyword ${keyword.name}`,
+		});
+	}
 	return chips;
 });
 
@@ -220,6 +243,7 @@ watch(() => state.query, () => {
 
 watch(media, () => {
 	resetCastInput();
+	resetKeywordInput();
 });
 
 watch(debouncedCastSearch, async (term) => {
@@ -306,11 +330,28 @@ function removeFilterChip(chipId: string) {
 	if (chipId.startsWith("cast-")) {
 		const personId = Number(chipId.slice("cast-".length));
 		removeCast(personId);
+		return;
 	}
+	if (chipId.startsWith("keyword-")) {
+		const keywordId = Number(chipId.slice("keyword-".length));
+		removeKeyword(keywordId);
+	}
+}
+
+function onKeywordPick(value: number | undefined) {
+	if (value == null) return;
+	const item = keywordSuggestionItems.value.find((entry) => entry.value === value);
+	if (!item?.label) {
+		resetKeywordInput();
+		return;
+	}
+	addKeyword({ id: value, name: item.label });
+	resetKeywordInput();
 }
 
 function onClearFilters() {
 	resetCastInput();
+	resetKeywordInput();
 	clearFilters();
 }
 </script>
@@ -454,6 +495,19 @@ function onClearFilters() {
 							:class="filterFieldClass"
 							:ui="castActorInputUi"
 							@update:model-value="onCastPick" />
+						<UInputMenu
+							:key="keywordInputKey"
+							v-model:search-term="keywordSearchTerm"
+							:model-value="undefined"
+							:content="discoverFilterContent"
+							v-bind="filterMenuControl"
+							:items="keywordSuggestionItems"
+							ignore-filter
+							value-key="value"
+							placeholder="Search keywords"
+							:class="filterFieldClass"
+							:disabled="keywordPickerDisabled"
+							@update:model-value="onKeywordPick" />
 					</div>
 					<div v-if="filtersActive" class="flex flex-wrap items-center gap-2">
 						<p class="w-full text-base font-medium text-fg-muted">
