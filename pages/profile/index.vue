@@ -23,6 +23,17 @@ const errorMessage = ref<string | undefined>();
 const hasPasswordProvider = computed(() => (user.value ? accountNeedsPassword(user.value) : false));
 const needsPassword = hasPasswordProvider;
 
+const { $pwa } = useNuxtApp();
+const showPwaInstall = computed(() => Boolean($pwa?.showInstallPrompt));
+
+async function installPwa() {
+	await $pwa?.install();
+}
+
+function dismissPwaInstall() {
+	$pwa?.cancelInstall();
+}
+
 watch(
 	() => route.query.edit,
 	(edit) => {
@@ -120,6 +131,25 @@ const deleteCurrentUser = async () => {
 					</p>
 				</ProfileSectionCard>
 			</div>
+
+			<ProfileSectionCard v-if="showPwaInstall" title="Install app" class="min-w-0">
+				<p class="mb-4 text-lg text-fg-muted">
+					Add MyMDb to your home screen for quick access.
+				</p>
+				<div class="flex flex-wrap gap-3">
+					<UButton
+						label="Install"
+						icon="i-heroicons-arrow-down-tray"
+						size="lg"
+						@click="installPwa" />
+					<UButton
+						label="Not now"
+						variant="outline"
+						color="neutral"
+						size="lg"
+						@click="dismissPwaInstall" />
+				</div>
+			</ProfileSectionCard>
 
 			<ProfileSectionCard title="Recommendations" class="min-w-0">
 				<ProfileCatalogPrefs />

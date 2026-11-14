@@ -14,6 +14,7 @@ const props = defineProps<{
 
 const { moviesInList, renameList, deleteList, removeFromList } = useUserDocument();
 const router = useRouter();
+const { isOffline } = useOfflineReady();
 
 const filterMenuControl = { highlightOnHover: true };
 const filterFieldClass = "w-full min-w-0";
@@ -199,6 +200,7 @@ function onClearFilters() {
 					size="lg"
 					label="Share"
 					icon="i-heroicons-share"
+					:disabled="isOffline"
 					@click="shareOpen = true" />
 				<UButton
 					v-if="!editing"
@@ -206,6 +208,7 @@ function onClearFilters() {
 					size="lg"
 					label="Edit list"
 					icon="i-heroicons-pencil-square"
+					:disabled="isOffline"
 					@click="startEdit" />
 				<template v-else>
 					<UButton variant="outline" size="lg" label="Done" @click="list.renamable ? commitRename() : doneEdit()" />

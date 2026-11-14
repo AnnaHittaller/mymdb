@@ -7,6 +7,9 @@ useScrollbarGutter()
 // Start trending with the session. server: false so other pages are not held for this request.
 useTrendingHero({ lazy: true, server: false })
 
+usePwaUpdate()
+useOfflineReady()
+
 useHead({
     bodyAttrs: {
         class: 'bg-surface-page text-fg-default'
@@ -23,6 +26,7 @@ useHead({
     <UApp
         :scroll-body="false"
         :toaster="{ duration: 5000, progress: true, expand: false }">
+        <NuxtPwaManifest />
         <AppComputedStyle />
        <!-- <NuxtLoadingIndicator color="var(--color-accent)" /> -->
         <NuxtLayout>

@@ -19,6 +19,7 @@
     "@nuxt/eslint": "^1.10.0",
     "@nuxt/test-utils": "^4.3.4",
     "@playwright/test": "^1.64.1",
+    "@vite-pwa/nuxt": "^2.0.1",
     "eslint": "^9.39.1",
     "nuxt": "^4.1.0",
     "typescript": "^5.8.3",

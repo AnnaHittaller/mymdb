@@ -18,8 +18,43 @@ const productionTrailerCsp = [
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   "script-src 'self' 'unsafe-inline'",
+  "worker-src 'self'",
   "connect-src 'self' https://api.themoviedb.org https://*.googleapis.com https://*.firebaseio.com https://*.google.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com",
 ].join('; ')
+
+const pwaManifest = {
+  name: 'MyMDb',
+  short_name: 'MyMDb',
+  description: 'Keep your movie and show must-watch list always up-to-date.',
+  id: '/',
+  start_url: '/',
+  scope: '/',
+  display: 'standalone' as const,
+  orientation: 'portrait' as const,
+  theme_color: '#101010',
+  background_color: '#101010',
+  categories: ['entertainment', 'lifestyle'],
+  icons: [
+    {
+      src: 'pwa-192x192.png',
+      sizes: '192x192',
+      type: 'image/png',
+      purpose: 'any',
+    },
+    {
+      src: 'pwa-512x512.png',
+      sizes: '512x512',
+      type: 'image/png',
+      purpose: 'any',
+    },
+    {
+      src: 'maskable-icon-512x512.png',
+      sizes: '512x512',
+      type: 'image/png',
+      purpose: 'maskable',
+    },
+  ],
+}
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
@@ -32,6 +67,16 @@ export default defineNuxtConfig({
           key: 'shell-bg',
           innerHTML: 'html,body{background-color:#101010;color:#fafafa}',
         },
+      ],
+      link: [
+        { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+      ],
+      meta: [
+        { name: 'theme-color', content: '#101010' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+        { name: 'apple-mobile-web-app-title', content: 'MyMDb' },
       ],
     },
   },
@@ -46,7 +91,58 @@ export default defineNuxtConfig({
     '@formkit/auto-animate/nuxt',
     'nuxt-vuefire',
     'nuxt-simple-cookie-consent',
+    '@vite-pwa/nuxt',
   ],
+
+  pwa: {
+    registerType: 'prompt',
+    manifest: pwaManifest,
+    generateSW: {
+      globPatterns: ['**/*.{js,css,woff2,png,ico,svg,webmanifest}'],
+      globIgnores: ['**/*.{html,json}', '**/server/**'],
+      globStrict: false,
+      navigateFallback: undefined,
+      navigateFallbackDenylist: [/^\/api\//],
+      cleanupOutdatedCaches: true,
+      runtimeCaching: [
+        {
+          urlPattern: ({ url }) => url.pathname.startsWith('/api/_nuxt_icon'),
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'mymdb-nuxt-icons',
+            expiration: {
+              maxEntries: 256,
+              maxAgeSeconds: 60 * 60 * 24 * 30,
+            },
+          },
+        },
+        {
+          urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
+          handler: 'NetworkOnly',
+        },
+        {
+          urlPattern: ({ request }) => request.mode === 'navigate',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'mymdb-html',
+            networkTimeoutSeconds: 3,
+            expiration: {
+              maxEntries: 32,
+              maxAgeSeconds: 60 * 60 * 24,
+            },
+          },
+        },
+      ],
+    },
+    client: {
+      registerPlugin: true,
+      installPrompt: 'mymdb_pwa_install_dismissed',
+    },
+    devOptions: {
+      enabled: true,
+      type: 'module',
+    },
+  },
 
   cookieConsent: {
     cookieName: 'mymdb_consent',
@@ -69,6 +165,15 @@ export default defineNuxtConfig({
   icon: {
     serverBundle: {
       collections: ['fe', 'fluent-emoji-flat', 'heroicons', 'streamline-memes'],
+    },
+    clientBundle: {
+      scan: true,
+      // Full heroicons scan can exceed the default 256 KB; app is PWA-offline-first for UI chrome.
+      sizeLimitKb: 768,
+    },
+    provider: {
+      server: 'server',
+      client: 'server',
     },
   },
 

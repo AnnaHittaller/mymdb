@@ -20,6 +20,7 @@ const visibleLists = computed(() =>
 
 const createOpen = ref(false);
 const isDesktop = useMediaQuery("(min-width: 768px)");
+const { isOffline } = useOfflineReady();
 </script>
 
 <template>
@@ -40,6 +41,7 @@ const isDesktop = useMediaQuery("(min-width: 768px)");
 					size="lg"
 					label="Add new list"
 					icon="i-heroicons-plus"
+					:disabled="isOffline"
 					:ui="{ leadingIcon: 'size-5' }"
 					@click="createOpen = true" />
 			</div>

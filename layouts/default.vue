@@ -3,6 +3,7 @@
         <main class="relative min-w-0 max-h-full max-w-full flex-grow max-sm:pb-14 p-0">
             <AppSearchToolbar />
             <div class="px-4 pb-8">
+                <AppOfflineBanner />
                 <slot />
             </div>
         </main>

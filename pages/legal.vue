@@ -80,6 +80,10 @@ const sections = [
 					used only to reorder your personal Coming soon list—not to replace the default catalog.
 				</li>
 				<li>A sign-in session cookie (<code>__session</code>), so a refresh keeps you signed in.</li>
+				<li>
+					A copy of your lists and favorites on this device after you have used the app online while signed in,
+					so you can view those lists offline in the installed app or browser.
+				</li>
 			</ul>
 			<p>
 				Passwords are handled by Firebase Authentication and are not stored in MyMDb’s own database.

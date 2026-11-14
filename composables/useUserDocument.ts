@@ -52,6 +52,27 @@ export function provideUserDocument() {
 	const userRef = computed(() => (user.value?.uid ? doc(db, "users", user.value.uid) : null));
 	const userDoc = useDocument(userRef);
 	const version = ref(0);
+	const offlineReady = import.meta.client ? useOfflineReady() : null;
+	const writeToast = import.meta.client ? useToast() : null;
+
+	function blockOfflineWrite(): boolean {
+		if (!offlineReady?.isOffline.value) {
+			return false;
+		}
+		writeToast?.add({
+			...OFFLINE_WRITE_TOAST,
+			color: "neutral",
+			duration: 8_000,
+		});
+		return true;
+	}
+
+	async function guardedWrite<T>(action: () => Promise<T>): Promise<T | undefined> {
+		if (blockOfflineWrite()) {
+			return undefined;
+		}
+		return action();
+	}
 
 	const store = createVueFireUserDocumentStore(db, () => user.value?.uid ?? null, userDoc);
 	const document = createUserDocument(store);
@@ -117,16 +138,18 @@ export function provideUserDocument() {
 			version.value;
 			return document.isInFavorites(id, mediaType);
 		},
-		toggleListMembership: (listId, payload) => document.toggleListMembership(listId, payload),
-		removeFromList: (listId, id, mediaType) => document.removeFromList(listId, id, mediaType),
-		setFavorites: (payload, add) => document.setFavorites(payload, add),
-		createList: (name) => document.createList(name),
-		renameList: (listId, name) => document.renameList(listId, name),
-		deleteList: (listId) => document.deleteList(listId),
-		setTheme: (theme) => document.setTheme(theme),
-		setCatalogPrefs: (patch) => document.setCatalogPrefs(patch),
-		setUsername: (username) => document.setUsername(username),
-		repairWatchlist: (hints) => document.repairWatchlist(hints),
+		toggleListMembership: (listId, payload) =>
+			guardedWrite(() => document.toggleListMembership(listId, payload)),
+		removeFromList: (listId, id, mediaType) =>
+			guardedWrite(() => document.removeFromList(listId, id, mediaType)),
+		setFavorites: (payload, add) => guardedWrite(() => document.setFavorites(payload, add)),
+		createList: (name) => guardedWrite(() => document.createList(name)),
+		renameList: (listId, name) => guardedWrite(() => document.renameList(listId, name)),
+		deleteList: (listId) => guardedWrite(() => document.deleteList(listId)),
+		setTheme: (theme) => guardedWrite(() => document.setTheme(theme)),
+		setCatalogPrefs: (patch) => guardedWrite(() => document.setCatalogPrefs(patch)),
+		setUsername: (username) => guardedWrite(() => document.setUsername(username)),
+		repairWatchlist: (hints) => guardedWrite(() => document.repairWatchlist(hints)),
 		favoritesListId: FAVORITES_LIST_ID,
 		watchNextListId: WATCH_NEXT_LIST_ID,
 	};
@@ -177,9 +200,16 @@ function watchCatalogRefresh(
 			if (!uid || started.has(uid) || catalogRefreshIsFresh(uid)) {
 				return;
 			}
+			if (!navigator.onLine) {
+				return;
+			}
 			started.add(uid);
 			void (async () => {
 				try {
+					if (!navigator.onLine) {
+						started.delete(uid);
+						return;
+					}
 					const list = movies();
 					if (list.length === 0 || userId() !== uid) {
 						started.delete(uid);
