@@ -107,7 +107,11 @@ const state = reactive({
 const debouncedQuery = refDebounced(toRef(state, "query"), MOVIE_SEARCH_DEBOUNCE_MS);
 const formRef = useTemplateRef("searchForm");
 const { width: viewportWidth } = useWindowSize();
-const isMobileChrome = computed(() => viewportWidth.value < 640);
+const afterHydration = ref(false);
+onMounted(() => {
+	afterHydration.value = true;
+});
+const isMobileChrome = computed(() => afterHydration.value && viewportWidth.value < 640);
 const recentDisplayLimit = computed(() =>
 	isMobileChrome.value ? RECENT_SEARCHES_MOBILE_DISPLAY : RECENT_SEARCHES_DESKTOP_DISPLAY,
 );

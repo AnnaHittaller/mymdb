@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { useMediaQuery } from "@vueuse/core";
-
 definePageMeta({
 	middleware: "auth",
 });
 
 const createOpen = ref(false);
-const isDesktop = useMediaQuery("(min-width: 768px)");
+const isDesktop = useIsDesktop();
 const { isOffline } = useOfflineReady();
 </script>
 

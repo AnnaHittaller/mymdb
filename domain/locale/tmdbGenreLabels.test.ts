@@ -7,6 +7,11 @@ describe("tmdbGenreLabels", () => {
 		expect(localizeTmdbGenreName("Action & Adventure", "de", 10759)).toBe("Action und Abenteuer")
 	})
 
+	it("translates Soap by id", () => {
+		expect(localizeTmdbGenreName("Soap", "hu-HU", 10766)).toBe("Szappanopera")
+		expect(localizeTmdbGenreName("Soap", "de", 10766)).toBe("Seifenoper")
+	})
+
 	it("translates leftover English names without ids", () => {
 		expect(
 			localizeTmdbGenreNames(["Animációs", "Action & Adventure", "Sci-Fi & Fantasy"], "hu"),

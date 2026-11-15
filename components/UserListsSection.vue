@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useMediaQuery } from "@vueuse/core";
 import { listPath } from "~/domain/user-document/listHelpers";
 import { systemListDisplayName } from "~/utils/systemListDisplayName";
 
@@ -22,7 +21,7 @@ const visibleLists = computed(() =>
 );
 
 const createOpen = ref(false);
-const isDesktop = useMediaQuery("(min-width: 768px)");
+const isDesktop = useIsDesktop();
 const { isOffline } = useOfflineReady();
 </script>
 

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useMediaQuery } from "@vueuse/core";
 import { browsingDrawerUi, browsingSlideoverUi } from "~/constants/browsingOverlayUi";
 import type { ToggleMoviePayload } from "~/domain/user-document/createUserDocument";
 import type { MediaType } from "~/types/catalog";
@@ -15,7 +14,7 @@ const open = defineModel<boolean>("open", { default: false });
 const { lists, isInList, toggleListMembership } = useUserDocument();
 const { notifyListError } = useListCapToast();
 
-const isDesktop = useMediaQuery("(min-width: 768px)");
+const isDesktop = useIsDesktop();
 const createOpen = ref(false);
 
 const flyoutLists = computed(() => lists.value);
