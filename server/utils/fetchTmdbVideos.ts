@@ -9,11 +9,11 @@ type TmdbVideosResponse = {
 };
 
 export const fetchTmdbVideos = defineCachedFunction(
-	async (id: string, mediaType: MediaType): Promise<TrailerRef | null> => {
+	async (id: string, mediaType: MediaType, language = "en-US"): Promise<TrailerRef | null> => {
 		const config = useRuntimeConfig();
 		const segment = mediaType === "tv" ? "tv" : "movie";
 		const response = await $fetch<TmdbVideosResponse>(
-			`${config.apiBaseUrl}/${segment}/${id}/videos?language=en-US`,
+			`${config.apiBaseUrl}/${segment}/${id}/videos?language=${encodeURIComponent(language)}`,
 			{
 				method: "GET",
 				headers: {
@@ -27,6 +27,6 @@ export const fetchTmdbVideos = defineCachedFunction(
 	{
 		maxAge: CACHE_DURATION / 1000,
 		name: "tmdb-videos",
-		getKey: (id: string, mediaType: MediaType) => `${mediaType}:${id}`,
+		getKey: (id: string, mediaType: MediaType, language = "en-US") => `${mediaType}:${id}:${language}`,
 	},
 );

@@ -5,6 +5,8 @@ const props = defineProps<{
 	payload: ToggleMoviePayload | null;
 }>();
 
+const { t } = useI18n();
+
 const route = useRoute();
 const user = useCurrentUser();
 const { isInFavorites, setFavorites } = useUserDocument();
@@ -25,7 +27,7 @@ const inFavorites = computed(() => {
 });
 
 const favoritesLabel = computed(() =>
-	inFavorites.value ? "Remove from favorites" : "Add to favorites",
+	inFavorites.value ? t("detail.removeFavorites") : t("detail.addFavorites"),
 );
 
 const detailActionUi = {
@@ -64,7 +66,7 @@ async function onShare() {
 				size="icon"
 				square
 				:ui="detailActionUi"
-				aria-label="Sign in to save to a list"
+				:aria-label="$t('detail.signInSaveList')"
 				:to="loginTo">
 				<IconAddToList class="size-6" />
 			</UButton>
@@ -75,7 +77,7 @@ async function onShare() {
 				size="icon"
 				square
 				:ui="detailActionUi"
-				aria-label="Save to list"
+				:aria-label="$t('detail.saveToList')"
 				:disabled="!payload"
 				@click="pickerOpen = true">
 				<IconAddToList class="size-6" />
@@ -89,7 +91,7 @@ async function onShare() {
 				square
 				:ui="detailActionUi"
 				icon="i-heroicons-heart"
-				aria-label="Sign in to add to favorites"
+				:aria-label="$t('detail.signInFavorites')"
 				:to="loginTo" />
 			<UButton
 				v-else
@@ -113,7 +115,7 @@ async function onShare() {
 				square
 				:ui="detailActionUi"
 				icon="i-heroicons-share"
-				aria-label="Share"
+				:aria-label="$t('common.share')"
 				@click="onShare" />
 		</div>
 		<ListPickerOverlay v-if="payload" v-model:open="pickerOpen" :movie-payload="payload" />

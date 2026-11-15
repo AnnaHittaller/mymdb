@@ -102,8 +102,8 @@ function onCreateList(listId: string) {
 	<USlideover
 		v-if="isDesktop"
 		v-model:open="open"
-		title="Save to list"
-		description="Toggle lists for this title"
+		:title="$t('lists.saveToList')"
+		:description="$t('lists.saveToListDescription')"
 		:ui="browsingSlideoverUi">
 		<template #body>
 			<ListPickerBody
@@ -116,7 +116,7 @@ function onCreateList(listId: string) {
 	<UDrawer
 		v-else
 		v-model:open="open"
-		title="Save to list"
+		:title="$t('lists.saveToList')"
 		:dismissible="true"
 		:ui="browsingDrawerUi">
 		<template #body>

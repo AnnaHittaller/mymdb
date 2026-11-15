@@ -18,6 +18,7 @@ function releaseYearFrom(date: string | undefined | null): number | null {
 export default defineEventHandler(async (event) => {
 	try {
 		const query = getQuery(event)
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
 		const config = useRuntimeConfig()
 		const page = query.page || 1
 		const headers = {
@@ -30,10 +31,10 @@ export default defineEventHandler(async (event) => {
 				results: TmdbSearchResult[]
 				total_pages: number
 			}>(
-				`${config.apiBaseUrl}/search/movie?query=${encodeURIComponent(String(query.query ?? ""))}&include_adult=false&language=en-US&page=${page}`,
+				`${config.apiBaseUrl}/search/movie?query=${encodeURIComponent(String(query.query ?? ""))}&include_adult=false&language=${encodeURIComponent(language)}&page=${page}`,
 				{ method: 'GET', headers },
 			),
-			getMovieGenreNameMap(),
+			getMovieGenreNameMap(language),
 		])
 
 		return {

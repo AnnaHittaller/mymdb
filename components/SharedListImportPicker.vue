@@ -18,6 +18,7 @@ const props = defineProps<{
 const { lists, isOnAnyList, moviesInList, toggleListMembership, createList } = useUserDocument();
 const { notifyListError } = useListCapToast();
 const toast = useToast();
+const { t } = useI18n();
 const isDesktop = useMediaQuery("(min-width: 768px)");
 
 const selected = ref<string>(IMPORT_AS_NEW_LIST);
@@ -51,7 +52,7 @@ async function onImport() {
 			createList,
 			lists: () => lists.value,
 		});
-		const message = formatImportSnapshotToast(result);
+		const message = formatImportSnapshotToast(result, t);
 		toast.add({
 			title: message.title,
 			description: message.description,
@@ -63,8 +64,8 @@ async function onImport() {
 	} catch (error) {
 		if (!notifyListError(error)) {
 			toast.add({
-				title: "Could not import list",
-				description: error instanceof Error ? error.message : "Try again.",
+				title: t("lists.importError"),
+				description: error instanceof Error ? error.message : t("common.tryAgain"),
 				color: "error",
 			});
 		}
@@ -78,8 +79,8 @@ async function onImport() {
 	<USlideover
 		v-if="isDesktop"
 		v-model:open="open"
-		title="Save to my lists"
-		description="Choose where to add these titles"
+		:title="$t('lists.saveToMyLists')"
+		:description="$t('lists.importChooseTarget')"
 		:ui="browsingSlideoverUi">
 		<template #body>
 			<SharedListImportPickerBody
@@ -89,15 +90,15 @@ async function onImport() {
 		</template>
 		<template #footer>
 			<div class="flex w-full justify-end gap-2">
-				<UButton variant="outline" size="lg" label="Cancel" @click="open = false" />
-				<UButton size="lg" label="Import" :loading="importing" @click="onImport" />
+				<UButton variant="outline" size="lg" :label="$t('common.cancel')" @click="open = false" />
+				<UButton size="lg" :label="$t('lists.import')" :loading="importing" @click="onImport" />
 			</div>
 		</template>
 	</USlideover>
 	<UDrawer
 		v-else
 		v-model:open="open"
-		title="Save to my lists"
+		:title="$t('lists.saveToMyLists')"
 		:dismissible="!importing"
 		:ui="browsingDrawerUi">
 		<template #body>
@@ -106,7 +107,7 @@ async function onImport() {
 					v-model:selected="selected"
 					:snapshot-name="snapshot.sourceListName"
 					:custom-lists="customLists" />
-				<UButton block size="xl" label="Import" :loading="importing" @click="onImport" />
+				<UButton block size="xl" :label="$t('lists.import')" :loading="importing" @click="onImport" />
 			</div>
 		</template>
 	</UDrawer>

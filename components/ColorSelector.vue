@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { THEME_ACCENT_COLORS, themeAccentLabel } from "~/constants/themeAccentColors";
-
 const { theme, setTheme } = useUserDocument();
+const { colors: themeColors, themeAccentLabel } = useThemeAccentLabels();
 
 const updateColor = async (color: string) => {
 	await setTheme(color);
@@ -11,11 +10,11 @@ const updateColor = async (color: string) => {
 <template>
 	<div class="space-y-4">
 		<p class="text-base text-fg-muted">
-			Current theme:
+			{{ $t('profile.currentTheme') }}
 			<span class="text-fg-default">{{ themeAccentLabel(theme) }}</span>
 		</p>
 		<div class="flex flex-wrap gap-4">
-			<div v-for="color in THEME_ACCENT_COLORS" :key="color.value" class="inline-block">
+			<div v-for="color in themeColors" :key="color.value" class="inline-block">
 				<label :for="`theme-${color.value}`" class="cursor-pointer">
 					<input
 						:id="`theme-${color.value}`"

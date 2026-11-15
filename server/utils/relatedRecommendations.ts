@@ -111,6 +111,7 @@ async function fetchDiscover(
 	filters: DiscoverFilters,
 	config: ReturnType<typeof useRuntimeConfig>,
 	headers: Record<string, string>,
+	language: string,
 ): Promise<TmdbMediaRow[]> {
 	if (!filters.keywords && !filters.genres) return []
 
@@ -118,7 +119,7 @@ async function fetchDiscover(
 		page: 1,
 		keywords: filters.keywords,
 		genres: filters.keywords ? '' : filters.genres,
-	})
+	}, language)
 
 	const response = await $fetch<{ results: TmdbMediaRow[] }>(
 		`${config.apiBaseUrl}/discover/${media}?${params.toString()}`,
@@ -133,9 +134,10 @@ async function fetchTmdbRecommendations(
 	id: string,
 	config: ReturnType<typeof useRuntimeConfig>,
 	headers: Record<string, string>,
+	language: string,
 ): Promise<TmdbRecommendationRow[]> {
 	const response = await $fetch<{ results: TmdbRecommendationRow[] }>(
-		`${config.apiBaseUrl}/${media}/${id}/recommendations?language=en-US&page=1`,
+		`${config.apiBaseUrl}/${media}/${id}/recommendations?language=${encodeURIComponent(language)}&page=1`,
 		{ method: 'GET', headers },
 	)
 	return response.results ?? []
@@ -154,16 +156,18 @@ function mapDiscoverRows(
 export async function buildPlainRelatedTitles(options: {
 	media: MediaType
 	id: string
+	language?: string
 }): Promise<RelatedCard[]> {
 	const config = useRuntimeConfig()
+	const language = options.language ?? "en-US"
 	const headers = {
 		accept: 'application/json',
 		Authorization: `Bearer ${config.apiBearerToken}`,
 	}
 	const sourceId = Number(options.id)
 	const [recommendationRows, genreMap] = await Promise.all([
-		fetchTmdbRecommendations(options.media, options.id, config, headers),
-		options.media === 'tv' ? getTvGenreNameMap() : getMovieGenreNameMap(),
+		fetchTmdbRecommendations(options.media, options.id, config, headers, language),
+		options.media === 'tv' ? getTvGenreNameMap(language) : getMovieGenreNameMap(language),
 	])
 
 	const recommendations = recommendationRows
@@ -180,8 +184,10 @@ export async function buildPlainRelatedTitles(options: {
 export async function buildBlendedRelatedTitles(options: {
 	media: MediaType
 	id: string
+	language?: string
 }): Promise<RelatedCard[]> {
 	const config = useRuntimeConfig()
+	const language = options.language ?? "en-US"
 	const headers = {
 		accept: 'application/json',
 		Authorization: `Bearer ${config.apiBearerToken}`,
@@ -190,11 +196,11 @@ export async function buildBlendedRelatedTitles(options: {
 
 	const [sourceGenres, sourceKeywords, recommendationRows, sameMediaGenreMap] = await Promise.all([
 		options.media === 'tv'
-			? (await fetchTmdbTv(options.id)).genres ?? []
-			: (await fetchTmdbMovie(options.id)).genres ?? [],
+			? (await fetchTmdbTv(options.id, language)).genres ?? []
+			: (await fetchTmdbMovie(options.id, language)).genres ?? [],
 		fetchTmdbKeywords(options.media, options.id),
-		fetchTmdbRecommendations(options.media, options.id, config, headers),
-		options.media === 'tv' ? getTvGenreNameMap() : getMovieGenreNameMap(),
+		fetchTmdbRecommendations(options.media, options.id, config, headers, language),
+		options.media === 'tv' ? getTvGenreNameMap(language) : getMovieGenreNameMap(language),
 	])
 
 	const keywordIds = formatKeywordIdsForDiscover(sourceKeywords)
@@ -202,10 +208,10 @@ export async function buildBlendedRelatedTitles(options: {
 
 	const [keywordDiscoverSame, genreDiscoverSame] = await Promise.all([
 		keywordIds
-			? fetchDiscover(options.media, { keywords: keywordIds, genres: '' }, config, headers)
+			? fetchDiscover(options.media, { keywords: keywordIds, genres: '' }, config, headers, language)
 			: Promise.resolve([]),
 		sameGenreIds
-			? fetchDiscover(options.media, { keywords: '', genres: sameGenreIds }, config, headers)
+			? fetchDiscover(options.media, { keywords: '', genres: sameGenreIds }, config, headers, language)
 			: Promise.resolve([]),
 	])
 

@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { UserList } from "~/types/list";
+import { systemListDisplayName } from "~/utils/systemListDisplayName";
+
+const { t } = useI18n();
 
 defineProps<{
 	lists: UserList[];
@@ -25,14 +28,14 @@ const emit = defineEmits<{
 					: 'border-border-default text-fg-default hover:border-primary/60 hover:bg-surface-overlay'
 			"
 			@click="emit('toggle', list.id)">
-			{{ list.name }}
+			{{ systemListDisplayName(list, t) }}
 		</button>
 		<UButton
 			variant="outline"
 			block
 			size="xl"
 			class="mt-2"
-			label="Create new list"
+			:label="$t('lists.createNewList')"
 			icon="i-heroicons-plus"
 			:ui="{ leadingIcon: 'size-5' }"
 			@click="emit('create')" />

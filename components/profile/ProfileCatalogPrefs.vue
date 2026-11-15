@@ -27,19 +27,26 @@ type WatchProvidersResponse = {
 	providers: TmdbWatchProvider[]
 }
 
+const { t, locale } = useI18n()
+
 const filterMenuControl = { highlightOnHover: true }
 
 const user = useCurrentUser()
-const { catalogPrefs, setCatalogPrefs } = useUserDocument()
+const userDocument = useUserDocument()
+const { catalogPrefs, setCatalogPrefs } = userDocument
 
 const { data: countries } = useFetch<TmdbCountry[]>("/api/configuration/countries", {
 	key: "tmdb-countries",
 })
 const { data: movieGenreList } = useFetch<GenreList>("/api/movies/genres", {
-	key: "profile-movie-genres",
+	key: computed(() => `profile-movie-genres-${locale.value}`),
+	query: computed(() => ({ language: locale.value })),
+	watch: [locale],
 })
 const { data: tvGenreList } = useFetch<GenreList>("/api/tv/genres", {
-	key: "profile-tv-genres",
+	key: computed(() => `profile-tv-genres-${locale.value}`),
+	query: computed(() => ({ language: locale.value })),
+	watch: [locale],
 })
 
 const countryItems = computed((): CountryItem[] => {
@@ -49,7 +56,7 @@ const countryItems = computed((): CountryItem[] => {
 			value: country.iso_3166_1,
 		}))
 		.sort((left, right) => left.label.localeCompare(right.label, "en", { sensitivity: "base" }))
-	return [{ label: "No country", value: null }, ...fromApi]
+	return [{ label: t("common.noCountry"), value: null }, ...fromApi]
 })
 
 const movieGenreItems = computed(() =>
@@ -140,7 +147,7 @@ async function resolveKeywordLabels(ids: number[]) {
 }
 
 function keywordChipLabel(id: number) {
-	return keywordLabels.value[id] ?? `Keyword ${id}`
+	return keywordLabels.value[id] ?? t("common.keywordId", { id })
 }
 
 async function onRegionChange(value: string | null) {
@@ -198,19 +205,17 @@ async function removeKeyword(id: number) {
 <template>
 	<div class="space-y-8">
 		<p class="text-base text-fg-muted">
-			Your default Coming soon list stays the same for everyone. These picks only move matching titles higher for
-			you.
-			Nothing is stored in this browser—only on your account.
+			{{ $t('profile.catalogIntro') }}
 		</p>
 
 		<div class="grid w-full min-w-0 gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr))]">
-			<UFormField label="Movie genres" name="catalogMovieGenres">
+			<UFormField :label="$t('profile.movieGenres')" name="catalogMovieGenres">
 				<USelectMenu
 					:model-value="selectedMovieGenres"
 					:items="movieGenreItems"
 					value-key="value"
 					multiple
-					placeholder="Any genres"
+					:placeholder="$t('common.anyGenres')"
 					searchable
 					:content="discoverFilterContent"
 					v-bind="filterMenuControl"
@@ -218,18 +223,22 @@ async function removeKeyword(id: number) {
 					@update:model-value="onMovieGenresChange">
 					<template #default>
 						<span class="truncate text-fg-default">
-							{{ selectedMovieGenres.length ? `${selectedMovieGenres.length} selected` : "Any genres" }}
+							{{
+								selectedMovieGenres.length
+									? $t('common.selectedCount', { count: selectedMovieGenres.length })
+									: $t('common.anyGenres')
+							}}
 						</span>
 					</template>
 				</USelectMenu>
 			</UFormField>
-			<UFormField label="TV genres" name="catalogTvGenres">
+			<UFormField :label="$t('profile.tvGenres')" name="catalogTvGenres">
 				<USelectMenu
 					:model-value="selectedTvGenres"
 					:items="tvGenreItems"
 					value-key="value"
 					multiple
-					placeholder="Any genres"
+					:placeholder="$t('common.anyGenres')"
 					searchable
 					:content="discoverFilterContent"
 					v-bind="filterMenuControl"
@@ -237,12 +246,16 @@ async function removeKeyword(id: number) {
 					@update:model-value="onTvGenresChange">
 					<template #default>
 						<span class="truncate text-fg-default">
-							{{ selectedTvGenres.length ? `${selectedTvGenres.length} selected` : "Any genres" }}
+							{{
+								selectedTvGenres.length
+									? $t('common.selectedCount', { count: selectedTvGenres.length })
+									: $t('common.anyGenres')
+							}}
 						</span>
 					</template>
 				</USelectMenu>
 			</UFormField>
-			<UFormField label="Keywords" name="catalogKeywords">
+			<UFormField :label="$t('profile.keywords')" name="catalogKeywords">
 				<UInputMenu
 					:key="keywordInputKey"
 					v-model:search-term="keywordSearchTerm"
@@ -250,7 +263,7 @@ async function removeKeyword(id: number) {
 					:items="keywordSuggestions"
 					value-key="value"
 					ignore-filter
-					placeholder="Search keywords"
+					:placeholder="$t('profile.searchKeywords')"
 					:content="discoverFilterContent"
 					v-bind="filterMenuControl"
 					class="w-full min-w-0"
@@ -264,39 +277,42 @@ async function removeKeyword(id: number) {
 					v-for="id in keywordIdsForUi"
 					:key="id"
 					:label="keywordChipLabel(id)"
-					:remove-label="`Remove ${keywordChipLabel(id)}`"
+					:remove-label="$t('common.removeKeyword', { name: keywordChipLabel(id) })"
 					@remove="removeKeyword(id)" />
 			</div>
 			<p class="text-sm text-fg-muted">
-				Up to {{ MAX_CATALOG_GENRE_PREFS }} genres per type and {{ MAX_CATALOG_KEYWORD_PREFS }} keywords.
-				Each group uses OR (any match boosts a title).
+				{{
+					$t('profile.prefsFootnote', {
+						genres: MAX_CATALOG_GENRE_PREFS,
+						keywords: MAX_CATALOG_KEYWORD_PREFS,
+					})
+				}}
 			</p>
 		</div>
 
 		<div class="space-y-4 border-t border-border-default pt-6">
 			<div class="space-y-1">
-				<p class="text-lg font-semibold text-fg-default">My streaming services</p>
+				<p class="text-lg font-semibold text-fg-default">{{ $t('profile.myStreaming') }}</p>
 				<p class="text-base text-fg-muted">
-					Country is only used here: it tells TMDB which streaming catalog to use when you pick services.
-					It does not change release dates on Coming soon.
+					{{ $t('profile.streamingIntro') }}
 				</p>
 			</div>
-			<UFormField label="Country (for services)" name="catalogRegion">
+			<UFormField :label="$t('profile.countryForServices')" name="catalogRegion">
 				<USelectMenu
 					:model-value="selectedRegion"
 					:items="countryItems"
 					value-key="value"
-					placeholder="Search country"
+					:placeholder="$t('profile.searchCountry')"
 					searchable
 					:content="discoverFilterContent"
 					v-bind="filterMenuControl"
 					class="w-full min-w-0 max-w-md"
 					@update:model-value="onRegionChange" />
 			</UFormField>
-			<p v-if="!selectedRegion" class="text-base text-fg-muted">Choose a country to see services.</p>
-			<p v-else-if="providersLoading" class="text-base text-fg-muted">Loading services…</p>
+			<p v-if="!selectedRegion" class="text-base text-fg-muted">{{ $t('profile.chooseCountry') }}</p>
+			<p v-else-if="providersLoading" class="text-base text-fg-muted">{{ $t('profile.loadingServices') }}</p>
 			<p v-else-if="providersError" class="text-base text-fg-muted">
-				Couldn&apos;t load services for this country. Try again in a moment.
+				{{ $t('profile.servicesError') }}
 			</p>
 			<div v-else-if="watchProviders?.providers?.length" class="flex flex-wrap gap-2">
 				<button
@@ -315,10 +331,9 @@ async function removeKeyword(id: number) {
 					{{ provider.provider_name }}
 				</button>
 			</div>
-			<p v-else class="text-base text-fg-muted">No streaming services listed for this country.</p>
+			<p v-else class="text-base text-fg-muted">{{ $t('profile.noServices') }}</p>
 			<p class="text-sm text-fg-muted">
-				Showing the top {{ PROFILE_WATCH_PROVIDER_LIMIT }} services in your country (TMDB popularity).
-				Selecting services boosts titles TMDB lists on those platforms. Theatrical-only releases may rank lower.
+				{{ $t('profile.streamingFootnote', { limit: PROFILE_WATCH_PROVIDER_LIMIT }) }}
 			</p>
 		</div>
 	</div>

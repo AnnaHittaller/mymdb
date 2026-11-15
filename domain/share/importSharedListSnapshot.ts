@@ -86,15 +86,23 @@ export async function importSharedListSnapshot(
 	};
 }
 
-export function formatImportSnapshotToast(result: ImportSnapshotResult): { title: string; description?: string } {
+type ImportToastCopy = (key: string, params?: Record<string, string | number>) => string;
+
+export function formatImportSnapshotToast(
+	result: ImportSnapshotResult,
+	t: ImportToastCopy,
+): { title: string; description?: string } {
 	const skipped = result.skippedDuplicates + result.skippedCap;
 	if (result.added === 0 && skipped === 0) {
-		return { title: "Nothing to import", description: "Every title is already on your lists." };
+		return {
+			title: t("lists.importNothingToImport"),
+			description: t("lists.importAllAlready"),
+		};
 	}
 	const title =
 		result.added === 1
-			? "1 title added to your list"
-			: `${result.added} titles added to your list`;
+			? t("lists.importAddedOne")
+			: t("lists.importAddedCount", { count: result.added });
 	if (skipped === 0) {
 		return { title };
 	}
@@ -102,19 +110,19 @@ export function formatImportSnapshotToast(result: ImportSnapshotResult): { title
 	if (result.skippedDuplicates > 0) {
 		parts.push(
 			result.skippedDuplicates === 1
-				? "1 duplicate"
-				: `${result.skippedDuplicates} duplicates`,
+				? t("lists.importDuplicateOne")
+				: t("lists.importDuplicatesCount", { count: result.skippedDuplicates }),
 		);
 	}
 	if (result.skippedCap > 0) {
 		parts.push(
 			result.skippedCap === 1
-				? "1 over the list limit"
-				: `${result.skippedCap} over the list limit`,
+				? t("lists.importOverCapOne")
+				: t("lists.importOverCapCount", { count: result.skippedCap }),
 		);
 	}
 	return {
 		title,
-		description: `Skipped ${parts.join(" and ")}.`,
+		description: t("lists.importSkipped", { parts: parts.join(` ${t("common.and")} `) }),
 	};
 }

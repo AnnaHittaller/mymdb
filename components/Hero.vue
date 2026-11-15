@@ -7,7 +7,9 @@ import { catalogDetailPath } from "~/utils/catalogPath";
 import { defaultMediaType } from "~/utils/catalogKey";
 import { formatMovieRating } from "~/utils/formatMovieRating";
 import { catalogKey } from "~/utils/catalogKey";
+import { localizeTmdbGenreNames } from "~/domain/locale/tmdbGenreLabels";
 
+const { locale } = useI18n();
 const user = useCurrentUser();
 const { data: trendingItems } = await useTrendingHero();
 
@@ -35,6 +37,10 @@ useHead(() => {
 
 function ratingLabel(item: TrendingItem) {
 	return formatMovieRating(item.rating);
+}
+
+function genreLine(item: TrendingItem) {
+	return localizeTmdbGenreNames(item.genres ?? [], locale.value).join(" · ");
 }
 
 function yearLabel(item: TrendingItem) {
@@ -162,7 +168,7 @@ async function onWatchTrailer(item: TrendingItem) {
 								<span class="flex flex-col gap-0.5">
 									<span class="text-xl uppercase leading-tight">{{ item.title }}</span>
 									<span v-if="item.genres?.length" class="text-base leading-tight text-fg-muted">{{
-										item.genres.join(" · ") }}</span>
+										genreLine(item) }}</span>
 								</span>
 								<span class="text-base">
 									<UIcon name="i-heroicons-star-20-solid" class="mr-1 size-5 align-[-0.15em] text-rating" />

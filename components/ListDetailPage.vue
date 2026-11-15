@@ -7,10 +7,13 @@ import type { UserList } from "~/types/list";
 import type { UserMovie } from "~/types/movie";
 import { mergeGenreNames } from "~/utils/filterLibraryMovies";
 import { defaultMediaType } from "~/utils/catalogKey";
+import { systemListDisplayName } from "~/utils/systemListDisplayName";
 
 const props = defineProps<{
 	list: UserList;
 }>();
+
+const { t, locale } = useI18n();
 
 const { moviesInList, renameList, deleteList, removeFromList } = useUserDocument();
 const router = useRouter();
@@ -44,10 +47,14 @@ watch(debouncedSearchTerm, (value) => {
 }, { immediate: true });
 
 const { data: movieGenreList } = await useFetch<GenreList>("/api/movies/genres", {
-	key: "list-movie-genres",
+	key: computed(() => `list-movie-genres-${locale.value}`),
+	query: computed(() => ({ language: locale.value })),
+	watch: [locale],
 });
 const { data: tvGenreList } = await useFetch<GenreList>("/api/tv/genres", {
-	key: "list-tv-genres",
+	key: computed(() => `list-tv-genres-${locale.value}`),
+	query: computed(() => ({ language: locale.value })),
+	watch: [locale],
 });
 
 const mergedGenreNames = computed(() =>
@@ -61,17 +68,17 @@ const genreItems = computed(() =>
 	mergedGenreNames.value.map((name) => ({ label: name, value: name })),
 );
 
-const displayTitle = computed(() => props.list.name);
+const displayTitle = computed(() => systemListDisplayName(props.list, t));
 
 const countLabel = computed(() => {
 	const n = listMovies.value.length;
-	return n === 1 ? "1 title" : `${n} titles`;
+	return n === 1 ? t("lists.titleCountOne") : t("lists.titleCount", { count: n });
 });
 
 const showingLabel = computed(() => {
 	if (!filtersActive.value) return "";
 	const n = filteredMovies.value.length;
-	return n === 1 ? "Showing 1 title" : `Showing ${n} titles`;
+	return n === 1 ? t("lists.showingTitleOne") : t("lists.showingTitleCount", { count: n });
 });
 
 type FilterChip = {
@@ -86,23 +93,23 @@ const filterChips = computed<FilterChip[]>(() => {
 	if (title) {
 		chips.push({
 			id: "title",
-			label: `Title: «${title}»`,
-			removeLabel: "Clear title filter",
+			label: t("lists.filterChipTitle", { query: title }),
+			removeLabel: t("lists.clearTitleFilter"),
 		});
 	}
 	if (filterState.media !== "all") {
-		const label = filterState.media === "tv" ? "Shows" : "Movies";
+		const label = filterState.media === "tv" ? t("common.shows") : t("common.movies");
 		chips.push({
 			id: "media",
 			label,
-			removeLabel: `Show all movies and shows`,
+			removeLabel: t("lists.showAllMedia"),
 		});
 	}
 	for (const name of filterState.genreNames) {
 		chips.push({
 			id: `genre-${name}`,
 			label: name,
-			removeLabel: `Remove genre ${name}`,
+			removeLabel: t("lists.removeGenre", { name }),
 		});
 	}
 	return chips;
@@ -198,7 +205,7 @@ function onClearFilters() {
 					v-if="!editing"
 					variant="outline"
 					size="lg"
-					label="Share"
+					:label="$t('common.share')"
 					icon="i-heroicons-share"
 					:disabled="isOffline"
 					@click="shareOpen = true" />
@@ -206,18 +213,18 @@ function onClearFilters() {
 					v-if="!editing"
 					variant="outline"
 					size="lg"
-					label="Edit list"
+					:label="$t('lists.editList')"
 					icon="i-heroicons-pencil-square"
 					:disabled="isOffline"
 					@click="startEdit" />
 				<template v-else>
-					<UButton variant="outline" size="lg" label="Done" @click="list.renamable ? commitRename() : doneEdit()" />
+					<UButton variant="outline" size="lg" :label="$t('common.done')" @click="list.renamable ? commitRename() : doneEdit()" />
 					<UButton
 						v-if="list.kind === 'custom'"
 						color="error"
 						variant="outline"
 						size="lg"
-						label="Delete list"
+						:label="$t('lists.deleteList')"
 						@click="deleteConfirmOpen = true" />
 				</template>
 			</div>
@@ -225,11 +232,11 @@ function onClearFilters() {
 		</div>
 		<CatalogSearchInput
 			v-model="searchTerm"
-			placeholder="Filter by title"
-			aria-label="Filter list by title"
+			:placeholder="$t('lists.filterTitle')"
+			:aria-label="$t('lists.filterAria')"
 			name="list-title-filter"
 			trailing-icon="i-heroicons-funnel-20-solid"
-			trailing-icon-label="Filter"
+			:trailing-icon-label="$t('lists.filterTrailing')"
 			class="mb-4"
 			@clear="onClearSearch" />
 		<div :class="[listFilterGridClass, 'mb-10']">
@@ -241,23 +248,23 @@ function onClearFilters() {
 				:items="genreItems"
 				value-key="value"
 				multiple
-				placeholder="Any Genres"
+				:placeholder="$t('lists.anyGenresPlaceholder')"
 				:class="filterFieldClass">
 				<template #default>
-					<span class="truncate text-fg-default">Any Genres</span>
+					<span class="truncate text-fg-default">{{ $t("lists.anyGenresPlaceholder") }}</span>
 				</template>
 			</USelectMenu>
 			<div
 				class="flex min-h-11 w-full min-w-0 items-center justify-between gap-3 rounded-[8px] border border-border-default bg-surface-inset px-3 py-2">
-				<span class="text-base font-medium text-fg-default">Best rating first</span>
+				<span class="text-base font-medium text-fg-default">{{ $t("lists.bestRatingFirst") }}</span>
 				<USwitch
 					v-model="filterState.sortByBestRating"
-					aria-label="Sort by best rating" />
+					:aria-label="$t('lists.sortByRating')" />
 			</div>
 		</div>
 		<div v-if="filtersActive" class="mb-6 flex flex-wrap items-center gap-2">
 			<p class="w-full text-base font-medium text-fg-muted">
-				Active filters
+				{{ $t("lists.activeFilters") }}
 			</p>
 			<DiscoverFilterChip
 				v-for="chip in filterChips"
@@ -266,7 +273,7 @@ function onClearFilters() {
 				:remove-label="chip.removeLabel"
 				@remove="removeFilterChip(chip.id)" />
 			<UButton
-				label="Clear all"
+				:label="$t('common.clearAll')"
 				variant="outline"
 				size="lg"
 				class="ml-auto sm:ml-0"
@@ -276,11 +283,11 @@ function onClearFilters() {
 			<p v-if="showingLabel" class="mb-2 text-base text-fg-muted">
 				{{ showingLabel }}
 			</p>
-			<Heading v-if="debouncedSearchTerm.trim() !== ''">Results</Heading>
+			<Heading v-if="debouncedSearchTerm.trim() !== ''">{{ $t("common.results") }}</Heading>
 			<p v-if="filtersActive && filteredMovies.length === 0" class="text-xl md:text-2xl">
-				No matching results can be found.
+				{{ $t("lists.noMatchingResults") }}
 			</p>
-			<p v-if="listMovies.length === 0" class="text-xl md:text-2xl">This list is empty.</p>
+			<p v-if="listMovies.length === 0" class="text-xl md:text-2xl">{{ $t("lists.listEmpty") }}</p>
 			<div v-if="filteredMovies.length > 0" class="movie-grid">
 				<MovieCard
 					v-for="movie in filteredMovies"
@@ -293,17 +300,17 @@ function onClearFilters() {
 					@remove-from-list="removeMovie(movie)" />
 			</div>
 		</div>
-		<ShareListModal v-model:open="shareOpen" :list-id="list.id" :list-name="list.name" />
-		<UModal v-model:open="deleteConfirmOpen" title="Delete this list?" :ui="browsingModalUi">
+		<ShareListModal v-model:open="shareOpen" :list-id="list.id" :list-name="displayTitle" />
+		<UModal v-model:open="deleteConfirmOpen" :title="$t('lists.deleteListTitle')" :ui="browsingModalUi">
 			<template #body>
 				<p class="text-base text-fg-muted">
-					Titles stay in your library if they are on other lists. This cannot be undone.
+					{{ $t("lists.deleteKeepTitles") }}
 				</p>
 			</template>
 			<template #footer>
 				<div class="flex w-full justify-end gap-2">
-					<UButton variant="outline" size="lg" label="Cancel" @click="deleteConfirmOpen = false" />
-					<UButton color="error" size="lg" label="Delete" :loading="deleting" @click="confirmDeleteList" />
+					<UButton variant="outline" size="lg" :label="$t('common.cancel')" @click="deleteConfirmOpen = false" />
+					<UButton color="error" size="lg" :label="$t('common.delete')" :loading="deleting" @click="confirmDeleteList" />
 				</div>
 			</template>
 		</UModal>

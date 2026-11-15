@@ -8,6 +8,7 @@ import {
 	WATCH_NEXT_LIST_ID,
 } from "./listConstants";
 import { DEFAULT_CATALOG_PREFS, normalizeCatalogPrefs } from "./catalogPrefs";
+import { DEFAULT_APP_LOCALE, normalizeAppLocale } from "../locale/appLocale";
 import type { UserDocumentData } from "./types";
 
 function toDate(value: unknown): Date {
@@ -105,10 +106,13 @@ export function migrateUserDocumentV2(doc: UserDocumentData): UserDocumentData {
 		? normalizeCatalogPrefs(doc.catalogPrefs)
 		: { ...DEFAULT_CATALOG_PREFS };
 
+	const locale = normalizeAppLocale(doc.locale ?? DEFAULT_APP_LOCALE);
+
 	if (isV2Document({ ...doc, lists, movies })) {
 		return {
 			...doc,
 			schemaVersion: SCHEMA_VERSION_V2,
+			locale,
 			catalogPrefs,
 			lists,
 			movies,
@@ -118,6 +122,7 @@ export function migrateUserDocumentV2(doc: UserDocumentData): UserDocumentData {
 	return {
 		...doc,
 		schemaVersion: SCHEMA_VERSION_V2,
+		locale,
 		catalogPrefs,
 		lists,
 		movies,

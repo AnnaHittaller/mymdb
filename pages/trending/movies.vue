@@ -59,11 +59,11 @@ function toCardMovie(item: TrendingItem) {
 	<div>
 		<div class="flex flex-col gap-1 max-md:gap-0">
 			<StackBackButton />
-			<Heading class="pb-8 max-md:pb-4">Trending movies</Heading>
+			<Heading class="pb-8 max-md:pb-4">{{ $t('home.trendingMovies') }}</Heading>
 		</div>
 		<div class="flex flex-col items-stretch">
-			<p v-if="error && items.length === 0" class="text-lg">Couldn't load trending movies.</p>
-			<p v-else-if="pending && items.length === 0" class="text-lg">Loading…</p>
+			<p v-if="error && items.length === 0" class="text-lg">{{ $t('home.loadTrendingMoviesError') }}</p>
+			<p v-else-if="pending && items.length === 0" class="text-lg">{{ $t('common.loading') }}</p>
 			<div v-if="items.length > 0" class="movie-grid">
 				<MovieCard
 					v-for="item in items"
@@ -73,7 +73,7 @@ function toCardMovie(item: TrendingItem) {
 			</div>
 			<UButton
 				v-if="items.length > 0 && hasMore"
-				label="Load more"
+				:label="$t('common.loadMore')"
 				size="xl"
 				class="mt-14 mb-8 self-center"
 				:loading="pending && page > 1"

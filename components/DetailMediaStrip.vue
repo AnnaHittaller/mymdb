@@ -12,6 +12,8 @@ const props = defineProps<{
 	items: DetailGalleryItem[];
 }>();
 
+const { t } = useI18n();
+
 const lightboxOpen = ref(false);
 const lightboxIndex = ref(0);
 
@@ -61,13 +63,13 @@ function showNext() {
 <template>
 	<section v-if="images.length > 0" class="flex min-w-0 flex-col gap-3">
 		<Heading flush tier="section" class="mb-4">
-			More images
+			{{ $t("detail.moreImages") }}
 		</Heading>
 		<div class="relative min-w-0">
 			<div
 				ref="scrollEl"
 				role="region"
-				aria-label="More images, scroll horizontally"
+				:aria-label="$t('detail.moreImagesScroll')"
 				tabindex="0"
 				class="flex h-40 gap-3 overflow-x-auto overscroll-x-contain pb-1 scrollbar-none select-none touch-pan-x"
 				:class="isGrabbing ? 'cursor-grabbing' : 'cursor-grab'">
@@ -77,7 +79,7 @@ function showNext() {
 					type="button"
 					class="relative h-full shrink-0 cursor-pointer overflow-hidden rounded-lg bg-surface-poster focus-visible:outline-3 focus-visible:outline-primary/25"
 					:style="{ aspectRatio: String(image.aspectRatio) }"
-					:aria-label="`View ${image.alt}`"
+					:aria-label="t('detail.viewImage', { alt: image.alt })"
 					@click="openImage(index)">
 					<img
 						:src="thumbUrl(image)"
@@ -107,7 +109,11 @@ function showNext() {
 		<UModal
 			v-model:open="lightboxOpen"
 			:title="activeImage?.alt"
-			:description="images.length > 1 ? `${lightboxIndex + 1} of ${images.length}` : undefined"
+			:description="
+				images.length > 1
+					? t('detail.imagePagination', { current: lightboxIndex + 1, total: images.length })
+					: undefined
+			"
 			:ui="{
 				...browsingModalUi,
 				content: 'w-[calc(100vw-2rem)] max-w-5xl',
@@ -128,7 +134,7 @@ function showNext() {
 						color="neutral"
 						variant="outline"
 						icon="i-heroicons-chevron-left"
-						label="Previous"
+						:label="$t('common.previous')"
 						:disabled="lightboxIndex === 0"
 						:class="lightboxNavDisabledClass"
 						@click="showPrevious" />
@@ -137,7 +143,7 @@ function showNext() {
 						color="neutral"
 						variant="outline"
 						trailing-icon="i-heroicons-chevron-right"
-						label="Next"
+						:label="$t('common.next')"
 						:disabled="lightboxIndex >= images.length - 1"
 						:class="lightboxNavDisabledClass"
 						@click="showNext" />

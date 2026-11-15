@@ -5,6 +5,7 @@ definePageMeta({
 	middleware: "auth",
 });
 
+const { t } = useI18n();
 const route = useRoute();
 const { lists } = useUserDocument();
 
@@ -33,7 +34,7 @@ watchEffect(() => {
 	const current = list.value;
 	if (!current) {
 		if (lists.value.length > 0 && resolvedId.value === null) {
-			throw createError({ statusCode: 404, statusMessage: "List not found" });
+			throw createError({ statusCode: 404, statusMessage: t("lists.listNotFound") });
 		}
 		return;
 	}

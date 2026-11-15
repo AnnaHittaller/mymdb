@@ -8,6 +8,7 @@ import { migrateUserDocumentV2, parseMembershipsFromFirestore } from "./migrateV
 import { reconcileWatchlistMovies } from "./reconcileWatchlist";
 import { SCHEMA_VERSION_V2 } from "./listConstants";
 import { DEFAULT_CATALOG_PREFS, normalizeCatalogPrefs } from "./catalogPrefs";
+import { DEFAULT_APP_LOCALE, normalizeAppLocale } from "../locale/appLocale";
 import type { UserDocumentData, UserDocumentStore } from "./types";
 
 function storedMediaType(value: unknown): MediaType | undefined {
@@ -102,6 +103,7 @@ export function toUserDocument(data: unknown, uid: string): UserDocumentData | n
 		username: typeof record.username === "string" ? record.username : "",
 		email: typeof record.email === "string" ? record.email : "",
 		theme: typeof record.theme === "string" ? record.theme : "",
+		locale: normalizeAppLocale(record.locale),
 		catalogPrefs: record.catalogPrefs
 			? normalizeCatalogPrefs(record.catalogPrefs)
 			: { ...DEFAULT_CATALOG_PREFS },
@@ -126,6 +128,7 @@ function serialize(document: UserDocumentData) {
 		username: migrated.username,
 		email: migrated.email,
 		theme: migrated.theme,
+		locale: migrated.locale ?? DEFAULT_APP_LOCALE,
 		catalogPrefs: migrated.catalogPrefs,
 		lists: migrated.lists.map((list) => ({
 			id: list.id,

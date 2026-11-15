@@ -13,19 +13,19 @@ const navLinkActiveClass = 'nav-item-active'
 			<Logo class="m-0 flex max-sm:hidden" />
 			<NuxtLink to="/" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
 				<UIcon name="i-heroicons-home" class="nav-item-icon" />
-				<span class="nav-item-label">Home</span>
+				<span class="nav-item-label">{{ $t('nav.home') }}</span>
 			</NuxtLink>
 			<NuxtLink v-if="user" to="/lists" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
 				<IconAddToList class="nav-item-icon" />
-				<span class="nav-item-label">My Lists</span>
+				<span class="nav-item-label">{{ $t('nav.myLists') }}</span>
 			</NuxtLink>
 			<NuxtLink v-if="user" to="/lists/favorites" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
 				<UIcon name="i-heroicons-heart" class="nav-item-icon" />
-				<span class="nav-item-label">Favorites</span>
+				<span class="nav-item-label">{{ $t('nav.favorites') }}</span>
 			</NuxtLink>
 			<NuxtLink v-if="user" to="/browse" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
 				<UIcon name="i-heroicons-fire" class="nav-item-icon" />
-				<span class="nav-item-label">Browse</span>
+				<span class="nav-item-label">{{ $t('nav.browse') }}</span>
 			</NuxtLink>
 			<div
 				class="contents sm:mt-auto sm:flex sm:w-full sm:flex-col sm:items-center sm:gap-6">
@@ -35,14 +35,14 @@ const navLinkActiveClass = 'nav-item-active'
 					:class="[navLinkClass, 'max-sm:hidden']"
 					:exact-active-class="navLinkActiveClass">
 					<UIcon name="i-heroicons-user-circle" class="nav-item-icon" />
-					<span class="nav-item-label">Profile</span>
+					<span class="nav-item-label">{{ $t('nav.profile') }}</span>
 				</NuxtLink>
 				<NuxtLink v-if="!user" to="/login" class="px-2 text-lg font-semibold text-primary">
-					Sign in
+					{{ $t('nav.signIn') }}
 				</NuxtLink>
 				<NuxtLink to="/legal" :class="navLinkClass" :exact-active-class="navLinkActiveClass">
 					<UIcon name="i-heroicons-information-circle" class="nav-item-icon" />
-					<span class="nav-item-label">Legal</span>
+					<span class="nav-item-label">{{ $t('nav.legal') }}</span>
 				</NuxtLink>
 			</div>
 		</nav>

@@ -16,6 +16,8 @@ const props = defineProps<{
 	seasons: TvSeasonSummary[];
 }>();
 
+const { t } = useI18n();
+
 const selectableSeasons = computed(() =>
 	props.seasons.filter((season) => season.season_number > 0),
 );
@@ -24,7 +26,7 @@ const seasonItems = computed(() =>
 	selectableSeasons.value.map((season) => ({
 		label: season.name?.trim()
 			? season.name
-			: `Season ${season.season_number}`,
+			: t("detail.seasonNumber", { number: season.season_number }),
 		value: season.season_number,
 	})),
 );
@@ -171,13 +173,13 @@ const seasonSelectUi = {
 		<div
 			class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
 			<Heading flush tier="section" class="mb-0 min-w-0 shrink-0">
-				Episodes
+				{{ $t("detail.episodes") }}
 			</Heading>
 			<USelect
 				v-model="selectedSeason"
 				:items="seasonItems"
 				:content="discoverFilterContent"
-				placeholder="Season"
+				:placeholder="$t('detail.season')"
 				:ui="seasonSelectUi"
 				class="shrink-0" />
 		</div>
@@ -194,7 +196,7 @@ const seasonSelectUi = {
 						v-if="isLoading"
 						class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-surface-overlay/60">
 						<p class="text-base text-fg-muted">
-							Loading episodes…
+							{{ $t("detail.loadingEpisodes") }}
 						</p>
 					</div>
 
@@ -208,7 +210,7 @@ const seasonSelectUi = {
 							<div
 								ref="pillScrollEl"
 								role="region"
-								aria-label="Episodes in season, scroll horizontally"
+								:aria-label="$t('detail.episodesSeasonScroll')"
 								tabindex="0"
 								class="flex items-center gap-2.5 overflow-x-auto overscroll-x-contain px-2 py-1.5 scrollbar-none select-none touch-pan-x"
 								:class="pillsGrabbing ? 'cursor-grabbing' : 'cursor-grab'">
@@ -267,7 +269,7 @@ const seasonSelectUi = {
 									<img
 										v-if="episodeImageUrl"
 										:src="episodeImageUrl"
-										:alt="`${activeEpisode.name} still`"
+										:alt="t('detail.episodeStillAlt', { name: activeEpisode.name })"
 										width="780"
 										height="439"
 										loading="lazy"
@@ -277,8 +279,8 @@ const seasonSelectUi = {
 										v-else
 										class="flex size-full items-center justify-center text-lg text-fg-muted"
 										role="img"
-										:aria-label="`Episode ${activeEpisode.episode_number}`">
-										Ep {{ activeEpisode.episode_number }}
+										:aria-label="t('detail.episodeNumberAria', { number: activeEpisode.episode_number })">
+										{{ t("detail.episodeShort", { number: activeEpisode.episode_number }) }}
 									</div>
 								</div>
 								<div
@@ -293,7 +295,7 @@ const seasonSelectUi = {
 										{{ activeEpisode.overview }}
 									</p>
 									<p v-else class="text-fg-muted">
-										No synopsis yet.
+										{{ $t("detail.noSynopsis") }}
 									</p>
 								</div>
 							</div>
@@ -317,7 +319,7 @@ const seasonSelectUi = {
 					: 'i-heroicons-chevron-down-20-solid'
 			"
 			:aria-expanded="episodesExpanded"
-			:aria-label="episodesExpanded ? 'Collapse episodes' : 'Expand episodes'"
+			:aria-label="episodesExpanded ? $t('detail.collapseEpisodes') : $t('detail.expandEpisodes')"
 			@click="toggleEpisodesPanel" />
 	</section>
 </template>

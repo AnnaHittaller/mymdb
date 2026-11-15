@@ -2,20 +2,21 @@ import { ListCapError, ListCountCapError } from "~/domain/user-document/listCons
 
 export function useListCapToast() {
 	const toast = useToast();
+	const { t } = useI18n();
 
 	function notifyListError(error: unknown) {
 		if (error instanceof ListCapError) {
 			toast.add({
-				title: "List full",
-				description: error.message,
+				title: t("lists.listFull"),
+				description: t("lists.listFullDescription"),
 				color: "error",
 			});
 			return true;
 		}
 		if (error instanceof ListCountCapError) {
 			toast.add({
-				title: "Too many lists",
-				description: error.message,
+				title: t("lists.tooManyLists"),
+				description: t("lists.tooManyListsDescription"),
 				color: "error",
 			});
 			return true;

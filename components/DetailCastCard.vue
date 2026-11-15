@@ -6,6 +6,8 @@ defineProps<{
 	member: DetailCastMember;
 }>();
 
+const { t } = useI18n();
+
 const nameTextClass =
 	"w-full max-w-full text-sm font-medium leading-tight text-fg-default [overflow-wrap:anywhere]";
 const characterTextClass =
@@ -36,7 +38,7 @@ const characterTextClass =
 				{{ member.name }}
 			</p>
 			<p v-if="member.character" :class="characterTextClass">
-				as {{ member.character }}
+				{{ t("detail.castAs", { character: member.character }) }}
 			</p>
 		</figcaption>
 	</figure>

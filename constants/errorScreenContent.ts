@@ -1,122 +1,115 @@
 /** Icon ids in the `@iconify-json/streamline-memes` set. */
 export type ErrorScreenContent = {
-	icons: readonly string[];
-	title: string;
-	description: string;
-};
+	icons: readonly string[]
+	title: string
+	description: string
+}
 
-const meme = (name: string) => name;
+const meme = (name: string) => name
 
-const NOT_FOUND_VARIANTS: readonly ErrorScreenContent[] = [
+/** Icons + i18n key under `errors.notFound.*` (one object per variant). */
+export type ErrorMemeVariant = {
+	readonly icons: readonly string[]
+	readonly messageKey: string
+}
+
+export const NOT_FOUND_ERROR_VARIANTS: readonly ErrorMemeVariant[] = [
 	{
+		messageKey: "pointingAtCat",
 		icons: [
 			meme("pointing-at-cat-meme-hand-drawn"),
 			meme("cat-getting-pointed-at-hand-drawn"),
 		],
-		title: "That’s not the page you think it is",
-		description:
-			"This URL isn’t in the catalog. The internet argued; the cat won.",
 	},
 	{
+		messageKey: "deletedScene",
 		icons: [meme("confused-nick-young")],
-		title: "Deleted scene energy",
-		description: "There’s nothing at this URL in the watchlist universe.",
 	},
 	{
+		messageKey: "bufferingForever",
 		icons: [meme("nyan-cat")],
-		title: "Buffering… forever",
-		description: "Whatever was here, it’s not in our catalog anymore.",
 	},
 	{
+		messageKey: "finalCut",
 		icons: [meme("awkward-look-monkey")],
-		title: "This scene didn’t make the final cut",
-		description:
-			"That URL isn’t in our catalog. Maybe a typo, maybe it wandered off set.",
 	},
 	{
+		messageKey: "notSimplyWalk",
 		icons: [meme("not-simply")],
-		title: "One does not simply walk into this URL",
-		description: "This page isn’t in the watchlist universe.",
 	},
-] as const;
+] as const
 
-const SERVER_ERROR_VARIANTS: readonly ErrorScreenContent[] = [
-	{
-		icons: [meme("this-is-fine")],
-		title: "Everything is… technically fine",
-		description: "Our servers hiccuped. Try again in a moment or go home.",
-	},
-	{
-		icons: [meme("this-is-fine")],
-		title: "Backstage is on fire",
-		description: "Not your fault. We’re putting out the flames.",
-	},
-	{
-		icons: [meme("computer-guy-meme")],
-		title: "Have you tried turning the cinema off and on?",
-		description: "Something went wrong on our servers. Sorry about that.",
-	},
-	{
-		icons: [meme("picard-facepalm")],
-		title: "Make it so… didn’t work",
-		description: "Our servers need a minute. Refresh or head home.",
-	},
-	{
-		icons: [meme("disappointed-fan")],
-		title: "We wanted to show you this",
-		description:
-			"The request didn’t survive the third act. Try again in a bit.",
-	},
-	{
-		icons: [meme("crying-jordan")],
-		title: "Rough watch",
-		description:
-			"This page hit an error. Come back when we’ve stopped the bleeding.",
-	},
-	{
-		icons: [meme("nervous-pepe-frog")],
-		title: "Something went wrong behind the curtain",
-		description: "We’re looking into it. Sorry for the interruption.",
-	},
-] as const;
+export const SERVER_ERROR_VARIANTS: readonly ErrorMemeVariant[] = [
+	{ messageKey: "technicallyFine", icons: [meme("this-is-fine")] },
+	{ messageKey: "backstageOnFire", icons: [meme("this-is-fine")] },
+	{ messageKey: "turnCinemaOffOn", icons: [meme("computer-guy-meme")] },
+	{ messageKey: "makeItSo", icons: [meme("picard-facepalm")] },
+	{ messageKey: "thirdAct", icons: [meme("disappointed-fan")] },
+	{ messageKey: "roughWatch", icons: [meme("crying-jordan")] },
+	{ messageKey: "behindCurtain", icons: [meme("nervous-pepe-frog")] },
+] as const
 
-const AUTH_401: ErrorScreenContent = {
-	icons: [meme("side-eyeing-cloe")],
-	title: "You need a ticket for this",
-	description: "Sign in to view this page.",
-};
+const AUTH_401_ICONS = [meme("side-eyeing-cloe")] as const
+const AUTH_403_ICONS = [meme("side-eyeing-cloe")] as const
+const RATE_LIMIT_ICONS = [meme("grumpy-cat")] as const
 
-const AUTH_403: ErrorScreenContent = {
-	icons: [meme("side-eyeing-cloe")],
-	title: "Access denied",
-	description: "You don’t have permission to view this page.",
-};
-
-const RATE_LIMIT: ErrorScreenContent = {
-	icons: [meme("grumpy-cat")],
-	title: "Slow down, superstar",
-	description: "Too many requests. Chill a moment, then retry.",
-};
+type Translate = (key: string) => string
 
 function pickRandomFromPool<T>(pool: readonly T[]): T {
-	return pool[Math.floor(Math.random() * pool.length)]!;
+	return pool[Math.floor(Math.random() * pool.length)]!
+}
+
+function copyForMemeVariant(
+	t: Translate,
+	group: "notFound" | "server",
+	variant: ErrorMemeVariant,
+): Pick<ErrorScreenContent, "title" | "description"> {
+	const base = `errors.${group}.${variant.messageKey}`
+	return {
+		title: t(`${base}.title`),
+		description: t(`${base}.description`),
+	}
+}
+
+function materializeMemeVariant(
+	t: Translate,
+	group: "notFound" | "server",
+	variant: ErrorMemeVariant,
+): ErrorScreenContent {
+	return {
+		icons: variant.icons,
+		...copyForMemeVariant(t, group, variant),
+	}
 }
 
 /** Picks a random variant per call (pair with `useState` on the error page for SSR-safe hydration). */
 export function pickRandomErrorScreenContent(
 	statusCode: number,
+	t: Translate,
 ): ErrorScreenContent {
 	if (statusCode === 404) {
-		return pickRandomFromPool(NOT_FOUND_VARIANTS);
+		return materializeMemeVariant(t, "notFound", pickRandomFromPool(NOT_FOUND_ERROR_VARIANTS))
 	}
 	if (statusCode === 401) {
-		return AUTH_401;
+		return {
+			icons: AUTH_401_ICONS,
+			title: t("errors.auth401.title"),
+			description: t("errors.auth401.description"),
+		}
 	}
 	if (statusCode === 403) {
-		return AUTH_403;
+		return {
+			icons: AUTH_403_ICONS,
+			title: t("errors.auth403.title"),
+			description: t("errors.auth403.description"),
+		}
 	}
 	if (statusCode === 429) {
-		return RATE_LIMIT;
+		return {
+			icons: RATE_LIMIT_ICONS,
+			title: t("errors.rateLimit.title"),
+			description: t("errors.rateLimit.description"),
+		}
 	}
-	return pickRandomFromPool(SERVER_ERROR_VARIANTS);
+	return materializeMemeVariant(t, "server", pickRandomFromPool(SERVER_ERROR_VARIANTS))
 }

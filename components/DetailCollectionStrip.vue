@@ -6,6 +6,8 @@ const props = defineProps<{
 	currentMovieId: string;
 }>();
 
+const { t } = useI18n();
+
 const {
 	scrollEl,
 	canScrollLeft,
@@ -23,7 +25,7 @@ const {
 			<div
 				ref="scrollEl"
 				role="region"
-				:aria-label="`${collection.name}, scroll horizontally`"
+				:aria-label="t('detail.collectionScroll', { name: collection.name })"
 				tabindex="0"
 				class="flex gap-3 overflow-x-auto overflow-y-visible overscroll-x-contain py-2 scrollbar-none select-none touch-pan-x"
 				:class="isGrabbing ? 'cursor-grabbing' : 'cursor-grab'">

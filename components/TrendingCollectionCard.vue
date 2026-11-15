@@ -5,6 +5,9 @@ import type { TrendingItem } from "~/types/catalog";
 import { formatMovieRating } from "~/utils/formatMovieRating";
 import { formatReleaseDate } from "~/utils/formatReleaseDate";
 import { trendingLeadingGenre } from "~/utils/trendingLeadingGenre";
+import { localizeTmdbGenreName, localizeTmdbGenreNames } from "~/domain/locale/tmdbGenreLabels";
+
+const { t, locale } = useI18n();
 
 const props = withDefaults(
 	defineProps<{
@@ -48,7 +51,10 @@ const showUpcomingBanner = computed(() =>
 	props.variant === "upcoming" && topFiveRanked.value.length > 0,
 );
 
-const leadingGenre = computed(() => props.leadingGenreOverride ?? trendingLeadingGenre(props.items));
+const leadingGenre = computed(() => {
+	const raw = props.leadingGenreOverride ?? trendingLeadingGenre(props.items);
+	return raw ? localizeTmdbGenreName(raw, locale.value) : raw;
+});
 
 const showLeadingGenre = computed(
 	() => props.variant !== "upcoming" && Boolean(leadingGenre.value),
@@ -59,7 +65,7 @@ const showSubtitle = computed(
 );
 
 const leadingGenreCaption = computed(
-	() => props.leadingGenreCaption ?? "Leading genre this week:",
+	() => props.leadingGenreCaption ?? t("home.leadingGenreCaption"),
 );
 
 const headerIcon = computed(() =>
@@ -69,7 +75,7 @@ const headerIcon = computed(() =>
 );
 
 const emptyMessage = computed(() =>
-	props.variant === "upcoming" ? "Nothing coming soon right now." : "Nothing trending right now.",
+	props.variant === "upcoming" ? t("home.nothingComingSoon") : t("home.nothingTrending"),
 );
 
 const isEmpty = computed(() => props.items.length === 0);
@@ -86,7 +92,7 @@ function yearLabel(item: TrendingItem) {
 }
 
 function releaseDateBadgeLabel(item: TrendingItem) {
-	return props.showReleaseDate ? formatReleaseDate(item.releaseDate) : "";
+	return props.showReleaseDate ? formatReleaseDate(item.releaseDate, locale.value) : "";
 }
 
 function ratingLabel(item: TrendingItem) {
@@ -94,7 +100,8 @@ function ratingLabel(item: TrendingItem) {
 }
 
 function firstGenre(item: TrendingItem) {
-	return item.genres[0] ?? "";
+	const names = localizeTmdbGenreNames(item.genres, locale.value);
+	return names[0] ?? "";
 }
 
 function hasMeta(item: TrendingItem) {

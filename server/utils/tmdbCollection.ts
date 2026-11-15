@@ -15,10 +15,10 @@ export type TmdbCollectionResponse = {
 };
 
 export const fetchTmdbCollection = defineCachedFunction(
-	async (id: string) => {
+	async (id: string, language = "en-US") => {
 		const config = useRuntimeConfig();
 		return await $fetch<TmdbCollectionResponse>(
-			`${config.apiBaseUrl}/collection/${id}?language=en-US`,
+			`${config.apiBaseUrl}/collection/${id}?language=${encodeURIComponent(language)}`,
 			{
 				method: "GET",
 				headers: {
@@ -31,6 +31,6 @@ export const fetchTmdbCollection = defineCachedFunction(
 	{
 		maxAge: CACHE_DURATION / 1000,
 		name: "tmdb-collection",
-		getKey: (id: string) => id,
+		getKey: (id: string, language = "en-US") => `${id}:${language}`,
 	},
 );

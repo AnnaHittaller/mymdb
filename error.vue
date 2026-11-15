@@ -6,9 +6,15 @@ const props = defineProps<{
 	error: NuxtError;
 }>();
 
+const { t } = useI18n();
+
+const errorStatus = computed(
+	() => props.error.status ?? props.error.statusCode ?? 500,
+);
+
 const screen = useState(
-	`error-screen:${props.error.statusCode ?? 500}:${props.error.message ?? ""}`,
-	() => pickRandomErrorScreenContent(props.error.statusCode ?? 500),
+	`error-screen:${props.error.status ?? props.error.statusCode ?? 500}:${props.error.message ?? ""}`,
+	() => pickRandomErrorScreenContent(errorStatus.value, (key) => t(key)),
 );
 
 const handleError = () => clearError({ redirect: "/" });
@@ -24,7 +30,7 @@ const handleError = () => clearError({ redirect: "/" });
 			<p
 				class="mt-6 text-8xl font-semibold tracking-tight tabular-nums text-fg-muted"
 			>
-				{{ error.statusCode }}
+				{{ errorStatus }}
 			</p>
 			<h1 class="mt-5 max-w-2xl text-4xl font-semibold text-balance sm:text-[2.5rem]">
 				{{ screen.title }}
@@ -34,7 +40,7 @@ const handleError = () => clearError({ redirect: "/" });
 			</p>
 			<UButton
 				class="mt-12"
-				label="Back to homepage"
+				:label="$t('errors.backHome')"
 				size="xl"
 				@click="handleError"
 			/>

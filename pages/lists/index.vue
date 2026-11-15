@@ -13,11 +13,11 @@ const { isOffline } = useOfflineReady();
 <template>
 	<div class="min-w-0 max-w-full">
 		<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-			<Heading flush>Your lists</Heading>
+			<Heading flush>{{ $t('lists.yourLists') }}</Heading>
 			<UButton
 				variant="outline"
 				size="lg"
-				label="Add new list"
+				:label="$t('lists.addNew')"
 				icon="i-heroicons-plus"
 				:disabled="isOffline"
 				:ui="{ leadingIcon: 'size-5' }"

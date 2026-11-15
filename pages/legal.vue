@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { legalContactEmail, legalOperatorName } from "~/constants/legal"
 
+const { t } = useI18n()
 const { preferences, hasUserMadeChoice, isConsentExpired, updatePreferences } = useCookieConsent()
 
 const mailto = computed(() => (legalContactEmail ? `mailto:${legalContactEmail}` : ""))
@@ -11,10 +12,10 @@ const embedChoice = computed(() => {
 })
 
 const embedStatus = computed(() => {
-	if (embedChoice.value === "allowed") return "Trailer embeds are allowed on this browser."
-	if (embedChoice.value === "off") return "Trailer embeds are off on this browser."
-	if (isConsentExpired.value) return "Your earlier choice has expired. Trailers stay off until you choose again."
-	return "You have not chosen yet. Trailers stay off until you allow them."
+	if (embedChoice.value === "allowed") return t("legal.embedAllowed")
+	if (embedChoice.value === "off") return t("legal.embedOff")
+	if (isConsentExpired.value) return t("legal.embedExpired")
+	return t("legal.embedUnset")
 })
 
 function allowEmbeds() {
@@ -25,25 +26,25 @@ function blockEmbeds() {
 	updatePreferences({ embeddedVideo: false })
 }
 
-const sections = [
-	{ href: "#about", label: "About" },
-	{ href: "#privacy", label: "Privacy" },
-	{ href: "#cookies", label: "Cookies" },
-	{ href: "#terms", label: "Terms" },
-	{ href: "#impressum", label: "Impressum" },
-	{ href: "#attribution", label: "Attribution" },
-	{ href: "#contact", label: "Contact" },
-]
+const sections = computed(() => [
+	{ href: "#about", label: t("legal.about") },
+	{ href: "#privacy", label: t("legal.privacy") },
+	{ href: "#cookies", label: t("legal.cookies") },
+	{ href: "#terms", label: t("legal.terms") },
+	{ href: "#impressum", label: t("legal.impressum") },
+	{ href: "#attribution", label: t("legal.attribution") },
+	{ href: "#contact", label: t("legal.contact") },
+])
 </script>
 
 <template>
 	<div class="legal-page mx-auto max-w-3xl space-y-10 pb-8 text-base leading-relaxed">
 		<div class="space-y-4">
-			<Heading>Legal</Heading>
+			<Heading>{{ $t('legal.title') }}</Heading>
 			<p class="max-w-xl text-fg-muted">
-				MyMDb is a free hobby app. This page says what the app stores, when a trailer is allowed to load, and how to reach the person who runs it.
+				{{ $t('legal.intro') }}
 			</p>
-			<nav class="flex flex-wrap gap-x-4 gap-y-2 text-sm" aria-label="On this page">
+			<nav class="flex flex-wrap gap-x-4 gap-y-2 text-sm" :aria-label="$t('legal.onThisPage')">
 				<a
 					v-for="section in sections"
 					:key="section.href"
@@ -55,153 +56,109 @@ const sections = [
 		</div>
 
 		<section id="about" class="scroll-mt-8 space-y-3">
-			<h2 class="text-2xl font-semibold">About MyMDb</h2>
-			<p>
-				MyMDb is a personal watchlist: save films and shows, mark favorites, and open a trailer when you want one.
-				It is a hobby project. It can change or stop, and it is not endorsed by TMDB or any studio.
-			</p>
+			<h2 class="text-2xl font-semibold">{{ $t('legal.aboutTitle') }}</h2>
+			<p>{{ $t('legal.aboutBody') }}</p>
 		</section>
 
 		<section id="privacy" class="scroll-mt-8 space-y-3">
-			<h2 class="text-2xl font-semibold">Privacy</h2>
+			<h2 class="text-2xl font-semibold">{{ $t('legal.privacyTitle') }}</h2>
 			<p>
-				The person responsible for MyMDb is {{ legalOperatorName }}.
+				{{ $t('legal.privacyResponsible', { operator: legalOperatorName }) }}
 				<template v-if="legalContactEmail">
-					Write to
+					{{ $t('legal.privacyWriteTo') }}
 					<a :href="mailto" class="text-primary hover:underline">{{ legalContactEmail }}</a>.
 				</template>
 			</p>
-			<p>If you create an account, the app stores:</p>
+			<p>{{ $t('legal.privacyStoresIntro') }}</p>
 			<ul class="list-disc space-y-1 pl-5 text-fg-muted">
-				<li>Your email address and display name, so you can sign in and see your lists.</li>
-				<li>The lists and favorites you save.</li>
-				<li>
-					Genres, keywords, streaming services, and the country tied to those services (Profile → Recommendations),
-					used only to reorder your personal Coming soon list—not to replace the default catalog.
-				</li>
-				<li>A sign-in session cookie (<code>__session</code>), so a refresh keeps you signed in.</li>
-				<li>
-					A copy of your lists and favorites on this device after you have used the app online while signed in,
-					so you can view those lists offline in the installed app or browser.
-				</li>
+				<li>{{ $t('legal.privacyStoresEmail') }}</li>
+				<li>{{ $t('legal.privacyStoresLists') }}</li>
+				<li>{{ $t('legal.privacyStoresPrefs') }}</li>
+				<li>{{ $t('legal.privacyStoresSession') }}</li>
+				<li>{{ $t('legal.privacyStoresOffline') }}</li>
 			</ul>
+			<p>{{ $t('legal.privacyPasswords') }}</p>
+			<p>{{ $t('legal.privacyTmdb') }}</p>
+			<p>{{ $t('legal.privacyRetention') }}</p>
+			<p>{{ $t('legal.privacyProcessors') }}</p>
 			<p>
-				Passwords are handled by Firebase Authentication and are not stored in MyMDb’s own database.
-				The app does not run advertising or a separate analytics product.
+				{{ $t('legal.privacyRights') }}
+				<NuxtLink to="/profile" class="text-primary hover:underline">{{ $t('nav.profile') }}</NuxtLink>{{ $t('legal.privacyRightsEnd') }}
 			</p>
-			<p>
-				Browsing loads poster images from TMDB (<code>image.tmdb.org</code>). That request includes your IP address because the image is shown in your browser.
-				Opening a trailer is separate: the YouTube or Vimeo player loads only after you allow embedded video. Until then, no trailer iframe is requested.
-			</p>
-			<p>
-				The app host may keep short-lived server logs, which can include an IP address, to operate and protect the site.
-				Account data stays until you delete the profile. The embedded-video choice is kept for 180 days, then you are asked again.
-			</p>
-			<p>
-				Firebase (Google) stores accounts and lists and may process that data in the United States.
-				TMDB supplies catalog data and images. YouTube or Vimeo receive a connection only after you allow a trailer.
-			</p>
-			<p>
-				You can ask for a copy of your account data, a correction, or deletion.
-				Signed-in users can delete the account and saved titles from
-				<NuxtLink to="/profile" class="text-primary hover:underline">Profile</NuxtLink>.
-				You can also complain to your EU data-protection authority.
-			</p>
-			<p>
-				When you use Share on a list, the app stores a public copy of that list’s name, the titles on it (with display metadata such as poster images), and the username shown at share time. Anyone with the link can open that snapshot without signing in. The copy is not updated when you edit the list; sharing again creates a new link. The app does not keep a dashboard of links you created.
-			</p>
-			<p>MyMDb is not directed at anyone under 16.</p>
+			<p>{{ $t('legal.privacyShare') }}</p>
+			<p>{{ $t('legal.privacyMinAge') }}</p>
 		</section>
 
 		<section id="cookies" class="scroll-mt-8 space-y-4">
-			<h2 class="text-2xl font-semibold">Cookies and embedded video</h2>
+			<h2 class="text-2xl font-semibold">{{ $t('legal.cookiesTitle') }}</h2>
 			<div class="overflow-x-auto">
 				<table class="w-full min-w-[36rem] border-collapse text-left text-sm">
 					<thead>
 						<tr class="border-b border-border-default text-fg-muted">
-							<th class="py-2 pr-4 font-medium">Name</th>
-							<th class="py-2 pr-4 font-medium">Why it exists</th>
-							<th class="py-2 font-medium">How long</th>
+							<th class="py-2 pr-4 font-medium">{{ $t('legal.tableName') }}</th>
+							<th class="py-2 pr-4 font-medium">{{ $t('legal.tableWhy') }}</th>
+							<th class="py-2 font-medium">{{ $t('legal.tableDuration') }}</th>
 						</tr>
 					</thead>
 					<tbody class="text-fg-default">
 						<tr class="border-b border-border-default align-top">
 							<td class="py-3 pr-4"><code>__session</code></td>
-							<td class="py-3 pr-4">Keeps you signed in. Needed for accounts. Not used for ads.</td>
-							<td class="py-3">Session</td>
+							<td class="py-3 pr-4">{{ $t('legal.cookieSessionWhy') }}</td>
+							<td class="py-3">{{ $t('legal.cookieSessionDuration') }}</td>
 						</tr>
 						<tr class="border-b border-border-default align-top">
 							<td class="py-3 pr-4"><code>mymdb_consent</code></td>
-							<td class="py-3 pr-4">Remembers whether trailer embeds are allowed.</td>
-							<td class="py-3">180 days</td>
+							<td class="py-3 pr-4">{{ $t('legal.cookieConsentWhy') }}</td>
+							<td class="py-3">{{ $t('legal.cookieConsentDuration') }}</td>
 						</tr>
 						<tr class="border-b border-border-default align-top">
 							<td class="py-3 pr-4"><code>cookie_consent_timestamp</code></td>
-							<td class="py-3 pr-4">When you last saved that choice.</td>
-							<td class="py-3">180 days</td>
+							<td class="py-3 pr-4">{{ $t('legal.cookieTimestampWhy') }}</td>
+							<td class="py-3">{{ $t('legal.cookieConsentDuration') }}</td>
 						</tr>
 						<tr class="align-top">
 							<td class="py-3 pr-4"><code>cookie_consent_version</code></td>
-							<td class="py-3 pr-4">Which version of this choice you saved.</td>
-							<td class="py-3">180 days</td>
+							<td class="py-3 pr-4">{{ $t('legal.cookieVersionWhy') }}</td>
+							<td class="py-3">{{ $t('legal.cookieConsentDuration') }}</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
 			<p>{{ embedStatus }}</p>
-			<p class="text-fg-muted">
-				Allow and block use the same control. You can change the choice here at any time, including after you accepted in a trailer window.
-			</p>
+			<p class="text-fg-muted">{{ $t('legal.embedChangeHint') }}</p>
 			<div class="flex flex-wrap gap-3">
-				<UButton type="button" @click="allowEmbeds">Allow trailers</UButton>
-				<UButton type="button" color="neutral" variant="outline" @click="blockEmbeds">Keep trailers off</UButton>
+				<UButton type="button" @click="allowEmbeds">{{ $t('legal.allowTrailers') }}</UButton>
+				<UButton type="button" color="neutral" variant="outline" @click="blockEmbeds">
+					{{ $t('legal.keepTrailersOff') }}
+				</UButton>
 			</div>
-			<p>
-				A trailer plays through
-				<a href="https://policies.google.com/privacy" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">YouTube</a>
-				or
-				<a href="https://vimeo.com/privacy" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Vimeo</a>.
-				<code>youtube-nocookie.com</code> and Vimeo’s do-not-track flag reduce tracking. They do not stop the player from connecting once you allow it.
-			</p>
+			<p>{{ $t('legal.trailerProcessors') }}</p>
 		</section>
 
 		<section id="terms" class="scroll-mt-8 space-y-3">
-			<h2 class="text-2xl font-semibold">Terms of use</h2>
-			<p>
-				MyMDb is free and provided as-is, without a warranty. It may change, break, or be shut down.
-				You are responsible for the security of your account.
-			</p>
-			<p>
-				Do not abuse the service, scrape it, or misuse the TMDB data shown here.
-				Catalog text and images are for display inside MyMDb, not for copying into another product.
-				Accounts that abuse the app can be suspended.
-			</p>
+			<h2 class="text-2xl font-semibold">{{ $t('legal.termsTitle') }}</h2>
+			<p>{{ $t('legal.termsBody1') }}</p>
+			<p>{{ $t('legal.termsBody2') }}</p>
 		</section>
 
 		<section id="impressum" class="scroll-mt-8 space-y-3">
-			<h2 class="text-2xl font-semibold">Impressum</h2>
+			<h2 class="text-2xl font-semibold">{{ $t('legal.impressumTitle') }}</h2>
 			<p>
-				{{ legalOperatorName }} is responsible for the content of this hobby site.
+				{{ $t('legal.impressumBody', { operator: legalOperatorName }) }}
 				<template v-if="legalContactEmail">
-					Contact:
+					{{ $t('legal.impressumContact') }}
 					<a :href="mailto" class="text-primary hover:underline">{{ legalContactEmail }}</a>.
 				</template>
 				<template v-else>
-					A dedicated contact address for this app is not published yet.
+					{{ $t('legal.impressumNoEmail') }}
 				</template>
 			</p>
-			<p class="text-fg-muted">
-				This is a non-commercial personal project. No street address is published here.
-			</p>
+			<p class="text-fg-muted">{{ $t('legal.impressumFootnote') }}</p>
 		</section>
 
 		<section id="attribution" class="scroll-mt-8 space-y-3">
-			<h2 class="text-2xl font-semibold">Attribution</h2>
-			<p>
-				This product uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.
-				Catalog data and posters come from
-				<a href="https://www.themoviedb.org/" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">The Movie Database</a>.
-			</p>
+			<h2 class="text-2xl font-semibold">{{ $t('legal.attributionTitle') }}</h2>
+			<p>{{ $t('legal.attributionBody') }}</p>
 			<a
 				href="https://www.themoviedb.org/"
 				target="_blank"
@@ -209,21 +166,16 @@ const sections = [
 				class="inline-block">
 				<img src="/tmdb-logo.svg" alt="TMDB" class="h-5 w-auto" />
 			</a>
-			<p>
-				Accounts and saved lists use Firebase.
-				When you allow a trailer, playback is provided by YouTube or Vimeo.
-			</p>
+			<p>{{ $t('legal.attributionFirebase') }}</p>
 		</section>
 
 		<section id="contact" class="scroll-mt-8 space-y-3">
-			<h2 class="text-2xl font-semibold">Contact</h2>
+			<h2 class="text-2xl font-semibold">{{ $t('legal.contactTitle') }}</h2>
 			<p v-if="legalContactEmail">
-				Email
-				<a :href="mailto" class="text-primary hover:underline">{{ legalContactEmail }}</a>.
-				That address is only for MyMDb. There is no contact form.
+				{{ $t('legal.contactEmail', { email: legalContactEmail }) }}
 			</p>
 			<p v-else class="text-fg-muted">
-				Contact is by email only. The project mailbox is not published yet.
+				{{ $t('legal.contactNoEmail') }}
 			</p>
 		</section>
 	</div>

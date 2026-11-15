@@ -11,10 +11,11 @@ export default defineCachedEventHandler(async (event) => {
 	try {
 		const query = getQuery(event)
 		const id = String(query.id)
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
 		if (!parseBlend(query)) {
-			return await buildPlainRelatedTitles({ media: 'movie', id })
+			return await buildPlainRelatedTitles({ media: 'movie', id, language })
 		}
-		return await buildBlendedRelatedTitles({ media: 'movie', id })
+		return await buildBlendedRelatedTitles({ media: 'movie', id, language })
 	} catch {
 		throw createError({
 			statusCode: 404,
@@ -27,6 +28,7 @@ export default defineCachedEventHandler(async (event) => {
 	getKey: (event) => {
 		const query = getQuery(event)
 		const blend = parseBlend(query) ? 'blend' : 'plain'
-		return `${String(query.id)}-${blend}`
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
+		return `${String(query.id)}-${blend}-${language}`
 	},
 })

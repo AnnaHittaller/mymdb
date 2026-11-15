@@ -17,20 +17,20 @@ function segmentClass(active: boolean) {
 	<div
 		class="flex w-full min-w-0 gap-0.5 rounded-[8px] border border-border-default bg-surface-inset p-0.5"
 		role="group"
-		aria-label="Discover movies or shows">
+		:aria-label="$t('browse.discoverMediaAria')">
 		<button
 			type="button"
 			:class="segmentClass(model === 'movie')"
 			:aria-pressed="model === 'movie'"
 			@click="model = 'movie'">
-			Movies
+			{{ $t('common.movies') }}
 		</button>
 		<button
 			type="button"
 			:class="segmentClass(model === 'tv')"
 			:aria-pressed="model === 'tv'"
 			@click="model = 'tv'">
-			Shows
+			{{ $t('common.shows') }}
 		</button>
 	</div>
 </template>

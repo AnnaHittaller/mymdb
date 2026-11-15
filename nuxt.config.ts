@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { findExports } from 'mlly'
 import { defineNuxtConfig } from 'nuxt/config'
 import { glob } from 'tinyglobby'
+import { APP_LOCALE_COOKIE } from './domain/locale/appLocale'
 
 const firebaseEmulatorsActive =
   process.env.NUXT_E2E === 'true' ||
@@ -92,6 +93,7 @@ export default defineNuxtConfig({
     'nuxt-vuefire',
     'nuxt-simple-cookie-consent',
     '@vite-pwa/nuxt',
+    '@nuxtjs/i18n',
   ],
 
   pwa: {
@@ -213,6 +215,26 @@ export default defineNuxtConfig({
      apiBearerToken: process.env.NUXT_API_BEARER_TOKEN,
      public: {},
    },
+
+  i18n: {
+    defaultLocale: 'en',
+    strategy: 'no_prefix',
+    langDir: 'locales',
+    locales: [
+      { code: 'en', language: 'en-US', name: 'English', files: ['en.json'] },
+      { code: 'de', language: 'de-DE', name: 'Deutsch', files: ['de.json'] },
+      { code: 'hu', language: 'hu-HU', name: 'Magyar', files: ['hu.json'] },
+    ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: APP_LOCALE_COOKIE,
+      fallbackLocale: 'en',
+    },
+    bundle: {
+      fullInstall: true,
+    },
+  },
+
   compatibilityDate: '2026-10-25',
 
   routeRules: process.env.NODE_ENV === 'production'

@@ -14,6 +14,7 @@ const emit = defineEmits<{
 const { createList, lists } = useUserDocument();
 const { notifyListError } = useListCapToast();
 const toast = useToast();
+const { t } = useI18n();
 
 const name = ref("");
 const saving = ref(false);
@@ -37,8 +38,8 @@ async function submit() {
 	} catch (error) {
 		if (!notifyListError(error)) {
 			toast.add({
-				title: "Could not create list",
-				description: error instanceof Error ? error.message : "Try a different name.",
+				title: t("lists.createListError"),
+				description: error instanceof Error ? error.message : t("lists.createListErrorHint"),
 				color: "error",
 			});
 		}
@@ -52,14 +53,14 @@ async function submit() {
 	<UModal
 		v-if="!useDrawer"
 		:open="open"
-		title="Create new list"
+		:title="$t('lists.createNewList')"
 		:ui="browsingModalUi"
 		@update:open="emit('update:open', $event)">
 		<template #body>
 			<UInput
 				v-model="name"
 				size="xl"
-				placeholder="List name"
+				:placeholder="$t('lists.listNamePlaceholder')"
 				:maxlength="60"
 				autofocus
 				:ui="{ base: 'text-base' }"
@@ -67,15 +68,15 @@ async function submit() {
 		</template>
 		<template #footer>
 			<div class="flex w-full justify-end gap-2">
-				<UButton variant="outline" size="xl" label="Cancel" @click="emit('update:open', false)" />
-				<UButton size="xl" label="Create" :loading="saving" @click="submit" />
+				<UButton variant="outline" size="xl" :label="$t('common.cancel')" @click="emit('update:open', false)" />
+				<UButton size="xl" :label="$t('common.create')" :loading="saving" @click="submit" />
 			</div>
 		</template>
 	</UModal>
 	<UDrawer
 		v-else
 		:open="open"
-		title="Create new list"
+		:title="$t('lists.createNewList')"
 		:ui="browsingDrawerUi"
 		@update:open="emit('update:open', $event)">
 		<template #body>
@@ -83,11 +84,11 @@ async function submit() {
 				<UInput
 					v-model="name"
 					size="xl"
-					placeholder="List name"
+					:placeholder="$t('lists.listNamePlaceholder')"
 					:maxlength="60"
 					:ui="{ base: 'text-base' }"
 					@keydown.enter.prevent="submit" />
-				<UButton block size="xl" label="Create" :loading="saving" @click="submit" />
+				<UButton block size="xl" :label="$t('common.create')" :loading="saving" @click="submit" />
 			</div>
 		</template>
 	</UDrawer>

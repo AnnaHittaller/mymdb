@@ -6,6 +6,7 @@ import { catalogKey, defaultMediaType } from "~/utils/catalogKey";
 import { catalogDetailPath } from "~/utils/catalogPath";
 import { formatMovieRating } from "~/utils/formatMovieRating";
 import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
+import { localizeTmdbGenreNames } from "~/domain/locale/tmdbGenreLabels";
 
 type MovieCardMovie = {
 	id: number | string;
@@ -44,6 +45,8 @@ const emit = defineEmits<{
 	"remove-from-list": [];
 }>();
 
+const { locale } = useI18n();
+
 const user = useCurrentUser();
 const { isOnAnyList, isInFavorites, setFavorites } = useUserDocument();
 const { notifyListError } = useListCapToast();
@@ -65,45 +68,49 @@ const ratingLabel = computed(() =>
 	formatMovieRating(props.movie.rating ?? props.movie.vote_average),
 );
 
-const resolvedGenres = ref<string[]>([]);
+const localizedTitle = ref<string | null>(null);
+const localizedGenres = ref<string[]>([]);
+
+const displayTitle = computed(() => localizedTitle.value ?? props.movie.title);
 
 const genreLabel = computed(() => {
-	const fromProps = genreNamesFrom(props.movie);
-	if (fromProps.length) return fromProps.join(" · ");
-	if (resolvedGenres.value.length) return resolvedGenres.value.join(" · ");
-	return "";
+	const names = localizedGenres.value.length
+		? localizedGenres.value
+		: genreNamesFrom(props.movie);
+	if (!names.length) return "";
+	return localizeTmdbGenreNames(names, locale.value).join(" · ");
 });
 
 watch(
-	() => [props.movie.genres, movieId.value, resolvedMediaType.value] as const,
-	async ([genres, id, mediaType]) => {
-		if (genreNamesFrom({ ...props.movie, genres }).length) {
-			resolvedGenres.value = [];
-			return;
-		}
+	() => [movieId.value, resolvedMediaType.value, locale.value] as const,
+	async ([id, mediaType]) => {
+		localizedTitle.value = null;
+		localizedGenres.value = [];
 		if (!/^\d+$/.test(id)) {
-			resolvedGenres.value = [];
 			return;
 		}
 		try {
 			const summaries = await $fetch<CatalogUpdate[]>("/api/catalog/summaries", {
 				query: { entries: catalogKey(id, mediaType) },
 			});
-			resolvedGenres.value = summaries[0]?.genres ?? [];
+			const summary = summaries[0];
+			if (summary?.title) localizedTitle.value = summary.title;
+			localizedGenres.value = summary?.genres ?? [];
 		} catch {
-			resolvedGenres.value = [];
+			localizedGenres.value = [];
 		}
 	},
 	{ immediate: true },
 );
 
 const moviePayload = computed(() => {
-	const genres = genreNamesFrom(props.movie);
-	const fromResolved = resolvedGenres.value;
+	const genres = localizedGenres.value.length
+		? localizedGenres.value
+		: genreNamesFrom(props.movie);
 	return togglePayloadFromCatalog(
-		props.movie,
+		{ ...props.movie, title: displayTitle.value },
 		resolvedMediaType.value,
-		genres.length ? genres : fromResolved.length ? fromResolved : undefined,
+		genres.length ? genres : undefined,
 	);
 });
 
@@ -128,7 +135,7 @@ async function onShare() {
 	await shareCatalogTitle({
 		id: movieId.value,
 		mediaType: resolvedMediaType.value,
-		title: props.movie.title,
+		title: displayTitle.value,
 	});
 }
 </script>
@@ -141,7 +148,7 @@ async function onShare() {
 			<img
 				v-if="posterPath"
 				:src="`${POSTER_IMAGE_URL}${posterPath}`"
-				:alt="movie.title"
+				:alt="displayTitle"
 				width="342"
 				height="513"
 				loading="lazy"
@@ -156,7 +163,7 @@ async function onShare() {
 		</NuxtLink>
 		<div class="flex min-w-0 flex-col gap-0.5">
 			<NuxtLink :to="detailPath" class="line-clamp-1 text-base font-medium leading-tight text-fg-default">
-				{{ movie.title }}
+				{{ displayTitle }}
 			</NuxtLink>
 			<p v-if="genreLabel" class="line-clamp-1 text-sm leading-tight text-fg-muted">
 				{{ genreLabel }}
@@ -170,14 +177,14 @@ async function onShare() {
 					type="button"
 					class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200"
 					:class="bookmarkClass"
-					aria-label="Save to list"
+					:aria-label="$t('detail.saveToList')"
 					@click="pickerOpen = true">
 					<IconAddToList class="size-6" />
 				</button>
 				<button
 					type="button"
 					class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
-					:aria-label="inFavorites ? 'Remove from favorites' : 'Add to favorites'"
+					:aria-label="inFavorites ? $t('detail.removeFavorites') : $t('detail.addFavorites')"
 					@click="toggleFavorites">
 					<UIcon
 						:name="inFavorites ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
@@ -188,7 +195,7 @@ async function onShare() {
 				v-if="!editing"
 				type="button"
 				class="ml-auto flex h-6 cursor-pointer items-center leading-none text-fg-subtle transition-colors duration-200 hover:text-primary"
-				aria-label="Share"
+				:aria-label="$t('common.share')"
 				@click="onShare">
 				<UIcon name="i-heroicons-share" class="size-6" />
 			</button>
@@ -196,7 +203,7 @@ async function onShare() {
 				v-if="editing && listId"
 				type="button"
 				class="ml-auto flex h-6 cursor-pointer items-center leading-none text-fg-subtle transition-colors duration-200 hover:text-primary"
-				aria-label="Remove from this list"
+				:aria-label="$t('detail.removeFromList')"
 				@click="emit('remove-from-list')">
 				<UIcon name="i-heroicons-x-circle" class="size-6" />
 			</button>

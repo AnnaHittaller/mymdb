@@ -87,16 +87,16 @@ const deleteCurrentUser = async () => {
 
 <template>
 	<div class="min-w-0 max-w-full w-full space-y-4">
-		<Heading>Profile</Heading>
+		<Heading>{{ $t('profile.title') }}</Heading>
 
 		<div class="flex flex-col gap-4">
 			<div
 				class="grid grid-cols-1 gap-4 min-[36rem]:grid-cols-2">
-				<ProfileSectionCard title="My profile" class="min-w-0">
+				<ProfileSectionCard :title="$t('profile.myProfile')" class="min-w-0">
 					<div
 						class="flex min-w-0 flex-col items-center gap-4 text-center max-sm:items-center max-sm:text-center sm:flex-row sm:items-center sm:text-left">
 						<UAvatar
-							:alt="user?.displayName ?? 'Profile'"
+							:alt="user?.displayName ?? $t('profile.title')"
 							class="shrink-0 border border-border-default"
 							:ui="{
 								root: 'size-14 sm:size-16',
@@ -108,7 +108,7 @@ const deleteCurrentUser = async () => {
 								<p class="max-w-full text-lg break-words text-fg-muted">{{ user?.email }}</p>
 							</div>
 							<UButton
-								label="Edit username"
+								:label="$t('profile.editUsername')"
 								icon="i-heroicons-pencil-square"
 								variant="outline"
 								size="lg"
@@ -118,32 +118,32 @@ const deleteCurrentUser = async () => {
 					</div>
 				</ProfileSectionCard>
 
-				<ProfileSectionCard title="Account security" class="min-w-0">
+				<ProfileSectionCard :title="$t('profile.accountSecurity')" class="min-w-0">
 					<UButton
 						v-if="hasPasswordProvider"
-						label="Change password"
+						:label="$t('profile.changePassword')"
 						icon="i-heroicons-key"
 						variant="outline"
 						size="lg"
 						@click="changePasswordOpen = true" />
 					<p v-else class="text-lg text-fg-muted">
-						Signed in with Google — password can&apos;t be changed here.
+						{{ $t('profile.googlePasswordHint') }}
 					</p>
 				</ProfileSectionCard>
 			</div>
 
-			<ProfileSectionCard v-if="showPwaInstall" title="Install app" class="min-w-0">
+			<ProfileSectionCard v-if="showPwaInstall" :title="$t('profile.installApp')" class="min-w-0">
 				<p class="mb-4 text-lg text-fg-muted">
-					Add MyMDb to your home screen for quick access.
+					{{ $t('profile.installHint') }}
 				</p>
 				<div class="flex flex-wrap gap-3">
 					<UButton
-						label="Install"
+						:label="$t('profile.install')"
 						icon="i-heroicons-arrow-down-tray"
 						size="lg"
 						@click="installPwa" />
 					<UButton
-						label="Not now"
+						:label="$t('profile.notNow')"
 						variant="outline"
 						color="neutral"
 						size="lg"
@@ -151,23 +151,26 @@ const deleteCurrentUser = async () => {
 				</div>
 			</ProfileSectionCard>
 
-			<ProfileSectionCard title="Recommendations" class="min-w-0">
+			<ProfileSectionCard :title="$t('profile.languagePreferences')" class="min-w-0">
+				<ProfileLanguagePrefs />
+			</ProfileSectionCard>
+
+			<ProfileSectionCard :title="$t('profile.recommendations')" class="min-w-0">
 				<ProfileCatalogPrefs />
 			</ProfileSectionCard>
 
-			<ProfileSectionCard title="Theme &amp; customization" class="min-w-0">
+			<ProfileSectionCard :title="$t('profile.theme')" class="min-w-0">
 				<ColorSelector />
 			</ProfileSectionCard>
 
-			<ProfileSectionCard title="Account management" class="min-w-0">
+			<ProfileSectionCard :title="$t('profile.accountManagement')" class="min-w-0">
 				<p class="mb-4 text-lg text-fg-muted">
-					<span class="text-error">Danger zone</span>
-					— sign out or permanently delete your account and saved movies.
+					{{ $t('profile.dangerZone') }}
 				</p>
 				<div class="flex flex-wrap gap-3">
 					<UButton
 						icon="i-heroicons-arrow-left-on-rectangle"
-						label="Sign out"
+						:label="$t('profile.signOut')"
 						variant="outline"
 						color="neutral"
 						size="lg"
@@ -177,14 +180,14 @@ const deleteCurrentUser = async () => {
 						variant="outline"
 						color="error"
 						size="lg"
-						label="Delete profile"
+						:label="$t('profile.deleteProfile')"
 						@click="openDelete" />
 				</div>
 			</ProfileSectionCard>
 		</div>
 
 		<p class="pb-4 text-center text-base text-fg-muted">
-			<NuxtLink to="/legal" class="text-primary hover:underline">Legal &amp; privacy</NuxtLink>
+			<NuxtLink to="/legal" class="text-primary hover:underline">{{ $t('profile.legalLink') }}</NuxtLink>
 		</p>
 
 		<ProfileEditUsernameModal v-model:open="editUsernameOpen" />
@@ -192,19 +195,19 @@ const deleteCurrentUser = async () => {
 
 		<UModal
 			v-model:open="isOpen"
-			title="Delete profile"
+			:title="$t('profile.deleteModalTitle')"
 			scrollable
 			:dismissible="!deleting"
 			:close="!deleting"
-			description="This permanently deletes your account and every movie you saved. You cannot undo it."
+			:description="$t('profile.deleteModalDescription')"
 			:ui="{ title: 'text-error', footer: 'justify-end flex-wrap' }">
 			<template v-if="needsPassword || errorMessage" #body>
 				<div class="space-y-4">
-					<UFormField v-if="needsPassword" label="Password" name="deletePassword" required>
+					<UFormField v-if="needsPassword" :label="$t('profile.deletePassword')" name="deletePassword" required>
 						<UInput
 							v-model="password"
 							type="password"
-							placeholder="Your account password"
+							:placeholder="$t('profile.deletePasswordPlaceholder')"
 							size="lg"
 							:disabled="deleting"
 							@keyup.enter="deleteCurrentUser" />
@@ -213,9 +216,9 @@ const deleteCurrentUser = async () => {
 				</div>
 			</template>
 			<template #footer="{ close }">
-				<UButton label="Cancel" color="neutral" variant="outline" :disabled="deleting" @click="close" />
+				<UButton :label="$t('common.cancel')" color="neutral" variant="outline" :disabled="deleting" @click="close" />
 				<UButton
-					label="Yes, delete my profile"
+					:label="$t('profile.yesDelete')"
 					color="error"
 					:loading="deleting"
 					@click="deleteCurrentUser" />

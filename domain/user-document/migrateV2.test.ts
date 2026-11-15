@@ -25,6 +25,13 @@ function baseDoc(movies: UserMovie[] = []): UserDocumentData {
 		username: "anna",
 		email: "anna@example.com",
 		theme: "emerald",
+		catalogPrefs: {
+			region: null,
+			movieGenreIds: [],
+			tvGenreIds: [],
+			watchProviderIds: [],
+			keywordIds: [],
+		},
 		lists: [],
 		movies,
 	};

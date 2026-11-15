@@ -16,7 +16,8 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 	try {
-		const raw = await fetchTmdbTvSeason(showId, seasonNumber);
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
+		const raw = await fetchTmdbTvSeason(showId, seasonNumber, language);
 		return normalizeDetailSeason(raw);
 	} catch {
 		throw createError({

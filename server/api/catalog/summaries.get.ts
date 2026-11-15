@@ -1,4 +1,5 @@
 import { CATALOG_SUMMARY_CHUNK } from '~/constants/movie'
+import { localizeTmdbGenreEntries } from '~/domain/locale/tmdbGenreLabels'
 import type { MediaType } from '~/types/catalog'
 import type { CatalogUpdate } from '~/domain/user-document/createUserDocument'
 
@@ -18,6 +19,7 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
+	const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
 	const summaries: (CatalogUpdate | null)[] = new Array(entries.length).fill(null)
 	let cursor = 0
 
@@ -25,7 +27,7 @@ export default defineEventHandler(async (event) => {
 		while (cursor < entries.length) {
 			const index = cursor
 			cursor += 1
-			summaries[index] = await summaryFor(entries[index]!)
+			summaries[index] = await summaryFor(entries[index]!, language)
 		}
 	}
 
@@ -66,10 +68,10 @@ function parseCsv(value: unknown): string[] {
 	return value.split(",").map((part) => part.trim()).filter(Boolean)
 }
 
-async function summaryFor(entry: CatalogEntry): Promise<CatalogUpdate | null> {
+async function summaryFor(entry: CatalogEntry, language: string): Promise<CatalogUpdate | null> {
 	try {
 		if (entry.mediaType === "tv") {
-			const show = await fetchTmdbTv(entry.id)
+			const show = await fetchTmdbTv(entry.id, language)
 			if (!show || typeof show.name !== "string") {
 				return null
 			}
@@ -79,10 +81,10 @@ async function summaryFor(entry: CatalogEntry): Promise<CatalogUpdate | null> {
 				title: show.name,
 				rating: typeof show.vote_average === "number" ? show.vote_average : 0,
 				poster: typeof show.poster_path === "string" ? show.poster_path : "",
-				genres: (show.genres ?? []).map((genre) => genre.name),
+				genres: localizeTmdbGenreEntries(show.genres ?? [], language).map((genre) => genre.name),
 			}
 		}
-		const movie = await fetchTmdbMovie(entry.id)
+		const movie = await fetchTmdbMovie(entry.id, language)
 		if (!movie || typeof movie.title !== "string") {
 			return null
 		}
@@ -92,7 +94,7 @@ async function summaryFor(entry: CatalogEntry): Promise<CatalogUpdate | null> {
 			title: movie.title,
 			rating: typeof movie.vote_average === "number" ? movie.vote_average : 0,
 			poster: typeof movie.poster_path === "string" ? movie.poster_path : "",
-			genres: (movie.genres ?? []).map((genre) => genre.name),
+			genres: localizeTmdbGenreEntries(movie.genres ?? [], language).map((genre) => genre.name),
 		}
 	} catch {
 		return null

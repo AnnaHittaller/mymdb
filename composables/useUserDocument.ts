@@ -15,6 +15,7 @@ import type { MediaTypeHint } from "../domain/user-document/reconcileWatchlist";
 import { createVueFireUserDocumentStore } from "../domain/user-document/vueFireStore";
 import type { MediaType } from "../types/catalog";
 import type { CatalogPrefs } from "../domain/user-document/catalogPrefs";
+import type { AppLocale } from "../domain/locale/appLocale";
 import type { UserList } from "../types/list";
 import type { UserMovie } from "../types/movie";
 import { catalogKey, defaultMediaType } from "../utils/catalogKey";
@@ -24,6 +25,7 @@ type UserDocumentApi = {
 	watchNext: ComputedRef<UserMovie[]>;
 	lists: ComputedRef<UserList[]>;
 	theme: ComputedRef<string>;
+	locale: ComputedRef<AppLocale>;
 	catalogPrefs: ComputedRef<CatalogPrefs>;
 	moviesInList: (listId: string) => UserMovie[];
 	listById: (listId: string) => UserList | undefined;
@@ -37,6 +39,8 @@ type UserDocumentApi = {
 	renameList: (listId: string, name: string) => Promise<void>;
 	deleteList: (listId: string) => Promise<void>;
 	setTheme: (theme: string) => Promise<void>;
+	setLocale: (locale: AppLocale) => Promise<void>;
+	refreshLibraryCatalog: () => Promise<void>;
 	setCatalogPrefs: (patch: Partial<CatalogPrefs>) => Promise<void>;
 	setUsername: (username: string) => Promise<void>;
 	repairWatchlist: (hints: MediaTypeHint[]) => Promise<void>;
@@ -54,13 +58,14 @@ export function provideUserDocument() {
 	const version = ref(0);
 	const offlineReady = import.meta.client ? useOfflineReady() : null;
 	const writeToast = import.meta.client ? useToast() : null;
+	const { t: translate } = useI18n();
 
 	function blockOfflineWrite(): boolean {
 		if (!offlineReady?.isOffline.value) {
 			return false;
 		}
 		writeToast?.add({
-			...OFFLINE_WRITE_TOAST,
+			...offlineWriteToastCopy(translate),
 			color: "neutral",
 			duration: 8_000,
 		});
@@ -114,6 +119,10 @@ export function provideUserDocument() {
 			version.value;
 			return document.theme();
 		}),
+		locale: computed(() => {
+			version.value;
+			return document.locale();
+		}),
 		catalogPrefs: computed(() => {
 			version.value;
 			return document.catalogPrefs();
@@ -147,6 +156,27 @@ export function provideUserDocument() {
 		renameList: (listId, name) => guardedWrite(() => document.renameList(listId, name)),
 		deleteList: (listId) => guardedWrite(() => document.deleteList(listId)),
 		setTheme: (theme) => guardedWrite(() => document.setTheme(theme)),
+		setLocale: (locale) => guardedWrite(() => document.setLocale(locale)),
+		refreshLibraryCatalog: async () => {
+			const uid = user.value?.uid;
+			if (!uid || blockOfflineWrite()) {
+				return;
+			}
+			if (!navigator.onLine) {
+				return;
+			}
+			try {
+				const list = document.movies();
+				if (list.length === 0) {
+					return;
+				}
+				const updates = await fetchCatalogSummaries(list);
+				await document.refreshCatalog(updates);
+				localStorage.setItem(catalogRefreshKey(uid), String(Date.now()));
+			} catch {
+				/* ignore */
+			}
+		},
 		setCatalogPrefs: (patch) => guardedWrite(() => document.setCatalogPrefs(patch)),
 		setUsername: (username) => guardedWrite(() => document.setUsername(username)),
 		repairWatchlist: (hints) => guardedWrite(() => document.repairWatchlist(hints)),

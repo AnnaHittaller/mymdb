@@ -13,9 +13,9 @@ const toolbarIconClass = "size-10 shrink-0";
 				v-if="user"
 				to="/profile"
 				:class="[toolbarIconClass, 'group rounded-full']"
-				aria-label="Profile">
+				:aria-label="$t('nav.profile')">
 				<UAvatar
-					:alt="user.displayName ?? 'Profile'"
+					:alt="user.displayName ?? $t('profile.title')"
 					:ui="{
 						root: `${toolbarIconClass} border border-border-default transition-colors group-hover:border-primary`,
 					}"

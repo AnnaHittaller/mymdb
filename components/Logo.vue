@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<NuxtLink to="/" class="flex justify-center" aria-label="MyMDb home">
+		<NuxtLink to="/" class="flex justify-center" :aria-label="$t('meta.homeAria')">
 			<div
 				class="inline-flex shrink items-center justify-center rounded-md border-2 border-fg-on-accent bg-primary px-3 py-2 transition-colors duration-200 hover:bg-primary/75"
 			>

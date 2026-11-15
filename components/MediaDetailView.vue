@@ -9,6 +9,7 @@ import type { ToggleMoviePayload } from "~/domain/user-document/createUserDocume
 import type { DetailCollection } from "~/types/detailCollection";
 import type { DetailFact, DetailJob } from "~/types/detailFact";
 import type { TvSeasonSummary } from "~/types/tv";
+import { localizeTmdbGenreEntries } from "~/domain/locale/tmdbGenreLabels";
 
 const props = defineProps<{
 	title: string;
@@ -37,7 +38,13 @@ const {
 	openTrailer,
 } = useTrailerPlayback();
 
-const genreLine = computed(() => props.genres.map((genre) => genre.name).join(" · "));
+const { t, locale } = useI18n();
+
+const genreLine = computed(() =>
+	localizeTmdbGenreEntries(props.genres, locale.value)
+		.map((genre) => genre.name)
+		.join(" · "),
+);
 
 const visibleKeywords = computed(() => props.keywords.slice(0, 20));
 
@@ -128,7 +135,7 @@ async function onWatchTrailer() {
 					<DetailMetaRow :facts="facts" :jobs="jobs" />
 					<div v-if="visibleKeywords.length > 0" class="flex flex-col gap-2.5">
 						<p class="text-lg font-semibold text-fg-default">
-							Keywords
+							{{ $t("detail.keywordsHeading") }}
 						</p>
 						<div class="flex flex-wrap gap-2.5">
 							<NuxtLink
@@ -136,7 +143,7 @@ async function onWatchTrailer() {
 								:key="keyword.id"
 								:to="browseKeywordQuery(keyword)"
 								:class="keywordBrowseLinkClass"
-								:aria-label="`Browse titles tagged «${keyword.name}»`">
+								:aria-label="t('detail.browseKeywordAria', { name: keyword.name })">
 								<UBadge
 									color="neutral"
 									variant="subtle"

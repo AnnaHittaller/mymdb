@@ -35,7 +35,7 @@ async function toggleFavorites() {
 		<UButton
 			variant="outline"
 			color="primary"
-			label="Save to list"
+			:label="$t('detail.saveToList')"
 			:block="block"
 			:size="size"
 			@click="pickerOpen = true">
@@ -47,7 +47,7 @@ async function toggleFavorites() {
 			variant="outline"
 			color="primary"
 			:icon="inFavorites ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
-			:label="inFavorites ? 'In favorites' : 'Add to favorites'"
+			:label="inFavorites ? $t('detail.inFavorites') : $t('detail.addFavorites')"
 			:block="block"
 			:size="size"
 			:class="onAnyList ? '' : ''"

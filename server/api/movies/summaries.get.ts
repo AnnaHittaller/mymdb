@@ -1,4 +1,5 @@
 import { CATALOG_SUMMARY_CHUNK } from '~/constants/movie'
+import { localizeTmdbGenreEntries } from '~/domain/locale/tmdbGenreLabels'
 import type { CatalogUpdate } from '~/domain/user-document/createUserDocument'
 
 const FETCH_CONCURRENCY = 5
@@ -52,7 +53,7 @@ async function summaryFor(id: string): Promise<CatalogUpdate | null> {
 			title: movie.title,
 			rating: typeof movie.vote_average === 'number' ? movie.vote_average : 0,
 			poster: typeof movie.poster_path === 'string' ? movie.poster_path : '',
-			genres: (movie.genres ?? []).map((genre) => genre.name),
+			genres: localizeTmdbGenreEntries(movie.genres ?? [], 'en-US').map((genre) => genre.name),
 		}
 	} catch {
 		return null

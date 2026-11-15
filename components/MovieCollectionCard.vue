@@ -10,6 +10,8 @@ const props = defineProps<{
 	listId?: string;
 }>();
 
+const { t } = useI18n();
+
 function joinedAtMillis(movie: UserMovie, listId: string): number {
 	const membership = movie.memberships.find((m) => m.listId === listId);
 	if (!membership) return 0;
@@ -42,7 +44,7 @@ const previewPosters = computed(() => sortedWithPoster.value.slice(0, 4));
 
 const countLabel = computed(() => {
 	const n = props.movies.length;
-	return n === 1 ? "1 title" : `${n} titles`;
+	return n === 1 ? t("lists.titleCountOne") : t("lists.titleCount", { count: n });
 });
 
 const isEmpty = computed(() => props.movies.length === 0);

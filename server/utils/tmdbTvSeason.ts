@@ -18,10 +18,10 @@ type TmdbSeasonResponse = {
 };
 
 export const fetchTmdbTvSeason = defineCachedFunction(
-	async (showId: string, seasonNumber: string) => {
+	async (showId: string, seasonNumber: string, language = "en-US") => {
 		const config = useRuntimeConfig();
 		return await $fetch<TmdbSeasonResponse>(
-			`${config.apiBaseUrl}/tv/${showId}/season/${seasonNumber}?language=en-US`,
+			`${config.apiBaseUrl}/tv/${showId}/season/${seasonNumber}?language=${encodeURIComponent(language)}`,
 			{
 				method: "GET",
 				headers: {
@@ -34,7 +34,8 @@ export const fetchTmdbTvSeason = defineCachedFunction(
 	{
 		maxAge: CACHE_DURATION / 1000,
 		name: "tmdb-tv-season",
-		getKey: (showId: string, seasonNumber: string) => `${showId}-${seasonNumber}`,
+		getKey: (showId: string, seasonNumber: string, language = "en-US") =>
+			`${showId}-${seasonNumber}:${language}`,
 	},
 );
 

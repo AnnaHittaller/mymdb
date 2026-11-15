@@ -24,15 +24,6 @@ export function sharedListOgImage(items: PublishedListItem[], origin: string): s
 	return posterUrl ?? siteOgImageUrl(origin);
 }
 
-export function sharedListMetaDescription(
-	listName: string,
-	ownerDisplayName: string,
-	titleCount: number,
-): string {
-	const countLabel = titleCount === 1 ? "1 title" : `${titleCount} titles`;
-	return `${listName} — ${countLabel} shared by ${ownerDisplayName} on MyMDb.`;
-}
-
 export function catalogMetaDescription(
 	overview: string | null | undefined,
 	fallback: string,

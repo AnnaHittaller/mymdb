@@ -2,8 +2,9 @@ import { CACHE_DURATION } from "~/constants/movie";
 import type { TmdbMediaRow } from "~/server/utils/tmdbNormalize";
 import { normalizeTrendingAllResult } from "~/server/utils/tmdbNormalize";
 
-export default defineCachedEventHandler(async () => {
+export default defineCachedEventHandler(async (event) => {
 	try {
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
 		const config = useRuntimeConfig()
 		const headers = {
 			accept: 'application/json',
@@ -11,11 +12,11 @@ export default defineCachedEventHandler(async () => {
 		}
 		const [response, movieGenres, tvGenres] = await Promise.all([
 			$fetch<{ results: TmdbMediaRow[] }>(
-				`${config.apiBaseUrl}/trending/all/week?language=en-US`,
+				`${config.apiBaseUrl}/trending/all/week?language=${encodeURIComponent(language)}`,
 				{ method: 'GET', headers },
 			),
-			getMovieGenreNameMap(),
-			getTvGenreNameMap(),
+			getMovieGenreNameMap(language),
+			getTvGenreNameMap(language),
 		])
 		const genreNamesByType = { movie: movieGenres, tv: tvGenres }
 		return response.results.flatMap((item) => {
@@ -31,5 +32,8 @@ export default defineCachedEventHandler(async () => {
 }, {
 	maxAge: CACHE_DURATION / 1000,
 	name: 'trending-hero',
-	getKey: () => 'week-all',
+	getKey: (event) => {
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
+		return `week-all:${language}`
+	},
 })

@@ -9,10 +9,10 @@ export type TmdbMovieDetails = {
 }
 
 export const fetchTmdbMovie = defineCachedFunction(
-	async (id: string) => {
+	async (id: string, language = "en-US") => {
 		const config = useRuntimeConfig()
 		return await $fetch<TmdbMovieDetails>(
-			`${config.apiBaseUrl}/movie/${id}?append_to_response=credits,videos&language=en-US&page=1`,
+			`${config.apiBaseUrl}/movie/${id}?append_to_response=credits,videos&language=${encodeURIComponent(language)}&page=1`,
 			{
 				method: 'GET',
 				headers: {
@@ -25,6 +25,6 @@ export const fetchTmdbMovie = defineCachedFunction(
 	{
 		maxAge: CACHE_DURATION / 1000,
 		name: 'tmdb-movie',
-		getKey: (id: string) => id,
+		getKey: (id: string, language = "en-US") => `${id}:${language}`,
 	},
 )

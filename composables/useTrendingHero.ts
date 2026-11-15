@@ -2,7 +2,6 @@ import { BACKDROP_COMPACT_IMAGE_URL, BACKDROP_IMAGE_URL } from "~/constants/movi
 import type { TrendingItem } from "~/types/catalog";
 import { cachedTrendingList } from "~/utils/trendingCache";
 
-const TRENDING_HERO_KEY = "trending-hero";
 
 let warmedBackdrop = false;
 
@@ -19,12 +18,17 @@ function warmFirstBackdrop(path: string) {
 }
 
 export function useTrendingHero(options?: { lazy?: boolean; server?: boolean }) {
+	const { locale } = useI18n();
+	const query = computed(() => ({ language: locale.value }));
+	const key = computed(() => `trending-hero-${locale.value}`);
 	const result = useFetch<TrendingItem[]>("/api/catalog/trending-hero", {
-		key: TRENDING_HERO_KEY,
+		key,
+		query,
 		lazy: options?.lazy,
 		server: options?.server,
-		getCachedData(key, nuxtApp) {
-			return cachedTrendingList(key, nuxtApp);
+		watch: [query],
+		getCachedData(fetchKey, nuxtApp) {
+			return cachedTrendingList(String(fetchKey), nuxtApp);
 		},
 	});
 

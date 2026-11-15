@@ -24,7 +24,10 @@ export function parseIsoReleaseDate(value: unknown): string {
 	return ISO_DATE.test(trimmed) ? trimmed : ""
 }
 
-export function buildTmdbDiscoverMovieParams(input: DiscoverQueryInput): URLSearchParams {
+export function buildTmdbDiscoverMovieParams(
+	input: DiscoverQueryInput,
+	language = "en-US",
+): URLSearchParams {
 	const page = Number(input.page) || 1
 	const rating = Number(input.rating) || 0
 	const genres = String(input.genres ?? "")
@@ -45,7 +48,7 @@ export function buildTmdbDiscoverMovieParams(input: DiscoverQueryInput): URLSear
 	const params = new URLSearchParams({
 		include_adult: "false",
 		include_video: "false",
-		language: "en-US",
+		language,
 		page: String(page),
 		sort_by: tmdbDiscoverSortBy(String(input.sort ?? ""), "movie"),
 	})

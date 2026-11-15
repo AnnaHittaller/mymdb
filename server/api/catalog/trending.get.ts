@@ -20,15 +20,16 @@ export default defineCachedEventHandler(async (event) => {
 	try {
 		const query = getQuery(event)
 		const page = Number(query.page) || 1
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
 		const config = useRuntimeConfig()
 		const headers = {
 			accept: 'application/json',
 			Authorization: `Bearer ${config.apiBearerToken}`,
 		}
-		const genreMapPromise = mediaType === "tv" ? getTvGenreNameMap() : getMovieGenreNameMap()
+		const genreMapPromise = mediaType === "tv" ? getTvGenreNameMap(language) : getMovieGenreNameMap(language)
 		const [response, genreNames] = await Promise.all([
 			$fetch<{ results: TmdbMediaRow[] }>(
-				`${config.apiBaseUrl}/trending/${mediaType}/week?language=en-US&page=${page}`,
+				`${config.apiBaseUrl}/trending/${mediaType}/week?language=${encodeURIComponent(language)}&page=${page}`,
 				{ method: 'GET', headers },
 			),
 			genreMapPromise,
@@ -48,6 +49,7 @@ export default defineCachedEventHandler(async (event) => {
 		const query = getQuery(event)
 		const type = String(query.type ?? "")
 		const page = String(query.page ?? 1)
-		return `${type}:${page}`
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
+		return `${type}:${page}:${language}`
 	},
 })

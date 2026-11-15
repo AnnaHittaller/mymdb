@@ -5,24 +5,29 @@ import { formatDetailYear, formatRatingOutOfTen, formatRuntimeMinutes } from "~/
 import { formatCreditNames } from "~/utils/normalizeDetailCredits";
 import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
 import { catalogMetaDescription, catalogPosterOgImage } from "~/utils/catalogSeoMeta";
+import { payloadDuringHydration } from "~/utils/trendingCache";
 
 definePageMeta({
     layout: "default",
 })
+
+const { t, locale } = useI18n()
 
 const route = useRoute()
 
 const movieId = computed(() => String(route.params.id))
 
 const cachedPayload = (key: string, nuxtApp: ReturnType<typeof useNuxtApp>) =>
-    nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
+    payloadDuringHydration(key, nuxtApp)
 
-const movieFetch = useFetch<Movie>(() => `/api/movies/${movieId.value}`, {
-    key: `movie-${movieId.value}`,
+const movieFetch = useFetch<Movie>(() => `/api/movies/${movieId.value}?language=${locale.value}`, {
+    key: computed(() => `movie-${movieId.value}-${locale.value}`),
+    watch: [locale],
     getCachedData: cachedPayload,
 })
-const recommendationsFetch = useFetch(() => `/api/movies/recommendations?id=${movieId.value}`, {
-    key: `recommendations-${movieId.value}`,
+const recommendationsFetch = useFetch(() => `/api/movies/recommendations?id=${movieId.value}&language=${locale.value}`, {
+    key: computed(() => `recommendations-${movieId.value}-${locale.value}`),
+    watch: [locale],
     getCachedData: cachedPayload,
 })
 
@@ -68,13 +73,13 @@ useSeoMeta({
 	description: () =>
 		catalogMetaDescription(
 			movie.value?.overview,
-			movie.value?.title ? `Watch ${movie.value.title} on MyMDb.` : "Movie on MyMDb.",
+			movie.value?.title ? t("meta.seoWatchTitle", { title: movie.value.title }) : t("meta.seoMovieFallback"),
 		),
 	ogTitle: () => movie.value?.title,
 	ogDescription: () =>
 		catalogMetaDescription(
 			movie.value?.overview,
-			movie.value?.title ? `Watch ${movie.value.title} on MyMDb.` : "Movie on MyMDb.",
+			movie.value?.title ? t("meta.seoWatchTitle", { title: movie.value.title }) : t("meta.seoMovieFallback"),
 		),
 	ogImage: () => catalogPosterOgImage(movie.value?.poster_path),
 	ogUrl: () => `${requestUrl.origin}/movie/${movieId.value}`,
@@ -84,7 +89,7 @@ useSeoMeta({
 	twitterDescription: () =>
 		catalogMetaDescription(
 			movie.value?.overview,
-			movie.value?.title ? `Watch ${movie.value.title} on MyMDb.` : "Movie on MyMDb.",
+			movie.value?.title ? t("meta.seoWatchTitle", { title: movie.value.title }) : t("meta.seoMovieFallback"),
 		),
 	twitterImage: () => catalogPosterOgImage(movie.value?.poster_path),
 });
@@ -95,17 +100,17 @@ const jobs = computed<DetailJob[]>(() => {
     const items: DetailJob[] = []
     const directors = formatCreditNames(credits.directors)
     if (directors) {
-        const label = credits.directors.length > 1 ? "Dirs." : "Dir."
+        const label = credits.directors.length > 1 ? t("detail.directorsMany") : t("detail.directorOne")
         items.push({ icon: "i-heroicons-film", text: `${label} ${directors}` })
     }
     const music = formatCreditNames(credits.music)
-    if (music) items.push({ icon: "i-heroicons-musical-note", text: `Music: ${music}` })
+    if (music) items.push({ icon: "i-heroicons-musical-note", text: t("detail.musicFact", { names: music }) })
     return items
 })
 </script>
 
 <template>
-    <div v-if="pending" class="px-8 py-8 text-lg">Loading…</div>
+    <div v-if="pending" class="px-8 py-8 text-lg">{{ $t('common.loading') }}</div>
     <MediaDetailView
         v-else-if="movie && !error"
         :title="movie.title"
@@ -125,7 +130,7 @@ const jobs = computed<DetailJob[]>(() => {
         :collection="movie.collection ?? null">
         <template #related>
             <div v-if="moviesWithPoster.length > 0" class="flex min-w-0 flex-col gap-3">
-                <Heading flush tier="section">You may also like</Heading>
+                <Heading flush tier="section">{{ $t('detail.youMayAlsoLike') }}</Heading>
                 <div class="movie-grid">
                     <MovieCard
                         v-for="item in moviesWithPoster"

@@ -22,6 +22,7 @@ export function discoverMedia(query: Record<string, unknown>): MediaType {
 
 export async function discoverCatalogTitles(
 	query: Record<string, unknown>,
+	language = "en-US",
 ): Promise<CatalogCard[]> {
 	try {
 		const media = discoverMedia(query)
@@ -37,14 +38,14 @@ export async function discoverCatalogTitles(
 			releaseYearLte: asString(query.release_year_lte) || "0",
 		}
 		const params = media === "tv"
-			? buildTmdbDiscoverTvParams(discoverInput)
-			: buildTmdbDiscoverMovieParams(discoverInput)
+			? buildTmdbDiscoverTvParams(discoverInput, language)
+			: buildTmdbDiscoverMovieParams(discoverInput, language)
 		const headers = {
 			accept: "application/json",
 			Authorization: `Bearer ${config.apiBearerToken}`,
 		}
 
-		const genreMapPromise = media === "tv" ? getTvGenreNameMap() : getMovieGenreNameMap()
+		const genreMapPromise = media === "tv" ? getTvGenreNameMap(language) : getMovieGenreNameMap(language)
 		const [response, genreNames] = await Promise.all([
 			$fetch<{ results: TmdbDiscoverResult[] }>(
 				`${config.apiBaseUrl}/discover/${media}?${params.toString()}`,

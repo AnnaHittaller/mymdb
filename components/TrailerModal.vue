@@ -11,6 +11,9 @@ const props = defineProps<{
 }>();
 
 const { preferences, isConsentExpired, updatePreferences } = useCookieConsent();
+const { t } = useI18n();
+
+const trailerSite = computed(() => (props.trailer?.site === "Vimeo" ? "Vimeo" : "YouTube"));
 
 const embedsAllowed = computed(
 	() => preferences.value.embeddedVideo === true && !isConsentExpired.value,
@@ -64,16 +67,15 @@ const iframeTitle = computed(() =>
 			</div>
 			<div v-else class="space-y-4 p-6">
 				<p>
-					This trailer plays on {{ trailer?.site === "Vimeo" ? "Vimeo" : "YouTube" }}.
-					Loading it connects to that site and can store data on your device.
+					{{ $t('consent.trailerSiteNotice', { site: trailerSite }) }}
 				</p>
 				<p class="text-sm text-fg-muted">
-					Not now is saved the same way as Play trailer. You can switch later under
-					<NuxtLink to="/legal#cookies" class="text-primary hover:underline" @click="open = false">Legal → Cookies</NuxtLink>.
+					{{ $t('consent.trailerLegalHintBefore') }}
+					<NuxtLink to="/legal#cookies" class="text-primary hover:underline" @click="open = false">{{ $t('consent.legalCookiesLink') }}</NuxtLink>.
 				</p>
 				<div class="flex flex-wrap gap-3">
-					<UButton type="button" @click="allowEmbeds">Play trailer</UButton>
-					<UButton type="button" color="neutral" variant="outline" @click="keepEmbedsOff">Not now</UButton>
+					<UButton type="button" @click="allowEmbeds">{{ $t('consent.playTrailer') }}</UButton>
+					<UButton type="button" color="neutral" variant="outline" @click="keepEmbedsOff">{{ $t('profile.notNow') }}</UButton>
 				</div>
 			</div>
 		</template>

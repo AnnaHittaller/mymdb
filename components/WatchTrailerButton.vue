@@ -27,6 +27,8 @@ const emit = defineEmits<{
 	play: [];
 }>();
 
+const { t } = useI18n();
+
 const unavailable = computed(() => props.disabled);
 
 function onClick() {
@@ -41,7 +43,7 @@ function onClick() {
 		icon="i-heroicons-play-20-solid"
 		color="primary"
 		variant="outline"
-		label="Watch trailer"
+		:label="t('detail.watchTrailer')"
 		:size="size"
 		:block="block"
 		:loading="loading"

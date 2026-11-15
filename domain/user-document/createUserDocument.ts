@@ -31,6 +31,7 @@ import {
 	DEFAULT_CATALOG_PREFS,
 	normalizeCatalogPrefs,
 } from "./catalogPrefs";
+import { DEFAULT_APP_LOCALE, normalizeAppLocale, type AppLocale } from "../locale/appLocale";
 import type { UserDocumentData, UserDocumentStore } from "./types";
 
 const NO_USER_DOCUMENT = "No user document";
@@ -221,6 +222,7 @@ export function createUserDocument(store: UserDocumentStore) {
 		lists: () => listsInDisplayOrder(snapshot?.lists ?? []),
 		moviesInList: (listId: string) => moviesInListOf(snapshot?.movies ?? [], listId),
 		theme: () => snapshot?.theme ?? "",
+		locale: () => normalizeAppLocale(snapshot?.locale ?? DEFAULT_APP_LOCALE),
 		catalogPrefs: () => snapshot?.catalogPrefs ?? { ...DEFAULT_CATALOG_PREFS },
 		listById: (listId: string): UserList | undefined =>
 			snapshot?.lists.find((list) => list.id === listId),
@@ -374,6 +376,15 @@ export function createUserDocument(store: UserDocumentStore) {
 			store.transact((document) => {
 				const current = requireDocument(document);
 				return { ...current, theme };
+			}),
+		setLocale: (locale: AppLocale) =>
+			store.transact((document) => {
+				const current = requireDocument(document);
+				const next = normalizeAppLocale(locale);
+				if (normalizeAppLocale(current.locale) === next) {
+					return current;
+				}
+				return { ...current, locale: next };
 			}),
 		setCatalogPrefs: (patch: Partial<CatalogPrefs>) =>
 			store.transact((document) => {

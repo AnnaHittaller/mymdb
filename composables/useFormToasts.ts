@@ -11,6 +11,7 @@ export function useFormToasts(
 	options: { successTitle: string; successDuration?: number },
 ) {
 	const toast = useToast()
+	const { t } = useI18n()
 	const successDuration = options.successDuration ?? FORM_SUCCESS_TOAST_DURATION
 
 	function clearFormToasts() {
@@ -29,7 +30,7 @@ export function useFormToasts(
 			if (!error) return
 			toast.add({
 				id: "form-error",
-				title: "Error:",
+				title: t("auth.errorTitle"),
 				description: error,
 				icon: "i-heroicons-exclamation-circle",
 				color: "error",

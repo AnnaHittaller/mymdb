@@ -1,19 +1,22 @@
 <template>
     <div class="max-w-[450px] w-full mx-auto">
-        <Heading>Register</Heading>
+        <Heading>{{ $t('auth.register') }}</Heading>
         <UForm :schema="registerSchema" :state="state" class="space-y-6 w-full pt-8 text-lg" @submit="onSubmit">
-            <UFormField label="Email " name="email" required size="lg" :ui="{ label: 'text-lg' }">
-                <UInput v-model.trim="state.email" placeholder="Email" size="lg"
+            <UFormField :label="$t('auth.email')" name="email" required size="lg" :ui="{ label: 'text-lg' }">
+                <UInput
+                    v-model.trim="state.email" :placeholder="$t('auth.email')" size="lg"
                     :ui="{ base: 'text-lg placeholder:italic' }" />
             </UFormField>
 
-            <UFormField label="Username " name="username" required size="lg" :ui="{ label: 'text-lg' }">
-                <UInput v-model.trim="state.username" placeholder="Username" size="lg"
+            <UFormField :label="$t('auth.username')" name="username" required size="lg" :ui="{ label: 'text-lg' }">
+                <UInput
+                    v-model.trim="state.username" :placeholder="$t('auth.username')" size="lg"
                     :ui="{ base: 'text-lg placeholder:italic' }" type="text" />
             </UFormField>
 
-            <UFormField label="Password " name="password" required size="lg" :ui="{ label: 'text-lg' }">
-                <UInput v-model="state.password" placeholder="Password" size="lg"
+            <UFormField :label="$t('auth.password')" name="password" required size="lg" :ui="{ label: 'text-lg' }">
+                <UInput
+                    v-model="state.password" :placeholder="$t('auth.password')" size="lg"
                     :ui="{ base: 'text-lg placeholder:italic' }" :type="inputType">
                     <template #trailing>
                         <UIcon :name="inputType === 'password' ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'"
@@ -24,18 +27,19 @@
 
             <div class="flex items-center justify-between pt-8 flex-col">
                 <UButton type="submit" class="text-lg" :loading="state.loading" block>
-                    Create an account
+                    {{ $t('auth.createAccount') }}
                 </UButton>
-                <USeparator label="OR" class="py-4" orientation="horizontal" />
+                <USeparator :label="$t('common.or')" class="py-4" orientation="horizontal" />
                 <UButton type="button" class="text-lg" :loading="state.loading" @click="signUpWithGoogle" block>
-                    Sign up with Google
+                    {{ $t('auth.signUpWithGoogle') }}
                 </UButton>
                 <div class="flex items-center gap-2 max-[300px]:flex-col pt-4">
-                    <p class="text-lg">Already have an account?</p>
-                    <NuxtLink to="/login"
+                    <p class="text-lg">{{ $t('auth.hasAccount') }}</p>
+                    <NuxtLink
+                        to="/login"
                         class="text-lg text-primary font-semibold flex items-center gap-0.5 hover:underline underline-offset-[5px]">
                         <UIcon name="i-heroicons-chevron-double-right-20-solid" class="text-lg" />
-                        Sign in
+                        {{ $t('auth.signIn') }}
                     </NuxtLink>
                 </div>
             </div>
@@ -46,6 +50,12 @@
             :loading="linkModalLoading"
             @confirm="onLinkPasswordConfirm"
             @cancel="cancelLinkPassword" />
+        <SignInLocalePromptModal
+            v-model:open="localePromptOpen"
+            :suggested="suggestedLocale"
+            :loading="localePromptLoading"
+            @confirm="confirmLocale"
+            @keep-english="keepEnglishAndContinue" />
     </div>
 </template>
 
@@ -55,8 +65,8 @@ import { registerSchema, type RegisterSchema } from '../schemas/schemas';
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { googleAuthProvider } from '~/composables/googleAuthProvider';
 import { signInWithGoogleAndLink } from '~/composables/googleSignIn';
-import { defaultUsername, ensureUserProfile } from '~/composables/userProfile';
 import { useGoogleLinkPasswordPrompt } from '~/composables/useGoogleLinkPasswordPrompt';
+import { useSignInLocalePrompt } from '~/composables/useSignInLocalePrompt';
 
 definePageMeta({
     layout: "not-logged-in",
@@ -64,9 +74,17 @@ definePageMeta({
 })
 
 const auth = useFirebaseAuth()
-const db = useFirestore()
 const route = useRoute()
+const { t } = useI18n()
 const destination = computed(() => pathFromRedirect(route.query.redirect))
+const {
+    open: localePromptOpen,
+    loading: localePromptLoading,
+    suggestedLocale,
+    finishAuthAndOfferLocale,
+    confirmLocale,
+    keepEnglishAndContinue,
+} = useSignInLocalePrompt()
 
 const {
     linkModalOpen,
@@ -92,7 +110,7 @@ const state = reactive({
     success: false
 })
 
-const { clearFormToasts } = useFormToasts(state, { successTitle: 'Registration successful, redirecting...' })
+const { clearFormToasts } = useFormToasts(state, { successTitle: t('auth.registerSuccessRedirect') })
 
 const inputType = ref<"password" | "text">("password")
 
@@ -106,26 +124,18 @@ async function onSubmit(event: FormSubmitEvent<RegisterSchema>) {
     state.success = false
     try {
         const { user } = await createUserWithEmailAndPassword(auth!, event.data.email, event.data.password)
-        //add displayName to user object
         await updateProfile(user, { displayName: event.data.username })
-        await ensureUserProfile(db, user, {
-            username: event.data.username,
-            email: event.data.email,
-        })
-
-        state.loading = false
+        clearFormToasts()
+        await finishAuthAndOfferLocale(user, event.data.email, destination.value, event.data.username)
         state.email = undefined
         state.username = undefined
         state.password = undefined
-        if (!state.error) {
-            clearFormToasts()
-            await navigateTo(destination.value, { replace: true })
-        }
     } catch (error: any) {
         console.error(error)
         state.error = error.message;
-        state.loading = false
         state.success = false
+    } finally {
+        state.loading = false
     }
 }
 
@@ -136,12 +146,8 @@ const signUpWithGoogle = async () => {
             promptForPassword,
         })
         const signedInEmail = user.email ?? ""
-        await ensureUserProfile(db, user, {
-            username: defaultUsername(user, signedInEmail),
-            email: signedInEmail,
-        })
         clearFormToasts()
-        await navigateTo(destination.value, { replace: true })
+        await finishAuthAndOfferLocale(user, signedInEmail, destination.value)
     } catch (error: any) {
         if (error.message !== 'Google link cancelled.') {
             state.error = error.message ?? 'Google sign-in failed.'

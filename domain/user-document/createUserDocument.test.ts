@@ -28,6 +28,13 @@ function user(movies: UserMovie[] = []): UserDocumentData {
 		theme: "emerald",
 		lists: defaultSystemLists(),
 		movies,
+		catalogPrefs: {
+			region: null,
+			movieGenreIds: [],
+			tvGenreIds: [],
+			watchProviderIds: [],
+			keywordIds: [],
+		},
 	});
 }
 

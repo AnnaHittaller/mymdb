@@ -6,24 +6,30 @@ import { formatCreditNames } from "~/utils/normalizeDetailCredits";
 import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
 import { buildTvSeasonSummaries } from "~/utils/buildTvSeasonSummaries";
 import { catalogMetaDescription, catalogPosterOgImage } from "~/utils/catalogSeoMeta";
+import { formatTvShowStatus } from "~/utils/formatTvShowStatus";
+import { payloadDuringHydration } from "~/utils/trendingCache";
 
 definePageMeta({
     layout: "default",
 })
+
+const { t, locale } = useI18n()
 
 const route = useRoute()
 
 const showId = computed(() => String(route.params.id))
 
 const cachedPayload = (key: string, nuxtApp: ReturnType<typeof useNuxtApp>) =>
-    nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
+    payloadDuringHydration(key, nuxtApp)
 
-const showFetch = useFetch<TvSeries>(() => `/api/tv/${showId.value}`, {
-    key: `show-${showId.value}`,
+const showFetch = useFetch<TvSeries>(() => `/api/tv/${showId.value}?language=${locale.value}`, {
+    key: computed(() => `show-${showId.value}-${locale.value}`),
+    watch: [locale],
     getCachedData: cachedPayload,
 })
-const recommendationsFetch = useFetch(() => `/api/tv/recommendations?id=${showId.value}`, {
-    key: `recommendations-tv-${showId.value}`,
+const recommendationsFetch = useFetch(() => `/api/tv/recommendations?id=${showId.value}&language=${locale.value}`, {
+    key: computed(() => `recommendations-tv-${showId.value}-${locale.value}`),
+    watch: [locale],
     getCachedData: cachedPayload,
 })
 
@@ -50,8 +56,12 @@ const listPayload = computed(() => {
     )
 })
 
-function countLabel(count: number, singular: string, plural: string): string {
-    return `${count} ${count === 1 ? singular : plural}`
+function seasonCountLabel(count: number): string {
+    return count === 1 ? t("detail.seasonCountOne") : t("detail.seasonCount", { count })
+}
+
+function episodeCountLabel(count: number): string {
+    return count === 1 ? t("detail.episodeCountOne") : t("detail.episodeCount", { count })
 }
 
 const requestUrl = useRequestURL();
@@ -61,13 +71,13 @@ useSeoMeta({
 	description: () =>
 		catalogMetaDescription(
 			show.value?.overview,
-			show.value?.name ? `Watch ${show.value.name} on MyMDb.` : "TV show on MyMDb.",
+			show.value?.name ? t("meta.seoWatchTitle", { title: show.value.name }) : t("meta.seoShowFallback"),
 		),
 	ogTitle: () => show.value?.name,
 	ogDescription: () =>
 		catalogMetaDescription(
 			show.value?.overview,
-			show.value?.name ? `Watch ${show.value.name} on MyMDb.` : "TV show on MyMDb.",
+			show.value?.name ? t("meta.seoWatchTitle", { title: show.value.name }) : t("meta.seoShowFallback"),
 		),
 	ogImage: () => catalogPosterOgImage(show.value?.poster_path),
 	ogUrl: () => `${requestUrl.origin}/show/${showId.value}`,
@@ -77,7 +87,7 @@ useSeoMeta({
 	twitterDescription: () =>
 		catalogMetaDescription(
 			show.value?.overview,
-			show.value?.name ? `Watch ${show.value.name} on MyMDb.` : "TV show on MyMDb.",
+			show.value?.name ? t("meta.seoWatchTitle", { title: show.value.name }) : t("meta.seoShowFallback"),
 		),
 	twitterImage: () => catalogPosterOgImage(show.value?.poster_path),
 });
@@ -91,7 +101,7 @@ const facts = computed<DetailFact[]>(() => {
         ? Math.round(runtimes.reduce((sum, minutes) => sum + minutes, 0) / runtimes.length)
         : null
     const runtime = formatRuntimeMinutes(average)
-    if (runtime) items.push({ icon: "i-heroicons-clock", text: `${runtime} / ep` })
+    if (runtime) items.push({ icon: "i-heroicons-clock", text: t("detail.runtimePerEpisode", { runtime }) })
     const year = formatDetailYear(current.first_air_date)
     if (year) items.push({ icon: "i-heroicons-calendar", text: year })
     const rating = formatRatingOutOfTen(current.vote_average)
@@ -99,16 +109,17 @@ const facts = computed<DetailFact[]>(() => {
     if (current.number_of_seasons) {
         items.push({
             icon: "i-heroicons-rectangle-stack",
-            text: countLabel(current.number_of_seasons, "season", "seasons"),
+            text: seasonCountLabel(current.number_of_seasons),
         })
     }
     if (current.number_of_episodes) {
         items.push({
             icon: "i-heroicons-queue-list",
-            text: countLabel(current.number_of_episodes, "episode", "episodes"),
+            text: episodeCountLabel(current.number_of_episodes),
         })
     }
-    if (current.status) items.push({ icon: "i-heroicons-information-circle", text: current.status })
+    const status = formatTvShowStatus(current.status, t)
+    if (status) items.push({ icon: "i-heroicons-information-circle", text: status })
     return items
 })
 
@@ -117,15 +128,15 @@ const jobs = computed<DetailJob[]>(() => {
     if (!credits) return []
     const items: DetailJob[] = []
     const createdBy = formatCreditNames(credits.createdBy)
-    if (createdBy) items.push({ icon: "i-heroicons-pencil", text: `Created by ${createdBy}` })
+    if (createdBy) items.push({ icon: "i-heroicons-pencil", text: t("detail.createdByFact", { names: createdBy }) })
     const music = formatCreditNames(credits.music)
-    if (music) items.push({ icon: "i-heroicons-musical-note", text: `Music: ${music}` })
+    if (music) items.push({ icon: "i-heroicons-musical-note", text: t("detail.musicFact", { names: music }) })
     return items
 })
 </script>
 
 <template>
-    <div v-if="pending" class="px-8 py-8 text-lg">Loading…</div>
+    <div v-if="pending" class="px-8 py-8 text-lg">{{ $t('common.loading') }}</div>
     <MediaDetailView
         v-else-if="show && !error"
         :title="show.name"
@@ -145,7 +156,7 @@ const jobs = computed<DetailJob[]>(() => {
         :episode-seasons="episodeSeasons">
         <template #related>
             <div v-if="showsWithPoster.length > 0" class="flex min-w-0 flex-col gap-3">
-                <Heading flush tier="section">You may also like</Heading>
+                <Heading flush tier="section">{{ $t('detail.youMayAlsoLike') }}</Heading>
                 <div class="movie-grid">
                     <MovieCard
                         v-for="item in showsWithPoster"

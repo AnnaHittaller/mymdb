@@ -24,6 +24,7 @@ export type UpcomingCatalogOptions = {
 	tvGenreIds?: number[]
 	watchProviderIds?: number[]
 	keywordIds?: number[]
+	language?: string
 }
 
 type DiscoverFilters = {
@@ -95,6 +96,7 @@ async function fetchUpcomingSegment(
 	config: ReturnType<typeof useRuntimeConfig>,
 	headers: Record<string, string>,
 	genreNames: Map<number, string>,
+	language = "en-US",
 ): Promise<TrendingItem[]> {
 	const builder = media === "tv" ? buildTmdbDiscoverTvParams : buildTmdbDiscoverMovieParams
 	const params = builder({
@@ -106,7 +108,7 @@ async function fetchUpcomingSegment(
 		...(filters.watchProviders && filters.watchRegion
 			? { watchProviders: filters.watchProviders, watchRegion: filters.watchRegion }
 			: {}),
-	})
+	}, language)
 	const response = await $fetch<{ results: TmdbMediaRow[] }>(
 		`${config.apiBaseUrl}/discover/${media}?${params.toString()}`,
 		{ method: "GET", headers },
@@ -121,11 +123,12 @@ async function fetchBaselinePage(
 	headers: Record<string, string>,
 	movieGenreMap: Map<number, string>,
 	tvGenreMap: Map<number, string>,
+	language = "en-US",
 ): Promise<TrendingItem[]> {
 	const empty: DiscoverFilters = {}
 	const [movieRows, tvRows] = await Promise.all([
-		fetchUpcomingSegment("movie", page, window, empty, config, headers, movieGenreMap),
-		fetchUpcomingSegment("tv", page, window, empty, config, headers, tvGenreMap),
+		fetchUpcomingSegment("movie", page, window, empty, config, headers, movieGenreMap, language),
+		fetchUpcomingSegment("tv", page, window, empty, config, headers, tvGenreMap, language),
 	])
 	return normalizeSegment([...movieRows, ...tvRows], window).sort(compareUpcoming)
 }
@@ -137,10 +140,11 @@ async function discoverMatchKeys(
 	headers: Record<string, string>,
 	movieGenreMap: Map<number, string>,
 	tvGenreMap: Map<number, string>,
+	language = "en-US",
 ): Promise<Set<string>> {
 	const [movieRows, tvRows] = await Promise.all([
-		fetchUpcomingSegment("movie", 1, window, filters, config, headers, movieGenreMap),
-		fetchUpcomingSegment("tv", 1, window, filters, config, headers, tvGenreMap),
+		fetchUpcomingSegment("movie", 1, window, filters, config, headers, movieGenreMap, language),
+		fetchUpcomingSegment("tv", 1, window, filters, config, headers, tvGenreMap, language),
 	])
 	const keys = new Set<string>()
 	for (const item of [...movieRows, ...tvRows]) {
@@ -156,6 +160,7 @@ export async function upcomingCatalogTitles(
 ): Promise<TrendingItem[]> {
 	const days = options.days ?? UPCOMING_WINDOW_DAYS
 	const page = options.page ?? 1
+	const language = options.language ?? "en-US"
 	const window = upcomingReleaseWindow(days)
 	const config = useRuntimeConfig()
 	const headers = {
@@ -164,14 +169,14 @@ export async function upcomingCatalogTitles(
 	}
 
 	const [movieGenreMap, tvGenreMap] = await Promise.all([
-		getMovieGenreNameMap(),
-		getTvGenreNameMap(),
+		getMovieGenreNameMap(language),
+		getTvGenreNameMap(language),
 	])
 
-	let merged = await fetchBaselinePage(page, window, config, headers, movieGenreMap, tvGenreMap)
+	let merged = await fetchBaselinePage(page, window, config, headers, movieGenreMap, tvGenreMap, language)
 
 	if (merged.length < 12 && page === 1) {
-		const extraPage = await fetchBaselinePage(2, window, config, headers, movieGenreMap, tvGenreMap)
+		const extraPage = await fetchBaselinePage(2, window, config, headers, movieGenreMap, tvGenreMap, language)
 		const seen = new Set(merged.map((item) => upcomingTrendKey(item)))
 		const extra = extraPage.filter((item) => !seen.has(upcomingTrendKey(item)))
 		merged = [...merged, ...extra].sort(compareUpcoming)
@@ -195,6 +200,7 @@ export async function upcomingCatalogTitles(
 				headers,
 				movieGenreMap,
 				tvGenreMap,
+				language,
 			)
 			for (const key of keywordKeys) preferKeys.add(key)
 		}
@@ -217,6 +223,7 @@ export async function upcomingCatalogTitles(
 					headers,
 					movieGenreMap,
 					tvGenreMap,
+					language,
 				))
 			}
 			if (tvProviderFilter) {
@@ -227,6 +234,7 @@ export async function upcomingCatalogTitles(
 					headers,
 					movieGenreMap,
 					tvGenreMap,
+					language,
 				))
 			}
 			const providerKeySets = await Promise.all(tasks)

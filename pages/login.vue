@@ -1,16 +1,16 @@
 <template>
     <div class="max-w-[450px] w-full mx-auto">
-        <Heading>Sign in</Heading>
+        <Heading>{{ $t('auth.signIn') }}</Heading>
         <UForm :schema="loginSchema" :state="state" class="space-y-6 w-full pt-8" @submit="onSubmit">
-            <UFormField label="Email " name="email" required size="lg" :ui="{ label: 'text-lg' }">
+            <UFormField :label="$t('auth.email')" name="email" required size="lg" :ui="{ label: 'text-lg' }">
                 <UInput
-                    v-model.trim="state.email" placeholder="Email" size="lg"
+                    v-model.trim="state.email" :placeholder="$t('auth.email')" size="lg"
                     :ui="{ base: 'text-lg placeholder:italic' }" />
             </UFormField>
 
-            <UFormField label="Password " name="password" required size="lg" :ui="{ label: 'text-lg' }">
+            <UFormField :label="$t('auth.password')" name="password" required size="lg" :ui="{ label: 'text-lg' }">
                 <UInput
-                    v-model="state.password" placeholder="Password" size="lg"
+                    v-model="state.password" :placeholder="$t('auth.password')" size="lg"
                     :ui="{ base: 'text-lg placeholder:italic' }" :type="inputType">
                     <template #trailing>
                         <UIcon
@@ -23,26 +23,26 @@
                 <NuxtLink
                     to="./forgot-password"
                     class="cursor-pointer text-primary hover:underline underline-offset-[5px]">
-                    <p>Forgot your password?</p>
+                    <p>{{ $t('auth.forgotPassword') }}</p>
                 </NuxtLink>
             </div>
 
             <div class="flex items-center flex-col justify-between pt-8">
                 <UButton type="submit" class="text-lg" :loading="state.loading" block>
-                    Sign in
+                    {{ $t('auth.signIn') }}
                 </UButton>
-                <USeparator label="OR" class="py-4" orientation="horizontal" />
+                <USeparator :label="$t('common.or')" class="py-4" orientation="horizontal" />
                 <UButton type="button" class="text-lg" :loading="state.loading" block @click="onGoogleButtonClick">
-                    Sign in with Google
+                    {{ $t('auth.signInWithGoogle') }}
                 </UButton>
                 <p class="pt-2 text-center text-sm text-fg-subtle">{{ googleLinkHint }}</p>
                 <div class="flex items-center gap-2 max-[300px]:flex-col pt-4">
-                    <p class="text-lg">Don't have an account yet?</p>
+                    <p class="text-lg">{{ $t('auth.noAccount') }}</p>
                     <NuxtLink
                         :to="route.query.redirect ? { path: '/register', query: { redirect: route.query.redirect } } : '/register'"
                         class="text-lg text-primary font-semibold flex items-center gap-0.5 hover:underline underline-offset-[5px]">
                         <UIcon name="i-heroicons-chevron-double-right-20-solid" class="text-lg" />
-                        Register
+                        {{ $t('auth.register') }}
                     </NuxtLink>
                 </div>
             </div>
@@ -53,6 +53,12 @@
         <LinkGooglePasswordModal
             v-model:open="linkModalOpen" :email="linkModalEmail" :loading="linkModalLoading"
             @confirm="onLinkPasswordConfirm" @cancel="cancelLinkPassword" />
+        <SignInLocalePromptModal
+            v-model:open="localePromptOpen"
+            :suggested="suggestedLocale"
+            :loading="localePromptLoading"
+            @confirm="confirmLocale"
+            @keep-english="keepEnglishAndContinue" />
     </div>
 </template>
 
@@ -63,8 +69,8 @@ import { loginSchema, type LoginSchema } from '../schemas/schemas';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { googleAuthProvider } from '~/composables/googleAuthProvider';
 import { signInWithGoogleAndLink, googleLinkHint } from '~/composables/googleSignIn';
-import { defaultUsername, ensureUserProfile } from '~/composables/userProfile';
 import { useGoogleLinkPasswordPrompt } from '~/composables/useGoogleLinkPasswordPrompt';
+import { useSignInLocalePrompt } from '~/composables/useSignInLocalePrompt';
 
 definePageMeta({
     layout: "not-logged-in",
@@ -72,9 +78,21 @@ definePageMeta({
 })
 
 const auth = useFirebaseAuth()
-const db = useFirestore()
 const route = useRoute()
 const destination = computed(() => pathFromRedirect(route.query.redirect))
+const {
+    open: localePromptOpen,
+    loading: localePromptLoading,
+    suggestedLocale,
+    finishAuthAndOfferLocale,
+    confirmLocale,
+    keepEnglishAndContinue,
+} = useSignInLocalePrompt()
+
+async function finishSignIn(user: import('firebase/auth').User, email: string) {
+    clearFormToasts()
+    await finishAuthAndOfferLocale(user, email, destination.value)
+}
 
 const {
     linkModalOpen,
@@ -101,7 +119,8 @@ const state = reactive({
     success: false
 })
 
-const { clearFormToasts } = useFormToasts(state, { successTitle: 'Signed in, redirecting...' })
+const { t } = useI18n()
+const { clearFormToasts } = useFormToasts(state, { successTitle: t('auth.signedInRedirect') })
 
 const inputType = ref<"password" | "text">("password")
 
@@ -116,18 +135,12 @@ async function onSubmit(event: FormSubmitEvent<LoginSchema>) {
 
     try {
         const { user } = await signInWithEmailAndPassword(auth!, event.data.email, event.data.password)
-        await ensureUserProfile(db, user, {
-            username: defaultUsername(user, event.data.email),
-            email: event.data.email,
-        })
-        clearFormToasts()
-        await navigateTo(destination.value, { replace: true })
+        await finishSignIn(user, event.data.email)
     } catch (error: any) {
         console.error("Frontend error:", error.code, error.message);
         state.success = false
         if (error.code === "auth/invalid-credential") {
-            state.error =
-                "Incorrect email or password. If you signed in with Google recently, use Forgot password to set a new email password — or sign in with Google.";
+            state.error = t('auth.invalidCredential');
         } else {
             state.error = error.message;
         }
@@ -162,12 +175,7 @@ async function runGoogleSignIn() {
             promptForPassword,
         })
         const signedInEmail = user.email ?? formEmail ?? ""
-        await ensureUserProfile(db, user, {
-            username: defaultUsername(user, signedInEmail),
-            email: signedInEmail,
-        })
-        clearFormToasts()
-        await navigateTo(destination.value, { replace: true })
+        await finishSignIn(user, signedInEmail)
     } catch (error: any) {
         state.success = false
         if (error.message !== "Google link cancelled.") {

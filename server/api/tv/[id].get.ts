@@ -1,3 +1,5 @@
+import { tmdbLanguageToIso639 } from "~/domain/locale/appLocale"
+import { localizeTmdbGenreEntries } from "~/domain/locale/tmdbGenreLabels"
 import { fetchTmdbImages } from "~/server/utils/tmdbImages"
 import { fetchTmdbKeywords } from "~/server/utils/tmdbKeywords"
 import { normalizeTvSeasons } from "~/server/utils/normalizeTvSeasons"
@@ -11,10 +13,12 @@ export default defineEventHandler(async (event) => {
 	try {
 		const { id } = event.context.params!
 		const showId = String(id)
-		const details = await fetchTmdbTv(showId)
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
+		const imageIso = tmdbLanguageToIso639(language)
+		const details = await fetchTmdbTv(showId, language)
 		const [keywords, images] = await Promise.all([
 			fetchTmdbKeywords("tv", showId).catch(() => []),
-			fetchTmdbImages("tv", showId).catch(() => emptyImages),
+			fetchTmdbImages("tv", showId, imageIso).catch(() => emptyImages),
 		])
 		const sources = readDetailMediaSources(details)
 		const enriched = withTrailer(
@@ -22,6 +26,7 @@ export default defineEventHandler(async (event) => {
 		)
 		return {
 			...enriched,
+			genres: localizeTmdbGenreEntries(details.genres ?? [], language),
 			seasons: normalizeTvSeasons(
 				details as { seasons?: TvSeasonSummary[]; number_of_seasons?: number },
 			),

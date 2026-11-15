@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const query = defineModel<string>({ required: true });
 
-withDefaults(
+const props = withDefaults(
 	defineProps<{
 		placeholder?: string;
 		ariaLabel?: string;
@@ -12,14 +12,18 @@ withDefaults(
 		trailingIconLabel?: string;
 	}>(),
 	{
-		placeholder: "Search by title",
-		ariaLabel: "Search movies and shows",
+		placeholder: undefined,
+		ariaLabel: undefined,
 		name: "query",
 		submitOnTrailing: false,
 		trailingIcon: undefined,
 		trailingIconLabel: undefined,
 	},
 );
+
+const { t } = useI18n();
+const resolvedPlaceholder = computed(() => props.placeholder ?? t("browse.searchPlaceholder"));
+const resolvedAriaLabel = computed(() => props.ariaLabel ?? t("browse.searchAria"));
 
 const emit = defineEmits<{
 	clear: [];
@@ -36,8 +40,8 @@ function onClear() {
 		v-model="query"
 		type="search"
 		:name="name"
-		:placeholder="placeholder"
-		:aria-label="ariaLabel"
+		:placeholder="resolvedPlaceholder"
+		:aria-label="resolvedAriaLabel"
 		autocomplete="off"
 		:enterkeyhint="submitOnTrailing ? 'search' : undefined"
 		size="xl"
@@ -56,7 +60,7 @@ function onClear() {
 					icon="i-heroicons-x-mark-20-solid"
 					size="sm"
 					square
-					aria-label="Clear search"
+					:aria-label="$t('browse.clearSearch')"
 					@click="onClear" />
 				<UButton
 					v-if="submitOnTrailing"
@@ -66,7 +70,7 @@ function onClear() {
 					icon="i-heroicons-magnifying-glass-20-solid"
 					size="sm"
 					square
-					aria-label="Search"
+					:aria-label="$t('common.search')"
 					:ui="{ base: 'font-medium justify-center' }" />
 				<UButton
 					v-else-if="trailingIcon"

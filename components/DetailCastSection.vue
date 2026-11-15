@@ -9,17 +9,19 @@ const props = defineProps<{
 	cast: DetailCastMember[];
 }>();
 
+const { t } = useI18n();
+
 const fullCastOpen = ref(false);
 const isDesktop = useMediaQuery("(min-width: 768px)");
 
 const previewCast = computed(() => props.cast.slice(0, INITIAL_VISIBLE));
 const hasMore = computed(() => props.cast.length > INITIAL_VISIBLE);
 
-const overlayTitle = "Full cast";
+const overlayTitle = computed(() => t("detail.fullCast"));
 const overlayDescription = computed(() =>
 	props.cast.length === 1
-		? "1 cast member"
-		: `${props.cast.length} cast members`,
+		? t("detail.castMemberOne")
+		: t("detail.castMemberCount", { count: props.cast.length }),
 );
 </script>
 
@@ -27,7 +29,7 @@ const overlayDescription = computed(() =>
 	<section v-if="cast.length > 0" class="flex min-w-0 flex-col gap-3">
 		<div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 mb-4">
 			<Heading flush tier="section" class="min-w-0 flex-1">
-				Cast
+				{{ $t("detail.cast") }}
 			</Heading>
 			<UButton
 				v-if="hasMore"
@@ -35,7 +37,7 @@ const overlayDescription = computed(() =>
 				color="primary"
 				size="sm"
 				class="shrink-0 text-base"
-				label="See full cast"
+				:label="$t('detail.seeFullCast')"
 				@click="fullCastOpen = true" />
 		</div>
 		<div

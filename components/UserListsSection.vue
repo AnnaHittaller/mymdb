@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useMediaQuery } from "@vueuse/core";
 import { listPath } from "~/domain/user-document/listHelpers";
+import { systemListDisplayName } from "~/utils/systemListDisplayName";
+
+const { t } = useI18n();
 
 const props = withDefaults(
 	defineProps<{
@@ -28,18 +31,18 @@ const { isOffline } = useOfflineReady();
 		<div
 			v-if="showHeading"
 			class="mb-3 flex flex-wrap items-center justify-between gap-3 pt-4">
-			<Heading flush>Your lists</Heading>
+			<Heading flush>{{ $t('lists.yourLists') }}</Heading>
 			<div class="flex shrink-0 flex-wrap items-center gap-2">
 				<UButton
 					v-if="showSeeAll && lists.length > limit"
 					variant="outline"
 					size="lg"
-					label="See all"
+					:label="$t('lists.seeAll')"
 					to="/lists" />
 				<UButton
 					variant="outline"
 					size="lg"
-					label="Add new list"
+					:label="$t('lists.addNew')"
 					icon="i-heroicons-plus"
 					:disabled="isOffline"
 					:ui="{ leadingIcon: 'size-5' }"
@@ -50,7 +53,7 @@ const { isOffline } = useOfflineReady();
 			<MovieCollectionCard
 				v-for="list in visibleLists"
 				:key="list.id"
-				:title="list.name"
+				:title="systemListDisplayName(list, t)"
 				:to="listPath(list, lists)"
 				:list-id="list.id"
 				:movies="moviesInList(list.id)" />

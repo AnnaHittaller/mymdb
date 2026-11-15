@@ -10,6 +10,7 @@ type PlayOptions = {
 
 export function useTrailerPlayback() {
 	const toast = useToast();
+	const { t } = useI18n();
 	const { isOffline } = useOfflineReady();
 	const modalOpen = ref(false);
 	const activeTitle = ref("");
@@ -21,9 +22,8 @@ export function useTrailerPlayback() {
 
 		if (isOffline.value && !options.trailer) {
 			toast.add({
-				...OFFLINE_WRITE_TOAST,
-				title: "You're offline",
-				description: "Trailers need a connection.",
+				title: t("trailer.offlineTitle"),
+				description: t("trailer.offlineDescription"),
 				color: "neutral",
 			});
 			return false;

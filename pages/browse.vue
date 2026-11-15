@@ -17,7 +17,7 @@ import {
 	useRecentSearches,
 } from "~/composables/useRecentSearches";
 import { searchQuerySchema } from "~/schemas/schemas";
-import { DISCOVER_SORT_DEFAULT, discoverSortItems, ratingItems } from "~/constants/discoverFilters";
+import { DISCOVER_SORT_DEFAULT } from "~/constants/discoverFilters";
 
 type GenreList = {
 	genres: { id: number, name: string }[]
@@ -38,6 +38,9 @@ definePageMeta({
 	middleware: "auth",
 });
 
+const { t, locale } = useI18n();
+const { ratingItems, discoverSortItems } = useDiscoverFilterLabels();
+
 const filterMenuControl = { highlightOnHover: true };
 const filterFieldClass = "w-full min-w-0";
 const browsePanelClass
@@ -52,8 +55,14 @@ const yearChoices = Array.from({ length: currentYear - 1899 }, (_, index) => {
 	const year = currentYear - index;
 	return { label: String(year), value: year };
 });
-const yearFromItems = [{ label: "From (any year)", value: 0 }, ...yearChoices];
-const yearToItems = [{ label: "To (any year)", value: 0 }, ...yearChoices];
+const yearFromItems = computed(() => [
+	{ label: t("browse.fromAnyYear"), value: 0 },
+	...yearChoices,
+]);
+const yearToItems = computed(() => [
+	{ label: t("browse.toAnyYear"), value: 0 },
+	...yearChoices,
+]);
 
 const catalogListing = useCatalogListing();
 
@@ -123,7 +132,8 @@ const keywordPickerDisabled = computed(
 
 const genreUrl = computed(() => (media.value === "tv" ? "/api/tv/genres" : "/api/movies/genres"));
 const { data: genreList } = await useFetch<GenreList>(() => genreUrl.value, {
-	watch: [genreUrl],
+	query: computed(() => ({ language: locale.value })),
+	watch: [genreUrl, locale],
 });
 const genreItems = computed(() =>
 	(genreList.value?.genres ?? []).map((genre) => ({ label: genre.name, value: genre.id })),
@@ -132,33 +142,33 @@ const genreNameById = computed(() => new Map(genreItems.value.map((genre) => [ge
 
 const subtitle = computed(() =>
 	mode.value === "search"
-		? `Results for «${q.value}»`
-		: "Popular titles — narrow with filters.",
+		? t("browse.resultsFor", { query: q.value })
+		: t("browse.popularSubtitle"),
 );
 
 const castHint = computed(() =>
-	media.value === "tv"
-		? "Shows starring all selected actors."
-		: "Movies starring all selected actors.",
+	media.value === "tv" ? t("browse.castHintShows") : t("browse.castHintMovies"),
 );
 
-const sortLabelByValue = new Map(discoverSortItems.map((item) => [item.value, item.label]));
+const sortLabelByValue = computed(
+	() => new Map(discoverSortItems.value.map((item) => [item.value, item.label])),
+);
 
 const filterChips = computed<FilterChip[]>(() => {
 	const chips: FilterChip[] = [];
 	if (sort.value !== DISCOVER_SORT_DEFAULT) {
-		const label = sortLabelByValue.get(sort.value) ?? sort.value;
+		const label = sortLabelByValue.value.get(sort.value) ?? sort.value;
 		chips.push({
 			id: "sort",
-			label: `Sort: ${label}`,
-			removeLabel: "Reset sort to popularity",
+			label: t("browse.sortChip", { label }),
+			removeLabel: t("browse.resetSort"),
 		});
 	}
 	if (rating.value > 0) {
 		chips.push({
 			id: "rating",
-			label: `Rating: ${rating.value}+`,
-			removeLabel: "Remove rating filter",
+			label: t("browse.ratingChip", { value: rating.value }),
+			removeLabel: t("browse.removeRatingFilter"),
 		});
 	}
 	for (const genreId of genreIds.value) {
@@ -166,35 +176,35 @@ const filterChips = computed<FilterChip[]>(() => {
 		chips.push({
 			id: `genre-${genreId}`,
 			label: name,
-			removeLabel: `Remove genre ${name}`,
+			removeLabel: t("lists.removeGenre", { name }),
 		});
 	}
 	if (releaseYearFrom.value > 0) {
 		chips.push({
 			id: "year-from",
-			label: `From: ${releaseYearFrom.value}`,
-			removeLabel: "Remove release year from filter",
+			label: t("browse.fromChip", { year: releaseYearFrom.value }),
+			removeLabel: t("browse.removeYearFrom"),
 		});
 	}
 	if (releaseYearTo.value > 0) {
 		chips.push({
 			id: "year-to",
-			label: `To: ${releaseYearTo.value}`,
-			removeLabel: "Remove release year to filter",
+			label: t("browse.toChip", { year: releaseYearTo.value }),
+			removeLabel: t("browse.removeYearTo"),
 		});
 	}
 	for (const person of castPeople.value) {
 		chips.push({
 			id: `cast-${person.id}`,
 			label: person.name,
-			removeLabel: `Remove ${person.name}`,
+			removeLabel: t("browse.removeCast", { name: person.name }),
 		});
 	}
 	for (const keyword of keywordEntries.value) {
 		chips.push({
 			id: `keyword-${keyword.id}`,
 			label: keyword.name,
-			removeLabel: `Remove keyword ${keyword.name}`,
+			removeLabel: t("browse.removeKeywordName", { name: keyword.name }),
 		});
 	}
 	return chips;
@@ -206,15 +216,13 @@ const awaitingResults = computed(
 
 const statusMessage = computed(() => {
 	if (awaitingResults.value) {
-		return mode.value === "search" ? "Loading results…" : "Loading…";
+		return mode.value === "search" ? t("browse.loadingResults") : t("common.loading");
 	}
 	if (error.value && movies.value.length === 0) {
-		return mode.value === "search" ? "Couldn't load search results." : "Couldn't load titles.";
+		return mode.value === "search" ? t("browse.loadSearchError") : t("browse.loadTitlesError");
 	}
 	if (movies.value.length === 0) {
-		return mode.value === "search"
-			? "No matching results can be found."
-			: "No titles match these filters.";
+		return mode.value === "search" ? t("lists.noMatchingResults") : t("browse.noFiltersMatch");
 	}
 	return "";
 });
@@ -281,7 +289,7 @@ async function onExplicitSearch() {
 	if (!parsed.success) {
 		const message
 			= parsed.error.issues.find((issue) => issue.path[0] === "query")?.message
-			?? "Enter at least 2 characters";
+			?? t("browse.minChars");
 		formRef.value?.setErrors([{ name: "query", message }]);
 		return;
 	}
@@ -364,7 +372,7 @@ function onClearFilters() {
 <template>
 	<div>
 		<div class="flex flex-col gap-4 pb-8">
-			<Heading>Browse</Heading>
+			<Heading>{{ $t('browse.title') }}</Heading>
 
 			<div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-stretch">
 				<section
@@ -374,7 +382,7 @@ function onClearFilters() {
 						id="browse-search-heading"
 						class="flex items-center gap-2 text-base font-semibold uppercase tracking-wide text-fg-default">
 						<UIcon name="i-heroicons-magnifying-glass-20-solid" class="size-5 shrink-0 text-primary" />
-						Search
+						{{ $t('browse.searchHeading') }}
 					</div>
 					<UForm
 						ref="searchForm"
@@ -392,7 +400,7 @@ function onClearFilters() {
 							v-if="recents.length > 0"
 							class="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5">
 							<p class="shrink-0 text-base font-medium text-fg-muted">
-								Recent Searches
+								{{ $t('browse.recentSearches') }}
 							</p>
 							<button
 								v-for="recent in visibleRecents"
@@ -418,10 +426,10 @@ function onClearFilters() {
 						id="browse-filter-heading"
 						class="flex items-center gap-2 text-base font-semibold uppercase tracking-wide text-fg-default">
 						<UIcon name="i-heroicons-funnel-20-solid" class="size-5 shrink-0 text-primary" />
-						Discover by filter
+						{{ $t('browse.discoverByFilter') }}
 					</div>
 					<p v-if="discoverDimmed" id="browse-filter-hint" class="sr-only">
-						Clear search to use filters.
+						{{ $t('browse.clearSearchToUseFilters') }}
 					</p>
 					<div :class="browseFilterGridClass">
 						<DiscoverMediaToggle v-model="media" class="min-w-0" />
@@ -442,10 +450,10 @@ function onClearFilters() {
 							:items="genreItems"
 							value-key="value"
 							multiple
-							placeholder="Any Genres"
+							:placeholder="$t('common.anyGenres')"
 							:class="filterFieldClass">
 							<template #default>
-								<span class="truncate text-fg-default">Any Genres</span>
+								<span class="truncate text-fg-default">{{ $t('common.anyGenres') }}</span>
 							</template>
 						</USelectMenu>
 						<USelect
@@ -467,7 +475,7 @@ function onClearFilters() {
 							:items="castSuggestionItems"
 							ignore-filter
 							value-key="value"
-							placeholder="Search actors"
+							:placeholder="$t('browse.searchActors')"
 							:class="filterFieldClass"
 							@update:model-value="onCastPick" />
 						<UInputMenu
@@ -479,14 +487,14 @@ function onClearFilters() {
 							:items="keywordSuggestionItems"
 							ignore-filter
 							value-key="value"
-							placeholder="Search keywords"
+							:placeholder="$t('profile.searchKeywords')"
 							:class="filterFieldClass"
 							:disabled="keywordPickerDisabled"
 							@update:model-value="onKeywordPick" />
 					</div>
 					<div v-if="filtersActive" class="flex flex-wrap items-center gap-2">
 						<p class="w-full text-base font-medium text-fg-muted">
-							Active filters
+							{{ $t('lists.activeFilters') }}
 						</p>
 						<DiscoverFilterChip
 							v-for="chip in filterChips"
@@ -498,7 +506,7 @@ function onClearFilters() {
 							{{ castHint }}
 						</p>
 						<UButton
-							label="Clear all"
+							:label="$t('common.clearAll')"
 							variant="outline"
 							size="lg"
 							class="ml-auto sm:ml-0"
@@ -522,7 +530,7 @@ function onClearFilters() {
 			</div>
 			<UButton
 				v-if="movies.length > 0 && hasMore"
-				label="Load more"
+				:label="$t('common.loadMore')"
 				size="xl"
 				class="mt-14 mb-8 self-center"
 				:loading="pending && page > 1"

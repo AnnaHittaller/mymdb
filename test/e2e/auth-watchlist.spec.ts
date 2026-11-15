@@ -1,5 +1,16 @@
 import { expect, test } from "@nuxt/test-utils/playwright";
 
+test.beforeEach(async ({ context }) => {
+	await context.addCookies([
+		{
+			name: "mymdb_locale",
+			value: "en",
+			domain: "localhost",
+			path: "/",
+		},
+	]);
+});
+
 const movieId = "550";
 
 function registerForm(page: import("@playwright/test").Page) {

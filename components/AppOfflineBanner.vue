@@ -5,20 +5,22 @@ const route = useRoute();
 const user = useCurrentUser();
 const { isOffline } = useOfflineReady();
 
+const { t } = useI18n();
+
 const message = computed(() => {
 	if (route.path.startsWith("/lists")) {
-		return "Offline — showing saved lists.";
+		return t("offline.lists");
 	}
 	if (route.path === "/login" || route.path === "/register") {
-		return "Sign-in needs a connection.";
+		return t("offline.signIn");
 	}
 	if (/^\/(movie|show)\//.test(route.path)) {
-		return "Offline — connect to load catalog details.";
+		return t("offline.detail");
 	}
 	if (user.value) {
-		return "You're offline. Open Your lists to see saved titles.";
+		return t("offline.signedIn");
 	}
-	return "You're offline. Connect to browse or search.";
+	return t("offline.guest");
 });
 
 const showBanner = computed(() => isOffline.value);

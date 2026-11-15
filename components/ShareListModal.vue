@@ -15,6 +15,7 @@ const shareUrl = ref("");
 const errorMessage = ref("");
 const toast = useToast();
 const user = useCurrentUser();
+const { t } = useI18n();
 const { shareUrl: nativeOrCopy, copyUrl } = useCatalogShare();
 
 const canNativeShare = computed(
@@ -48,7 +49,7 @@ async function createLink() {
 		shareUrl.value = result.url;
 		phase.value = "success";
 	} catch (error) {
-		errorMessage.value = shareErrorMessage(error, "Could not create a share link. Try again.");
+		errorMessage.value = shareErrorMessage(error, t("lists.shareCreateError"));
 		phase.value = "error";
 	}
 }
@@ -63,7 +64,7 @@ async function nativeShare() {
 	await nativeOrCopy({
 		url: shareUrl.value,
 		title: props.listName,
-		text: `List “${props.listName}” on MyMDb`,
+		text: t("lists.shareListText", { name: props.listName }),
 	});
 }
 </script>
@@ -71,20 +72,20 @@ async function nativeShare() {
 <template>
 	<UModal
 		v-model:open="open"
-		title="Share list"
+		:title="$t('lists.shareModalTitle')"
 		:dismissible="dismissible"
 		:close="dismissible"
 		:ui="browsingModalUi">
 		<template #body>
 			<div v-if="phase === 'confirm'" class="space-y-3 text-base text-fg-muted">
 				<p>
-					Share <span class="font-medium text-fg-default">{{ listName }}</span> as it is now — anyone with the link can view it.
+					{{ $t('lists.shareConfirmIntro', { name: listName }) }}
 				</p>
-				<p>Editing the list later will not change links you already sent.</p>
+				<p>{{ $t('lists.shareConfirmFootnote') }}</p>
 			</div>
 			<div v-else-if="phase === 'loading'" class="flex items-center gap-3 text-base text-fg-muted">
 				<UIcon name="i-heroicons-arrow-path" class="size-5 animate-spin shrink-0" aria-hidden="true" />
-				<span>Creating your link…</span>
+				<span>{{ $t('lists.creatingLink') }}</span>
 			</div>
 			<div v-else-if="phase === 'error'" class="flex items-start gap-3 text-base">
 				<UIcon
@@ -97,7 +98,7 @@ async function nativeShare() {
 			</div>
 			<div v-else class="space-y-3">
 				<p class="text-base text-fg-muted">
-					Your link is ready:
+					{{ $t('lists.linkReady') }}
 				</p>
 				<UInput :model-value="shareUrl" readonly class="w-full font-mono text-sm" />
 			</div>
@@ -107,23 +108,23 @@ async function nativeShare() {
 				<UButton
 					variant="outline"
 					size="lg"
-					label="Close"
+					:label="$t('common.close')"
 					:disabled="phase === 'loading'"
 					@click="open = false" />
 				<template v-if="phase === 'confirm'">
-					<UButton size="lg" label="Create link" @click="createLink" />
+					<UButton size="lg" :label="$t('lists.createLink')" @click="createLink" />
 				</template>
 				<template v-else-if="phase === 'error'">
-					<UButton size="lg" label="Try again" @click="createLink" />
+					<UButton size="lg" :label="$t('common.tryAgain')" @click="createLink" />
 				</template>
 				<template v-else-if="phase === 'success'">
 					<UButton
 						v-if="canNativeShare"
 						size="lg"
-						label="Share…"
+						:label="$t('lists.shareNative')"
 						icon="i-heroicons-share"
 						@click="nativeShare" />
-					<UButton variant="outline" size="lg" label="Copy link" @click="copyLink" />
+					<UButton variant="outline" size="lg" :label="$t('lists.copyLink')" @click="copyLink" />
 				</template>
 			</div>
 		</template>

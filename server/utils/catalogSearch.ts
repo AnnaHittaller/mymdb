@@ -11,6 +11,7 @@ function pageParam(page: unknown): string | number {
 export async function searchCatalogTitles(
 	searchQuery: string,
 	page: unknown,
+	language = "en-US",
 ): Promise<{ results: CatalogCard[], total_pages: number }> {
 	try {
 		const config = useRuntimeConfig()
@@ -25,11 +26,11 @@ export async function searchCatalogTitles(
 				results: TmdbMediaRow[]
 				total_pages: number
 			}>(
-				`${config.apiBaseUrl}/search/multi?query=${encodeURIComponent(searchQuery)}&include_adult=false&language=en-US&page=${pageValue}`,
+				`${config.apiBaseUrl}/search/multi?query=${encodeURIComponent(searchQuery)}&include_adult=false&language=${encodeURIComponent(language)}&page=${pageValue}`,
 				{ method: "GET", headers },
 			),
-			getMovieGenreNameMap(),
-			getTvGenreNameMap(),
+			getMovieGenreNameMap(language),
+			getTvGenreNameMap(language),
 		])
 
 		const results = response.results.flatMap((item) => {

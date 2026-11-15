@@ -21,7 +21,9 @@ export function useOfflineReady() {
 	};
 }
 
-export const OFFLINE_WRITE_TOAST = {
-	title: "You're offline",
-	description: "Changes need a connection.",
-} as const;
+export function offlineWriteToastCopy(t: (key: string) => string) {
+	return {
+		title: t("offline.writeTitle"),
+		description: t("offline.writeDescription"),
+	};
+}

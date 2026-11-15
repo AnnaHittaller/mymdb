@@ -1,15 +1,34 @@
-const RELEASE_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const
+import { normalizeAppLocale } from "../domain/locale/appLocale"
 
-/** Short display for `YYYY-MM-DD` (e.g. 12 Mar 2026). */
-export function formatReleaseDate(isoDate: string | undefined | null): string {
+/** Locale-aware short display for `YYYY-MM-DD`. */
+export function formatReleaseDate(
+	isoDate: string | undefined | null,
+	locale = "en",
+): string {
 	if (!isoDate || isoDate.length < 10) return ""
-	const monthIndex = Number.parseInt(isoDate.slice(5, 7), 10) - 1
-	const day = Number.parseInt(isoDate.slice(8, 10), 10)
 	const year = isoDate.slice(0, 4)
-	if (!Number.isFinite(monthIndex) || monthIndex < 0 || monthIndex > 11 || !Number.isFinite(day)) {
+	const month = Number.parseInt(isoDate.slice(5, 7), 10)
+	const day = Number.parseInt(isoDate.slice(8, 10), 10)
+	if (!Number.isFinite(month) || month < 1 || month > 12 || !Number.isFinite(day) || day < 1) {
 		return year
 	}
-	const month = RELEASE_MONTHS[monthIndex]
-	if (!month) return year
-	return day === 1 ? `${month} ${year}` : `${day} ${month} ${year}`
+
+	const appLocale = normalizeAppLocale(locale)
+
+	if (appLocale === "hu") {
+		const monthPart = String(month).padStart(2, "0")
+		const dayPart = String(day).padStart(2, "0")
+		return `${year}. ${monthPart}. ${dayPart}.`
+	}
+
+	const date = new Date(Number(year), month - 1, day)
+	if (Number.isNaN(date.getTime())) return year
+
+	if (appLocale === "de") {
+		const monthName = new Intl.DateTimeFormat("de-DE", { month: "short" }).format(date).replace(/\.$/, "")
+		return `${day}. ${monthName}. ${year}`
+	}
+
+	const monthName = new Intl.DateTimeFormat("en-US", { month: "short" }).format(date)
+	return `${year}, ${monthName}. ${day}`
 }

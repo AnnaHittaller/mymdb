@@ -2,10 +2,7 @@
 import type { PublicPublishedListSnapshot } from "~/types/share";
 import { formatReleaseDate } from "~/utils/formatReleaseDate";
 import { defaultMediaType } from "~/utils/catalogKey";
-import {
-	sharedListMetaDescription,
-	sharedListOgImage,
-} from "~/utils/catalogSeoMeta";
+import { sharedListOgImage } from "~/utils/catalogSeoMeta";
 
 definePageMeta({
 	layout: "default",
@@ -13,6 +10,7 @@ definePageMeta({
 
 const route = useRoute();
 const user = useCurrentUser();
+const { t } = useI18n();
 
 const shareId = computed(() => String(route.params.shareId ?? ""));
 
@@ -27,7 +25,7 @@ if (error.value) {
 	const statusCode = error.value.statusCode ?? 500;
 	throw createError({
 		statusCode,
-		statusMessage: error.value.statusMessage ?? "This shared list was not found.",
+		statusMessage: error.value.statusMessage ?? t("lists.sharedListNotFound"),
 	});
 }
 
@@ -42,7 +40,7 @@ const sharedOn = computed(() => {
 
 const countLabel = computed(() => {
 	const n = snapshot.value?.items.length ?? 0;
-	return n === 1 ? "1 title" : `${n} titles`;
+	return n === 1 ? t("lists.titleCountOne") : t("lists.titleCount", { count: n });
 });
 
 const loginTo = computed(() => ({
@@ -59,28 +57,26 @@ const importOpen = ref(false);
 
 const requestUrl = useRequestURL();
 
+function sharedListDescriptionForSeo() {
+	const value = snapshot.value;
+	if (!value) return t("lists.sharedListDescriptionFallback");
+	const n = value.items.length;
+	const countLabel = n === 1 ? t("lists.titleCountOne") : t("lists.titleCount", { count: n });
+	return t("lists.sharedListMetaDescription", {
+		listName: value.sourceListName,
+		owner: value.ownerDisplayName,
+		countLabel,
+	});
+}
+
 useSeoMeta({
 	title: () =>
 		snapshot.value?.sourceListName
 			? `${snapshot.value.sourceListName} · MyMDb`
-			: "Shared list · MyMDb",
-	description: () =>
-		snapshot.value
-			? sharedListMetaDescription(
-				snapshot.value.sourceListName,
-				snapshot.value.ownerDisplayName,
-				snapshot.value.items.length,
-			)
-			: "A list shared on MyMDb.",
-	ogTitle: () => snapshot.value?.sourceListName ?? "Shared list",
-	ogDescription: () =>
-		snapshot.value
-			? sharedListMetaDescription(
-				snapshot.value.sourceListName,
-				snapshot.value.ownerDisplayName,
-				snapshot.value.items.length,
-			)
-			: "A list shared on MyMDb.",
+			: t("lists.sharedListTitleFallback"),
+	description: () => sharedListDescriptionForSeo(),
+	ogTitle: () => snapshot.value?.sourceListName ?? t("lists.sharedListOgFallback"),
+	ogDescription: () => sharedListDescriptionForSeo(),
 	ogImage: () =>
 		snapshot.value
 			? sharedListOgImage(snapshot.value.items, requestUrl.origin)
@@ -88,15 +84,8 @@ useSeoMeta({
 	ogUrl: () => `${requestUrl.origin}/s/${shareId.value}`,
 	ogType: "website",
 	twitterCard: "summary_large_image",
-	twitterTitle: () => snapshot.value?.sourceListName ?? "Shared list",
-	twitterDescription: () =>
-		snapshot.value
-			? sharedListMetaDescription(
-				snapshot.value.sourceListName,
-				snapshot.value.ownerDisplayName,
-				snapshot.value.items.length,
-			)
-			: "A list shared on MyMDb.",
+	twitterTitle: () => snapshot.value?.sourceListName ?? t("lists.sharedListOgFallback"),
+	twitterDescription: () => sharedListDescriptionForSeo(),
 	twitterImage: () =>
 		snapshot.value
 			? sharedListOgImage(snapshot.value.items, requestUrl.origin)
@@ -117,8 +106,8 @@ useSeoMeta({
 		<div class="mb-6 space-y-2">
 			<Heading>{{ snapshot.sourceListName }}</Heading>
 			<p class="text-base text-fg-muted">
-				Shared by {{ snapshot.ownerDisplayName }}
-				<template v-if="sharedOn"> on {{ sharedOn }}</template>
+				{{ $t('lists.sharedBy', { name: snapshot.ownerDisplayName }) }}
+				<template v-if="sharedOn">{{ $t('lists.sharedOnDate', { date: sharedOn }) }}</template>
 				· {{ countLabel }}
 			</p>
 		</div>
@@ -127,24 +116,24 @@ useSeoMeta({
 			v-if="user && snapshot.items.length > 0"
 			class="mb-8 flex flex-wrap items-center gap-3 rounded-[8px] border border-border-default bg-surface-inset p-4">
 			<p class="min-w-0 flex-1 text-base text-fg-default">
-				Add these titles to your library — duplicates on your lists are skipped automatically.
+				{{ $t('lists.importSignedInHint') }}
 			</p>
-			<UButton size="lg" label="Save to my lists" @click="importOpen = true" />
+			<UButton size="lg" :label="$t('lists.saveToMyLists')" @click="importOpen = true" />
 		</div>
 		<div
 			v-else-if="!user"
 			class="mb-8 flex flex-wrap items-center gap-3 rounded-[8px] border border-border-default bg-surface-inset p-4">
 			<p class="min-w-0 flex-1 text-base text-fg-default">
-				Save titles to your own lists — sign up free or log in.
+				{{ $t('lists.importGuestHint') }}
 			</p>
-			<UButton size="lg" label="Sign up" :to="registerTo" />
-			<UButton variant="outline" size="lg" label="Log in" :to="loginTo" />
+			<UButton size="lg" :label="$t('auth.register')" :to="registerTo" />
+			<UButton variant="outline" size="lg" :label="$t('auth.signIn')" :to="loginTo" />
 		</div>
 
 		<SharedListImportPicker v-if="user" v-model:open="importOpen" :snapshot="snapshot" />
 
 		<p v-if="snapshot.items.length === 0" class="text-xl md:text-2xl">
-			This list is empty.
+			{{ $t('lists.listEmpty') }}
 		</p>
 		<div v-else class="movie-grid">
 			<MovieCard

@@ -2,16 +2,15 @@
 	<UModal v-model:open="open" :ui="{ content: 'max-w-md' }">
 		<template #body>
 			<div class="space-y-4 p-2">
-				<h3 class="text-lg font-semibold">Link Google to your account</h3>
+				<h3 class="text-lg font-semibold">{{ $t('auth.linkGoogleTitle') }}</h3>
 				<p class="text-sm text-fg-muted">
-					<strong class="text-fg-default">{{ email }}</strong> already has a password. Enter it once to
-					link Google sign-in to the same profile.
+					{{ $t('auth.linkGoogleBody', { email }) }}
 				</p>
-				<UFormField label="Password" name="linkPassword" required>
+				<UFormField :label="$t('auth.password')" name="linkPassword" required>
 					<UInput
 						v-model="password"
 						type="password"
-						placeholder="Your account password"
+						:placeholder="$t('profile.deletePasswordPlaceholder')"
 						size="lg"
 						:disabled="loading"
 						@keyup.enter="confirm"
@@ -19,8 +18,8 @@
 				</UFormField>
 				<p v-if="localError" class="text-sm text-red-500">{{ localError }}</p>
 				<div class="flex justify-end gap-2 pt-2">
-					<UButton variant="ghost" :disabled="loading" @click="cancel">Cancel</UButton>
-					<UButton :loading="loading" @click="confirm">Link and continue</UButton>
+					<UButton variant="ghost" :disabled="loading" @click="cancel">{{ $t('common.cancel') }}</UButton>
+					<UButton :loading="loading" @click="confirm">{{ $t('auth.linkGoogleConfirm') }}</UButton>
 				</div>
 			</div>
 		</template>
@@ -40,6 +39,7 @@ const emit = defineEmits<{
 	cancel: [];
 }>();
 
+const { t } = useI18n();
 const password = ref("");
 const localError = ref<string | undefined>();
 
@@ -52,7 +52,7 @@ watch(open, (isOpen) => {
 
 function confirm() {
 	if (!password.value) {
-		localError.value = "Enter your password.";
+		localError.value = t("auth.linkGoogleEnterPassword");
 		return;
 	}
 	localError.value = undefined;

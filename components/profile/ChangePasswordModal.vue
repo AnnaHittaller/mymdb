@@ -6,6 +6,7 @@ import { changePasswordSchema, type ChangePasswordSchema } from "~/schemas/schem
 const open = defineModel<boolean>("open", { default: false });
 
 const user = useCurrentUser();
+const { t } = useI18n();
 
 const state = reactive({
 	currentPassword: "",
@@ -16,7 +17,7 @@ const state = reactive({
 	success: false,
 });
 
-useFormToasts(state, { successTitle: "Your password was updated" });
+useFormToasts(state, { successTitle: t("profile.passwordUpdated") });
 
 function resetFields() {
 	state.currentPassword = "";
@@ -71,26 +72,26 @@ async function onSubmit(event: FormSubmitEvent<ChangePasswordSchema>) {
 <template>
 	<UModal
 		v-model:open="open"
-		title="Change password"
+		:title="$t('profile.changePassword')"
 		:dismissible="!state.loading"
 		:close="!state.loading">
 		<template #body>
 			<UForm :schema="changePasswordSchema" :state="state" class="space-y-4" @submit="onSubmit">
-				<UFormField label="Current password" name="currentPassword" required>
+				<UFormField :label="$t('profile.currentPassword')" name="currentPassword" required>
 					<UInput
 						v-model="state.currentPassword"
 						type="password"
 						autocomplete="current-password"
 						:disabled="state.loading" />
 				</UFormField>
-				<UFormField label="New password" name="newPassword" required>
+				<UFormField :label="$t('profile.newPassword')" name="newPassword" required>
 					<UInput
 						v-model="state.newPassword"
 						type="password"
 						autocomplete="new-password"
 						:disabled="state.loading" />
 				</UFormField>
-				<UFormField label="Confirm new password" name="confirmPassword" required>
+				<UFormField :label="$t('profile.confirmNewPassword')" name="confirmPassword" required>
 					<UInput
 						v-model="state.confirmPassword"
 						type="password"
@@ -98,8 +99,8 @@ async function onSubmit(event: FormSubmitEvent<ChangePasswordSchema>) {
 						:disabled="state.loading" />
 				</UFormField>
 				<div class="flex justify-end gap-2">
-					<UButton label="Cancel" color="neutral" variant="outline" :disabled="state.loading" @click="open = false" />
-					<UButton type="submit" label="Update password" :loading="state.loading" />
+					<UButton :label="$t('common.cancel')" color="neutral" variant="outline" :disabled="state.loading" @click="open = false" />
+					<UButton type="submit" :label="$t('profile.updatePassword')" :loading="state.loading" />
 				</div>
 			</UForm>
 		</template>

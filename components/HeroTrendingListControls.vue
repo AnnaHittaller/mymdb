@@ -60,14 +60,14 @@ async function onShare() {
 			type="button"
 			class="flex h-8 cursor-pointer items-center leading-none transition-colors duration-200"
 			:class="bookmarkClass"
-			aria-label="Save to list"
+			:aria-label="$t('detail.saveToList')"
 			@click="pickerOpen = true">
 			<IconAddToList class="size-7" />
 		</button>
 		<button
 			type="button"
 			class="flex h-8 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
-			:aria-label="inFavorites ? 'Remove from favorites' : 'Add to favorites'"
+			:aria-label="inFavorites ? $t('detail.removeFavorites') : $t('detail.addFavorites')"
 			@click="toggleFavorites">
 			<UIcon
 				:name="inFavorites ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
@@ -76,7 +76,7 @@ async function onShare() {
 		<button
 			type="button"
 			class="flex h-8 cursor-pointer items-center leading-none text-fg-subtle transition-colors duration-200 hover:text-primary"
-			aria-label="Share"
+			:aria-label="$t('common.share')"
 			@click="onShare">
 			<UIcon name="i-heroicons-share" class="size-7" />
 		</button>

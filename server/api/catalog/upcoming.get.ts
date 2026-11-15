@@ -38,6 +38,8 @@ export default defineCachedEventHandler(async (event) => {
 	const watchProviderIds = parseIdList(query.watch_providers)
 	const keywordIds = parseIdList(query.keywords)
 
+	const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
+
 	try {
 		return await upcomingCatalogTitles({
 			days,
@@ -47,6 +49,7 @@ export default defineCachedEventHandler(async (event) => {
 			tvGenreIds,
 			watchProviderIds,
 			keywordIds,
+			language,
 		})
 	} catch {
 		throw createError({
@@ -66,9 +69,10 @@ export default defineCachedEventHandler(async (event) => {
 		const providers = String(query.watch_providers ?? "").trim()
 		const keywords = String(query.keywords ?? "").trim()
 		const region = providers ? (parseRegion(query.region) ?? "") : ""
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
 		if (!movieGenres && !tvGenres && !providers && !keywords) {
-			return `${days}:${page}:shared`
+			return `${days}:${page}:${language}:shared`
 		}
-		return `${days}:${page}:${region}:${movieGenres}:${tvGenres}:${providers}:${keywords}`
+		return `${days}:${page}:${language}:${region}:${movieGenres}:${tvGenres}:${providers}:${keywords}`
 	},
 })

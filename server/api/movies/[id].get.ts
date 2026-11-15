@@ -1,3 +1,5 @@
+import { tmdbLanguageToIso639 } from "~/domain/locale/appLocale"
+import { localizeTmdbGenreEntries } from "~/domain/locale/tmdbGenreLabels"
 import { fetchTmdbCollection } from "~/server/utils/tmdbCollection"
 import { fetchTmdbImages } from "~/server/utils/tmdbImages"
 import { fetchTmdbKeywords } from "~/server/utils/tmdbKeywords"
@@ -12,10 +14,12 @@ export default defineEventHandler(async (event) => {
 	try {
 		const { id } = event.context.params!
 		const movieId = String(id)
-		const details = await fetchTmdbMovie(movieId)
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
+		const imageIso = tmdbLanguageToIso639(language)
+		const details = await fetchTmdbMovie(movieId, language)
 		const [keywords, images] = await Promise.all([
 			fetchTmdbKeywords("movie", movieId).catch(() => []),
-			fetchTmdbImages("movie", movieId).catch(() => emptyImages),
+			fetchTmdbImages("movie", movieId, imageIso).catch(() => emptyImages),
 		])
 		const sources = readDetailMediaSources(details)
 		const enriched = withTrailer(
@@ -26,7 +30,7 @@ export default defineEventHandler(async (event) => {
 		let collection = null
 		if (belongs?.id) {
 			try {
-				const raw = await fetchTmdbCollection(String(belongs.id))
+				const raw = await fetchTmdbCollection(String(belongs.id), language)
 				collection = normalizeDetailCollection(raw)
 			} catch {
 				collection = null
@@ -34,6 +38,7 @@ export default defineEventHandler(async (event) => {
 		}
 		return {
 			...enriched,
+			genres: localizeTmdbGenreEntries(details.genres ?? [], language),
 			collection,
 			keywords: keywords.filter((keyword) => keyword.name.trim()),
 			gallery: buildDetailGallery({

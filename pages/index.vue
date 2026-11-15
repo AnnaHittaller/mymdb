@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useCurrentUser } from 'vuefire';
-import { UPCOMING_SUBLINE } from '~/constants/upcoming';
 import { useUpcomingCatalog } from '~/composables/useUpcomingCatalog';
 
 definePageMeta({
     layout: "default",
 })
 
+const { t } = useI18n()
 const user = useCurrentUser()
 const { lists, catalogPrefs } = useUserDocument()
 
@@ -28,26 +28,26 @@ const { data: upcomingItems, pending: upcomingPending } = useUpcomingCatalog(upc
                 :show-see-all="lists.length > 6" />
         </template>
         <div v-else class="flex flex-col items-start gap-4 px-8 pb-8">
-            <p class="text-lg">Sign in to keep your lists and favorites.</p>
+            <p class="text-lg">{{ $t('home.signInPrompt') }}</p>
             <div class="flex gap-4">
-                <UButton :to="{ path: '/login', query: { redirect: '/' } }" label="Sign in" class="text-lg" />
-                <UButton to="/register" label="Register" variant="outline" class="text-lg" />
+                <UButton :to="{ path: '/login', query: { redirect: '/' } }" :label="$t('nav.signIn')" class="text-lg" />
+                <UButton to="/register" :label="$t('auth.register')" variant="outline" class="text-lg" />
             </div>
         </div>
         <div class="pb-8">
-            <Heading class="pt-4">Recommendations</Heading>
+            <Heading class="pt-4">{{ $t('home.recommendations') }}</Heading>
             <div
                 class="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 trending:grid-cols-3">
                 <TrendingCollectionCard
                     class="md:col-start-1 md:row-start-2 trending:row-start-1"
-                    title="Trending movies"
+                    :title="$t('home.trendingMovies')"
                     to="/trending/movies"
                     media-type="movie"
                     :items="trendingMovies ?? []" />
                 <TrendingCollectionCard
                     class="order-first md:col-span-2 md:col-start-1 md:row-start-1 trending:order-none trending:col-span-1 trending:col-start-auto trending:row-start-auto"
-                    title="Coming soon"
-                    :subtitle="UPCOMING_SUBLINE"
+                    :title="$t('home.comingSoon')"
+                    :subtitle="t('home.comingSoonSubline')"
                     to="/coming-soon"
                     media-type="mixed"
                     variant="upcoming"
@@ -56,7 +56,7 @@ const { data: upcomingItems, pending: upcomingPending } = useUpcomingCatalog(upc
                     :show-release-date="true" />
                 <TrendingCollectionCard
                     class="md:col-start-2 md:row-start-2 trending:col-start-auto trending:row-start-auto"
-                    title="Trending shows"
+                    :title="$t('home.trendingShows')"
                     to="/trending/shows"
                     media-type="tv"
                     :items="trendingShows ?? []" />

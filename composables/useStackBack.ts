@@ -1,8 +1,7 @@
 import { stackBackConfigForName } from "~/constants/stackNavigation";
 
-const BACK_LABEL = "Back";
-
 export function useStackBack() {
+	const { t } = useI18n();
 	const route = useRoute();
 	const router = useRouter();
 
@@ -23,9 +22,11 @@ export function useStackBack() {
 		}
 	}
 
+	const backLinkLabel = computed(() => t("common.back"));
+
 	return {
 		visible,
-		backLinkLabel: BACK_LABEL,
+		backLinkLabel,
 		goBack,
 	};
 }

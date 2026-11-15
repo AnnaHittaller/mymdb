@@ -8,6 +8,7 @@ export type UserDocumentData = {
 	username: string;
 	email: string;
 	theme: string;
+	locale?: string;
 	catalogPrefs: CatalogPrefs;
 	lists: UserList[];
 	movies: UserMovie[];

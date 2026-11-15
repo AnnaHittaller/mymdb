@@ -2,7 +2,10 @@ import { DISCOVER_RATING_SORT_MIN_VOTE_COUNT } from "../../constants/discoverFil
 import { isDiscoverRatingSort, normalizeDiscoverSort, tmdbDiscoverSortBy } from "../../utils/discoverSort"
 import { parseIsoReleaseDate, type DiscoverQueryInput } from "./tmdbDiscoverQuery";
 
-export function buildTmdbDiscoverTvParams(input: DiscoverQueryInput): URLSearchParams {
+export function buildTmdbDiscoverTvParams(
+	input: DiscoverQueryInput,
+	language = "en-US",
+): URLSearchParams {
 	const page = Number(input.page) || 1
 	const rating = Number(input.rating) || 0
 	const genres = String(input.genres ?? "")
@@ -20,7 +23,7 @@ export function buildTmdbDiscoverTvParams(input: DiscoverQueryInput): URLSearchP
 	const sortKey = normalizeDiscoverSort(input.sort)
 	const params = new URLSearchParams({
 		include_adult: "false",
-		language: "en-US",
+		language,
 		page: String(page),
 		sort_by: tmdbDiscoverSortBy(String(input.sort ?? ""), "tv"),
 	})

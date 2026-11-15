@@ -1,4 +1,5 @@
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event)
-	return await discoverCatalogTitles(query as Record<string, unknown>)
+	const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
+	return await discoverCatalogTitles(query as Record<string, unknown>, language)
 })

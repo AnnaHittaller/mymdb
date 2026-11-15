@@ -24,7 +24,7 @@ function rowClass(active: boolean) {
 			:class="rowClass(selected === IMPORT_AS_NEW_LIST)"
 			@click="selected = IMPORT_AS_NEW_LIST">
 			<span class="block text-lg font-medium">{{ snapshotName }}</span>
-			<span class="block text-base text-fg-muted">Save as new custom list</span>
+			<span class="block text-base text-fg-muted">{{ $t('lists.importAsNewList') }}</span>
 		</button>
 		<button
 			v-for="list in customLists"

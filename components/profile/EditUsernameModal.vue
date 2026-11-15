@@ -7,6 +7,7 @@ const open = defineModel<boolean>("open", { default: false });
 
 const user = useCurrentUser();
 const { setUsername } = useUserDocument();
+const { t } = useI18n();
 
 const state = reactive({
 	username: user.value?.displayName ?? "",
@@ -15,7 +16,7 @@ const state = reactive({
 	success: false,
 });
 
-useFormToasts(state, { successTitle: "Your username was updated" });
+useFormToasts(state, { successTitle: t("profile.usernameUpdated") });
 
 watch(
 	() => open.value,
@@ -45,14 +46,14 @@ async function onSubmit(event: FormSubmitEvent<EditUsernameSchema>) {
 	try {
 		const current = user.value;
 		if (!current) {
-			throw new Error("You need to be signed in to update your username");
+			throw new Error(t("profile.usernameSignInRequired"));
 		}
 		const displayName = event.data.username;
 		await updateProfile(current, { displayName });
 		await setUsername(displayName);
 		state.success = true;
 	} catch (error: unknown) {
-		state.error = error instanceof Error ? error.message : "Could not update username";
+		state.error = error instanceof Error ? error.message : t("profile.usernameUpdateError");
 		state.success = false;
 	} finally {
 		state.loading = false;
@@ -63,22 +64,22 @@ async function onSubmit(event: FormSubmitEvent<EditUsernameSchema>) {
 <template>
 	<UModal
 		v-model:open="open"
-		title="Edit username"
+		:title="$t('profile.editUsername')"
 		:ui="{ content: 'max-w-md' }"
 		:dismissible="!state.loading"
 		:close="!state.loading">
 		<template #body>
 			<UForm :schema="editUsernameSchema" :state="state" class="space-y-4" @submit="onSubmit">
-				<UFormField label="Username" name="username" required>
+				<UFormField :label="$t('auth.username')" name="username" required>
 					<UInput
 						v-model.trim="state.username"
-						placeholder="Username"
+						:placeholder="$t('auth.username')"
 						type="text"
 						:disabled="state.loading" />
 				</UFormField>
 				<div class="flex justify-end gap-2">
-					<UButton label="Cancel" color="neutral" variant="outline" :disabled="state.loading" @click="open = false" />
-					<UButton type="submit" label="Save" :loading="state.loading" />
+					<UButton :label="$t('common.cancel')" color="neutral" variant="outline" :disabled="state.loading" @click="open = false" />
+					<UButton type="submit" :label="$t('common.done')" :loading="state.loading" />
 				</div>
 			</UForm>
 		</template>
