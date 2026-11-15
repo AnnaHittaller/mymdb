@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useMediaQuery } from "@vueuse/core";
 import { browsingDrawerUi, browsingSlideoverUi } from "~/constants/browsingOverlayUi";
 import {
 	formatImportSnapshotToast,
@@ -19,7 +18,7 @@ const { lists, isOnAnyList, moviesInList, toggleListMembership, createList } = u
 const { notifyListError } = useListCapToast();
 const toast = useToast();
 const { t } = useI18n();
-const isDesktop = useMediaQuery("(min-width: 768px)");
+const isDesktop = useIsDesktop();
 
 const selected = ref<string>(IMPORT_AS_NEW_LIST);
 const importing = ref(false);

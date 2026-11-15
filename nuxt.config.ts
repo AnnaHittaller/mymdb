@@ -14,11 +14,11 @@ const productionTrailerCsp = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'self'",
-  "frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com",
+  "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://accounts.google.com https://*.firebaseapp.com",
   "img-src 'self' data: blob: https://image.tmdb.org https://i.ytimg.com https://*.googleusercontent.com",
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' https://apis.google.com https://www.gstatic.com",
   "worker-src 'self'",
   "connect-src 'self' https://api.themoviedb.org https://*.googleapis.com https://*.firebaseio.com https://*.google.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com",
 ].join('; ')
@@ -220,6 +220,8 @@ export default defineNuxtConfig({
   i18n: {
     defaultLocale: 'en',
     strategy: 'no_prefix',
+    // Absolute origin for canonical and hreflang tags. Netlify sets URL at build time.
+    baseUrl: process.env.URL || 'https://mymdb-my-movie-watchlist.netlify.app',
     langDir: 'locales',
     locales: [
       { code: 'en', language: 'en-US', name: 'English', files: ['en.json'] },

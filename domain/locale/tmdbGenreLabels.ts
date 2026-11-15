@@ -1,7 +1,7 @@
 import { tmdbLanguageToIso639, type AppLocale } from "./appLocale"
 
 /** TMDB TV genre IDs whose names stay English in de/hu. */
-export const TMDB_TV_GENRE_OVERLAY_IDS = [10759, 10765, 10768] as const
+export const TMDB_TV_GENRE_OVERLAY_IDS = [10759, 10765, 10766, 10768] as const
 
 const TMDB_TV_GENRE_LABELS: Record<(typeof TMDB_TV_GENRE_OVERLAY_IDS)[number], Record<AppLocale, string>> = {
 	10759: {
@@ -13,6 +13,11 @@ const TMDB_TV_GENRE_LABELS: Record<(typeof TMDB_TV_GENRE_OVERLAY_IDS)[number], R
 		en: "Sci-Fi & Fantasy",
 		de: "Sci-Fi und Fantasy",
 		hu: "Sci-fi és fantasy",
+	},
+	10766: {
+		en: "Soap",
+		de: "Seifenoper",
+		hu: "Szappanopera",
 	},
 	10768: {
 		en: "War & Politics",
@@ -31,8 +36,8 @@ export function localizeTmdbGenreName(
 	id?: number,
 ): string {
 	const locale = tmdbLanguageToIso639(languageOrLocale)
-	if (id === 10759 || id === 10765 || id === 10768) {
-		return TMDB_TV_GENRE_LABELS[id][locale]
+	if (id !== undefined && id in TMDB_TV_GENRE_LABELS) {
+		return TMDB_TV_GENRE_LABELS[id as keyof typeof TMDB_TV_GENRE_LABELS][locale]
 	}
 	const byName = LABELS_BY_ENGLISH_NAME.get(name)
 	return byName ? byName[locale] : name

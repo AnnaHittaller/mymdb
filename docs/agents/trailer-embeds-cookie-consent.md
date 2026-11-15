@@ -12,4 +12,4 @@
 
 ## CSP
 
-See [`nuxt.config.ts`](../../nuxt.config.ts) `routeRules` — `frame-src` allows YouTube and Vimeo embed origins; `img-src` includes `image.tmdb.org` and common YouTube thumbnail hosts.
+See [`nuxt.config.ts`](../../nuxt.config.ts) `routeRules` — `frame-src` allows YouTube and Vimeo embed origins, plus Google sign-in (`accounts.google.com`, `*.firebaseapp.com`); `script-src` allows Firebase Auth’s Google APIs (`apis.google.com`, `www.gstatic.com`); `img-src` includes `image.tmdb.org` and common YouTube thumbnail hosts.

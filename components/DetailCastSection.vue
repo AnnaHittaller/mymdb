@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useMediaQuery } from "@vueuse/core";
 import { browsingDrawerUi, browsingSlideoverUi } from "~/constants/browsingOverlayUi";
 import type { DetailCastMember } from "~/types/detailCast";
 
@@ -12,7 +11,7 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const fullCastOpen = ref(false);
-const isDesktop = useMediaQuery("(min-width: 768px)");
+const isDesktop = useIsDesktop();
 
 const previewCast = computed(() => props.cast.slice(0, INITIAL_VISIBLE));
 const hasMore = computed(() => props.cast.length > INITIAL_VISIBLE);
