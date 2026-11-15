@@ -1,11 +1,13 @@
 <template>
-<div>
-    <NuxtLink to="/" class="flex justify-center w-full">
-        <div class="inline-flex items-center justify-center bg-primary px-3 py-2 rounded-md shrink hover:bg-primary-500 transition duration-200">
-            <p class="font-extrabold text-2xl text-gray-900">
-                MyMDb
-            </p>
-        </div>
-    </NuxtLink>
-</div>
-</template> 
+	<div>
+		<NuxtLink to="/" class="flex justify-center" :aria-label="$t('meta.homeAria')">
+			<div
+				class="inline-flex shrink items-center justify-center rounded-md border-2 border-fg-on-accent bg-primary px-3 py-2 transition-colors duration-200 hover:bg-primary/75"
+			>
+				<p class="text-xl font-extrabold text-fg-on-accent">
+					MyMDb
+				</p>
+			</div>
+		</NuxtLink>
+	</div>
+</template>

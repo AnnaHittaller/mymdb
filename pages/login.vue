@@ -1,93 +1,190 @@
+<template>
+    <div class="max-w-[450px] w-full mx-auto">
+        <Heading>{{ $t('auth.signIn') }}</Heading>
+        <UForm :schema="loginSchema" :state="state" class="space-y-6 w-full pt-8" @submit="onSubmit">
+            <UFormField :label="$t('auth.email')" name="email" required size="lg" :ui="{ label: 'text-lg' }">
+                <UInput
+                    v-model.trim="state.email" :placeholder="$t('auth.email')" size="lg"
+                    :ui="{ base: 'text-lg placeholder:italic' }" />
+            </UFormField>
+
+            <UFormField :label="$t('auth.password')" name="password" required size="lg" :ui="{ label: 'text-lg' }">
+                <UInput
+                    v-model="state.password" :placeholder="$t('auth.password')" size="lg"
+                    :ui="{ base: 'text-lg placeholder:italic' }" :type="inputType">
+                    <template #trailing>
+                        <UIcon
+                            :name="inputType === 'password' ? 'i-heroicons-lock-closed' : 'i-heroicons-lock-open'"
+                            class="cursor-pointer text-xl text-fg-muted" @click="togglePasswordVisibility" />
+                    </template>
+                </UInput>
+            </UFormField>
+            <div class="w-max text-lg">
+                <NuxtLink
+                    to="./forgot-password"
+                    class="cursor-pointer text-primary hover:underline underline-offset-[5px]">
+                    <p>{{ $t('auth.forgotPassword') }}</p>
+                </NuxtLink>
+            </div>
+
+            <div class="flex items-center flex-col justify-between pt-8">
+                <UButton type="submit" class="text-lg" :loading="state.loading" block>
+                    {{ $t('auth.signIn') }}
+                </UButton>
+                <USeparator :label="$t('common.or')" class="py-4" orientation="horizontal" />
+                <UButton type="button" class="text-lg" :loading="state.loading" block @click="onGoogleButtonClick">
+                    {{ $t('auth.signInWithGoogle') }}
+                </UButton>
+                <p class="pt-2 text-center text-sm text-fg-subtle">{{ googleLinkHint }}</p>
+                <div class="flex items-center gap-2 max-[300px]:flex-col pt-4">
+                    <p class="text-lg">{{ $t('auth.noAccount') }}</p>
+                    <NuxtLink
+                        :to="route.query.redirect ? { path: '/register', query: { redirect: route.query.redirect } } : '/register'"
+                        class="text-lg text-primary font-semibold flex items-center gap-0.5 hover:underline underline-offset-[5px]">
+                        <UIcon name="i-heroicons-chevron-double-right-20-solid" class="text-lg" />
+                        {{ $t('auth.register') }}
+                    </NuxtLink>
+                </div>
+            </div>
+        </UForm>
+        <GoogleSignInGuideModal
+            v-model:open="googleGuideOpen" :variant="googleGuideVariant" :loading="state.loading"
+            @use-form-first="onGoogleGuideUseForm" @continue-google-only="runGoogleSignIn" />
+        <LinkGooglePasswordModal
+            v-model:open="linkModalOpen" :email="linkModalEmail" :loading="linkModalLoading"
+            @confirm="onLinkPasswordConfirm" @cancel="cancelLinkPassword" />
+        <SignInLocalePromptModal
+            v-model:open="localePromptOpen"
+            :suggested="suggestedLocale"
+            :loading="localePromptLoading"
+            @confirm="confirmLocale"
+            @keep-english="keepEnglishAndContinue" />
+    </div>
+</template>
+
 <script setup lang="ts">
-import { z } from 'zod'
-import type { FormError, FormSubmitEvent } from '#ui/types'
+import type { FormSubmitEvent } from '@nuxt/ui'
+import { useFirebaseAuth } from 'vuefire';
+import { loginSchema, type LoginSchema } from '../schemas/schemas';
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { googleAuthProvider } from '~/composables/googleAuthProvider';
+import { signInWithGoogleAndLink, googleLinkHint } from '~/composables/googleSignIn';
+import { useGoogleLinkPasswordPrompt } from '~/composables/useGoogleLinkPasswordPrompt';
+import { useSignInLocalePrompt } from '~/composables/useSignInLocalePrompt';
 
 definePageMeta({
     layout: "not-logged-in",
     middleware: "already-logged-in"
 })
 
-const { login } = useFirebaseAuth()
-const colorStore = useUiColorStore()
-colorStore.initialize()
+const auth = useFirebaseAuth()
+const route = useRoute()
+const destination = computed(() => pathFromRedirect(route.query.redirect))
+const {
+    open: localePromptOpen,
+    loading: localePromptLoading,
+    suggestedLocale,
+    finishAuthAndOfferLocale,
+    confirmLocale,
+    keepEnglishAndContinue,
+} = useSignInLocalePrompt()
 
-const schema = z.object({
-    email: z.string().email('Invalid email'),
-    password: z.string().min(6, 'Must be at least 6 characters')
-})
+async function finishSignIn(user: import('firebase/auth').User, email: string) {
+    clearFormToasts()
+    await finishAuthAndOfferLocale(user, email, destination.value)
+}
 
-type Schema = z.output<typeof schema>
+const {
+    linkModalOpen,
+    linkModalEmail,
+    linkModalLoading,
+    promptForPassword,
+    confirmLinkPassword,
+    cancelLinkPassword,
+    finishLinkPasswordFlow,
+} = useGoogleLinkPasswordPrompt()
+
+function onLinkPasswordConfirm(password: string) {
+    confirmLinkPassword(password)
+}
+
+const googleGuideOpen = ref(false)
+const googleGuideVariant = ref<"missing-both" | "missing-password">("missing-both")
 
 const state = reactive({
-    email: undefined,
-    password: undefined,
-    error: undefined,
+    email: undefined as string | undefined,
+    password: undefined as string | undefined,
+    error: undefined as string | undefined,
     loading: false,
     success: false
 })
 
+const { t } = useI18n()
+const { clearFormToasts } = useFormToasts(state, { successTitle: t('auth.signedInRedirect') })
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-    //console.log("SUBMIT EVENT LOGIN", event.data)
+const inputType = ref<"password" | "text">("password")
+
+const togglePasswordVisibility = () => {
+    inputType.value = inputType.value === "password" ? "text" : "password"
+}
+
+async function onSubmit(event: FormSubmitEvent<LoginSchema>) {
     state.loading = true
     state.success = false
+    state.error = undefined
 
     try {
-        await login(event.data.email, event.data.password)
-        state.loading = false
-        state.email = undefined
-        state.password = undefined
-        if (!state.error) {
-            state.success = true
-            return await navigateTo("/", { replace: true });
-        }
+        const { user } = await signInWithEmailAndPassword(auth!, event.data.email, event.data.password)
+        await finishSignIn(user, event.data.email)
     } catch (error: any) {
-        console.error("Frontend error:", error.message);
-        state.error = error.message;
-        state.loading = false
+        console.error("Frontend error:", error.code, error.message);
         state.success = false
+        if (error.code === "auth/invalid-credential") {
+            state.error = t('auth.invalidCredential');
+        } else {
+            state.error = error.message;
+        }
+    } finally {
+        state.loading = false
     }
+}
 
+function onGoogleButtonClick() {
+    const formEmail = state.email?.trim()
+    if (formEmail && state.password) {
+        return runGoogleSignIn()
+    }
+    googleGuideVariant.value = formEmail ? "missing-password" : "missing-both"
+    googleGuideOpen.value = true
+}
+
+function onGoogleGuideUseForm() {
+    googleGuideOpen.value = false
+}
+
+async function runGoogleSignIn() {
+    googleGuideOpen.value = false
+
+    const formEmail = state.email?.trim()
+    state.loading = true
+    state.error = undefined
+    try {
+        const { user } = await signInWithGoogleAndLink(auth!, googleAuthProvider, {
+            email: formEmail && state.password ? formEmail : undefined,
+            password: state.password,
+            promptForPassword,
+        })
+        const signedInEmail = user.email ?? formEmail ?? ""
+        await finishSignIn(user, signedInEmail)
+    } catch (error: any) {
+        state.success = false
+        if (error.message !== "Google link cancelled.") {
+            state.error = error.message ?? "Google sign-in failed."
+        }
+        console.error(error)
+    } finally {
+        finishLinkPasswordFlow()
+        state.loading = false
+    }
 }
 </script>
-
-<template>
-    <div class="max-w-[700px] w-full mx-auto">
-        <Heading>Sign in</Heading>
-        <UForm :schema="schema" :state="state" class="space-y-4 w-full pt-8" @submit="onSubmit">
-            <UFormGroup label="Email" name="email" required size="xl" class="mb-8 text-lg" :ui="{ size: { xl: 'text-xl' } }">
-                <UInput v-model.trim="state.email" placeholder="Email" size="xl"
-                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" />
-            </UFormGroup>
-
-            <UFormGroup label="Password " name="password" required size="xl" :ui="{ size: { xl: 'text-xl' }}">
-                <UInput v-model.trim="state.password" placeholder="Password" size="xl"
-                    :ui="{ size: { xl: 'text-xl' }, placeholder: 'placeholder:italic' }" class="mt-2" type="password" />
-            </UFormGroup>
-            <div class="w-max text-lg">
-                <NuxtLink to="./forgot-password" class="cursor-pointer text-primary">
-                    <p>Forgot your password?</p>
-                </NuxtLink>
-            </div>
-
-            <UNotification id="error-notification-login" title="Error:" :description="state.error" v-if="state.error"
-                :timeout="0" @close="state.error = undefined" icon="i-heroicons-exclamation-circle" color="red" />
-
-            <UNotification id="success-notification-login" title="Signed in, redirecting..." v-if="state.success"
-                :timeout="0" @close="state.success = false" icon="i-heroicons-check-circle" color="green" />
-
-            <div class="flex items-center justify-between pt-8 max-[470px]:flex-col max-[470px]:gap-8">
-                <UButton type="submit" class="text-xl" :loading="state.loading">
-                    Sign in
-                </UButton>
-                <div class="flex items-center gap-3 max-[250px]:flex-col max-[250px]:gap-4">
-                    <p class="text-lg">Don't have an account yet?</p>
-                    <NuxtLink to="/register" class="text-lg text-primary font-semibold flex items-center gap-1">
-                        <UIcon name="i-heroicons-chevron-double-right-20-solid" class="text-xl" />
-                        Register
-                    </NuxtLink>
-                </div>
-            </div>
-        </UForm>
-    </div>
-</template>

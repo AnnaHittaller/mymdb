@@ -1,88 +1,66 @@
 <script setup lang="ts">
-import { useUserMoviesStore } from '~/stores/useUserMoviesStore';
-
+import { useCurrentUser } from 'vuefire';
+import { useUpcomingCatalog } from '~/composables/useUpcomingCatalog';
 
 definePageMeta({
-    middleware: "auth"
+    layout: "default",
 })
 
-const { currentUserPromise } = useFirebaseAuth()
-const userData: any = await currentUserPromise()
+const { t } = useI18n()
+const user = useCurrentUser()
+const { lists, catalogPrefs } = useUserDocument()
 
-const colorStore = useUiColorStore()
-colorStore.initialize()
+const upcomingPrefs = computed(() => (user.value ? catalogPrefs.value : null))
+const { data: trendingMovies } = useTrendingCatalog('movie', { server: true })
+const { data: trendingShows } = useTrendingCatalog('tv', { server: true })
 
-const userMoviesStore = useUserMoviesStore()
-// Fetch user movies when the component is mounted
-onMounted(async () => {
-    await userMoviesStore.fetchUserMovies();
-});
-
-// Watch for changes in the movies array
-const usersMovies = toRef(userMoviesStore, 'movies');
-const reversedMovies = computed(() => {
-    if (!usersMovies.value) return []
-    return usersMovies.value.slice().reverse()
+const { data: upcomingItems, pending: upcomingPending } = useUpcomingCatalog(upcomingPrefs, {
+    server: true,
 })
-
-const watchNextMovies = computed(() => {
-    const moviesWithTimestamp = userMoviesStore.movies.filter(movie => movie.next && movie.timestamp);
-    const moviesWithoutTimestamp = userMoviesStore.movies.filter(movie => movie.next && !movie.timestamp);
-
-    const sortedMoviesWithTimestamp = moviesWithTimestamp.sort((a, b) => {
-        const timestampA = (a.timestamp as any).toDate(); // Convert Firestore Timestamp to JavaScript Date
-        const timestampB = (b.timestamp as any).toDate(); 
-        return timestampB.getTime() - timestampA.getTime();
-    });
-
-    return [...sortedMoviesWithTimestamp, ...moviesWithoutTimestamp];
-})
-
-
-
 </script>
 
 <template>
-    <div class="pb-4 max-w-full">
+    <div class="max-w-full">
         <Hero />
-        <div class="flex justify-between items-center pr-4 pb-8">
-            <Heading class="pl-4">My movies</Heading>
-            <UButton to="/my-movies" label="View All" v-if="usersMovies.length > 2" class="text-lg" />
+        <template v-if="user">
+            <UserListsSection
+                :limit="6"
+                :show-see-all="lists.length > 6" />
+        </template>
+        <div v-else class="flex flex-col items-start gap-4 px-8 pb-8">
+            <p class="text-lg">{{ $t('home.signInPrompt') }}</p>
+            <div class="flex gap-4">
+                <UButton :to="{ path: '/login', query: { redirect: '/' } }" :label="$t('nav.signIn')" class="text-lg" />
+                <UButton to="/register" :label="$t('auth.register')" variant="outline" class="text-lg" />
+            </div>
         </div>
-        <MovieSlider v-if="reversedMovies" :movies="reversedMovies" />
-        <div v-if="reversedMovies.length === 0" class="flex gap-4 max-sm:flex-col items-center max-sm:text-lg ">
-            <p class="px-4">Add some movies to your watchlist first.</p>
-            <UButton to="/search" label="Get movies" class="text-lg" />
-        </div>
-        <div class="flex justify-between items-center pr-4 pb-8 pt-4">
-            <Heading class="pl-4 pt-8">Watch next</Heading>
-            <UButton to="/watch-next" label="View All" v-if="watchNextMovies.length > 2" class="text-lg" />
-        </div>
-        <MovieSlider v-if="watchNextMovies" :movies="watchNextMovies" />
-        <div v-if="watchNextMovies.length === 0"
-            class="flex gap-4 max-sm:flex-col max-sm:text-lg items-center pb-8">
-            <p class="px-4">Add some movies to your watchlist first.</p>
-            <UButton to="/search" label="Get movies" class="text-lg" />
+        <div class="pb-8">
+            <Heading class="pt-4">{{ $t('home.recommendations') }}</Heading>
+            <div
+                class="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 trending:grid-cols-3">
+                <TrendingCollectionCard
+                    class="md:col-start-1 md:row-start-2 trending:row-start-1"
+                    :title="$t('home.trendingMovies')"
+                    to="/trending/movies"
+                    media-type="movie"
+                    :items="trendingMovies ?? []" />
+                <TrendingCollectionCard
+                    class="order-first md:col-span-2 md:col-start-1 md:row-start-1 trending:order-none trending:col-span-1 trending:col-start-auto trending:row-start-auto"
+                    :title="$t('home.comingSoon')"
+                    :subtitle="t('home.comingSoonSubline')"
+                    to="/coming-soon"
+                    media-type="mixed"
+                    variant="upcoming"
+                    :items="upcomingItems ?? []"
+                    :pending="upcomingPending"
+                    :show-release-date="true" />
+                <TrendingCollectionCard
+                    class="md:col-start-2 md:row-start-2 trending:col-start-auto trending:row-start-auto"
+                    :title="$t('home.trendingShows')"
+                    to="/trending/shows"
+                    media-type="tv"
+                    :items="trendingShows ?? []" />
+            </div>
         </div>
     </div>
-</template> 
-
-<style scoped></style>
-
-<!-- TODO
-
-checking footer profile menu z-index problems between 640 and 1024px
-refresh movies and movie store (ratings and poster) when loading the app first
-search page and discover page: display icons for movieCards according to user's movies from pinia
-add Google authentication
-create skeleton for swiper sliders and hero image / or loaders
-adding toast for movie page: list modifications
-add filtering options for directors / actors in the discovery page 
-search and discovery load more button: don't display if all movies are loaded
-search and discovery load more button: don't reshuffle the already loaded movies
-
-filtering in watchlist/next list by genre
-adding trailers and/or screenshots
-including series too
-
--->
+</template>

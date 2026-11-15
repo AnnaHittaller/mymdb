@@ -1,63 +1,213 @@
-<script setup>
-const { currentUserPromise } = useFirebaseAuth()
-const { updateMovie, removeMovie } = useFirestore()
+<script setup lang="ts">
+import type { CatalogUpdate } from "~/domain/user-document/createUserDocument";
+import type { MediaType } from "~/types/catalog";
+import { POSTER_IMAGE_URL } from "~/constants/movie";
+import { catalogKey, defaultMediaType } from "~/utils/catalogKey";
+import { catalogDetailPath } from "~/utils/catalogPath";
+import { formatMovieRating } from "~/utils/formatMovieRating";
+import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
+import { localizeTmdbGenreNames } from "~/domain/locale/tmdbGenreLabels";
 
-const userData = await currentUserPromise()
-const userMoviesStore = useUserMoviesStore();
-await userMoviesStore.fetchUserMovies();
+type MovieCardMovie = {
+	id: number | string;
+	mediaType?: MediaType;
+	title: string;
+	poster?: string | null;
+	poster_path?: string | null;
+	rating?: number;
+	vote_average?: number;
+	genres?: string[] | { name: string }[];
+};
 
-const props = defineProps({
-    movie: Object,
-})
-
-const { movie } = toRefs(props)
-const baseImageUrl = "https://image.tmdb.org/t/p/w500"
-
-const addToNextList = async () => {
-    await updateMovie(userData.uid, movie.value.id, { next: true });
+function genreNamesFrom(movie: MovieCardMovie): string[] {
+	const genres = movie.genres;
+	if (!genres?.length) return [];
+	if (typeof genres[0] === "string") return genres as string[];
+	if (typeof genres[0] === "object" && genres[0] && "name" in genres[0]) {
+		return (genres as { name: string }[]).map((genre) => genre.name);
+	}
+	return [];
 }
 
-const removeFromNextList = async () => {
-    await updateMovie(userData.uid, movie.value.id, { next: false });
+const props = withDefaults(
+	defineProps<{
+		movie: MovieCardMovie;
+		mediaType?: MediaType;
+		showMediaType?: boolean;
+		listId?: string;
+		editing?: boolean;
+		highlighted?: boolean;
+	}>(),
+	{ showMediaType: false, editing: false, highlighted: false },
+);
+
+const emit = defineEmits<{
+	"remove-from-list": [];
+}>();
+
+const { locale } = useI18n();
+
+const user = useCurrentUser();
+const { isOnAnyList, isInFavorites, setFavorites } = useUserDocument();
+const { notifyListError } = useListCapToast();
+const { shareCatalogTitle } = useCatalogShare();
+
+const pickerOpen = ref(false);
+
+const movieId = computed(() => String(props.movie.id));
+
+const resolvedMediaType = computed((): MediaType =>
+	defaultMediaType(props.mediaType ?? props.movie.mediaType),
+);
+
+const detailPath = computed(() => catalogDetailPath(movieId.value, resolvedMediaType.value));
+
+const posterPath = computed(() => props.movie.poster || props.movie.poster_path || "");
+
+const ratingLabel = computed(() =>
+	formatMovieRating(props.movie.rating ?? props.movie.vote_average),
+);
+
+const localizedTitle = ref<string | null>(null);
+const localizedGenres = ref<string[]>([]);
+
+const displayTitle = computed(() => localizedTitle.value ?? props.movie.title);
+
+const genreLabel = computed(() => {
+	const names = localizedGenres.value.length
+		? localizedGenres.value
+		: genreNamesFrom(props.movie);
+	if (!names.length) return "";
+	return localizeTmdbGenreNames(names, locale.value).join(" · ");
+});
+
+watch(
+	() => [movieId.value, resolvedMediaType.value, locale.value] as const,
+	async ([id, mediaType]) => {
+		localizedTitle.value = null;
+		localizedGenres.value = [];
+		if (!/^\d+$/.test(id)) {
+			return;
+		}
+		try {
+			const summaries = await $fetch<CatalogUpdate[]>("/api/catalog/summaries", {
+				query: { entries: catalogKey(id, mediaType) },
+			});
+			const summary = summaries[0];
+			if (summary?.title) localizedTitle.value = summary.title;
+			localizedGenres.value = summary?.genres ?? [];
+		} catch {
+			localizedGenres.value = [];
+		}
+	},
+	{ immediate: true },
+);
+
+const moviePayload = computed(() => {
+	const genres = localizedGenres.value.length
+		? localizedGenres.value
+		: genreNamesFrom(props.movie);
+	return togglePayloadFromCatalog(
+		{ ...props.movie, title: displayTitle.value },
+		resolvedMediaType.value,
+		genres.length ? genres : undefined,
+	);
+});
+
+const onAnyList = computed(() => isOnAnyList(movieId.value, resolvedMediaType.value));
+const inFavorites = computed(() => isInFavorites(movieId.value, resolvedMediaType.value));
+
+const bookmarkClass = computed(() =>
+	onAnyList.value
+		? "text-primary hover:text-primary/75"
+		: "text-fg-subtle hover:text-primary",
+);
+
+async function toggleFavorites() {
+	try {
+		await setFavorites(moviePayload.value, !inFavorites.value);
+	} catch (error) {
+		notifyListError(error);
+	}
 }
 
-const removeFromMovieList = async () => {
-    await removeMovie(userData.uid, movie.value.id)
+async function onShare() {
+	await shareCatalogTitle({
+		id: movieId.value,
+		mediaType: resolvedMediaType.value,
+		title: displayTitle.value,
+	});
 }
-
-const isInMovieList = computed(() => userMoviesStore.movies.some(item => item.id === movie.value.id));
-
 </script>
 
 <template>
-    <div class="relative pt-2 px-2 group">
-        <div v-auto-animate v-if="isInMovieList">
-            <UIcon name="i-heroicons-star"
-                class="z-20 text-2xl text-primary absolute -top-1 -right-1 transition scale-150 origin-center cursor-pointer opacity-50 hover:opacity-100"
-                v-if="!movie.next" @click.stop="addToNextList" />
-            <UIcon name="i-heroicons-star-20-solid"
-                class="z-20 text-2xl scale-150 text-primary absolute -top-1 -right-1 transition origin-center cursor-pointer"
-                v-if="movie.next" @click.stop="removeFromNextList" />
-        </div>
-        <div v-auto-animate v-if="isInMovieList">
-            <UIcon name="i-heroicons-x-circle"
-                class="z-20 text-2xl scale-150 text-primary opacity-0 absolute top-8 -right-1 transition origin-center cursor-pointer group-hover:opacity-100"
-                @click.stop="removeFromMovieList" />
-        </div>
-        <NuxtLink :to="`/movie/${movie.id}`" class="relative">
-
-            <div class="flex flex-col gap-2 w-full justify-start items-start">
-                <div class="bg-gray-700 max-w-[250px] relative group">
-                    <div
-                        class="z-20 bg-primary text-neutral-800 font-semibold p-2 absolute top-0 left-0 transition opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 origin-top-left">
-                        {{ movie.rating > 0 ? movie.rating.toFixed(1) : 'Ø' }}</div>
-                    <img v-if="movie" :src="`${baseImageUrl}${movie.poster}`"
-                        class="object-cover w-full h-full aspect-[2/3]" />
-                </div>
-                <p class="text-left text-lg">{{ movie.title }}</p>
-            </div>
-        </NuxtLink>
-    </div>
+	<article
+		class="flex w-full flex-col gap-2 rounded-[12px] border border-border-default bg-surface-overlay p-3 backdrop-blur-md"
+		:class="highlighted ? 'ring-2 ring-primary' : undefined">
+		<NuxtLink :to="detailPath" class="relative block">
+			<img
+				v-if="posterPath"
+				:src="`${POSTER_IMAGE_URL}${posterPath}`"
+				:alt="displayTitle"
+				width="342"
+				height="513"
+				loading="lazy"
+				decoding="async"
+				class="aspect-2/3 w-full rounded-lg object-cover">
+			<CatalogMediaBadge v-if="showMediaType" overlay :media-type="resolvedMediaType" />
+			<div
+				class="absolute right-1.5 top-1.5 inline-flex items-center justify-center gap-0.5 rounded bg-surface-overlay/50 px-1.5 py-0.5 text-fg-default backdrop-blur-sm">
+				<UIcon name="i-heroicons-star-20-solid" class="block size-4 shrink-0 -translate-y-[2px] text-rating" />
+				<span class="text-sm leading-none tabular-nums">{{ ratingLabel }}</span>
+			</div>
+		</NuxtLink>
+		<div class="flex min-w-0 flex-col gap-0.5">
+			<NuxtLink :to="detailPath" class="line-clamp-1 text-base font-medium leading-tight text-fg-default">
+				{{ displayTitle }}
+			</NuxtLink>
+			<p v-if="genreLabel" class="line-clamp-1 text-sm leading-tight text-fg-muted">
+				{{ genreLabel }}
+			</p>
+		</div>
+		<div
+			v-if="user || !editing"
+			class="flex h-6 max-h-6 min-h-6 w-full shrink-0 flex-nowrap items-center gap-3 transition-colors duration-200">
+			<template v-if="user && !editing">
+				<button
+					type="button"
+					class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200"
+					:class="bookmarkClass"
+					:aria-label="$t('detail.saveToList')"
+					@click="pickerOpen = true">
+					<IconAddToList class="size-6" />
+				</button>
+				<button
+					type="button"
+					class="flex h-6 cursor-pointer items-center leading-none transition-colors duration-200 hover:text-primary"
+					:aria-label="inFavorites ? $t('detail.removeFavorites') : $t('detail.addFavorites')"
+					@click="toggleFavorites">
+					<UIcon
+						:name="inFavorites ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
+						:class="inFavorites ? 'size-6 text-primary' : 'size-6 text-fg-subtle hover:text-primary'" />
+				</button>
+			</template>
+			<button
+				v-if="!editing"
+				type="button"
+				class="ml-auto flex h-6 cursor-pointer items-center leading-none text-fg-subtle transition-colors duration-200 hover:text-primary"
+				:aria-label="$t('common.share')"
+				@click="onShare">
+				<UIcon name="i-heroicons-share" class="size-6" />
+			</button>
+			<button
+				v-if="editing && listId"
+				type="button"
+				class="ml-auto flex h-6 cursor-pointer items-center leading-none text-fg-subtle transition-colors duration-200 hover:text-primary"
+				:aria-label="$t('detail.removeFromList')"
+				@click="emit('remove-from-list')">
+				<UIcon name="i-heroicons-x-circle" class="size-6" />
+			</button>
+		</div>
+		<ListPickerOverlay v-model:open="pickerOpen" :movie-payload="moviePayload" />
+	</article>
 </template>
-
-<style></style>

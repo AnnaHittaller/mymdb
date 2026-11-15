@@ -1,0 +1,62 @@
+type TmdbSearchResult = {
+	title: string
+	id: number
+	popularity: number
+	poster_path: string | null
+	backdrop_path: string | null
+	genre_ids: number[]
+	vote_average: number
+	release_date?: string
+}
+
+function releaseYearFrom(date: string | undefined | null): number | null {
+	if (!date || date.length < 4) return null
+	const year = Number.parseInt(date.slice(0, 4), 10);
+	return Number.isFinite(year) ? year : null
+}
+
+export default defineEventHandler(async (event) => {
+	try {
+		const query = getQuery(event)
+		const language = event.context.tmdbLanguage ?? resolveTmdbLanguage(event)
+		const config = useRuntimeConfig()
+		const page = query.page || 1
+		const headers = {
+			accept: 'application/json',
+			Authorization: `Bearer ${config.apiBearerToken}`,
+		}
+
+		const [response, genreNames] = await Promise.all([
+			$fetch<{
+				results: TmdbSearchResult[]
+				total_pages: number
+			}>(
+				`${config.apiBaseUrl}/search/movie?query=${encodeURIComponent(String(query.query ?? ""))}&include_adult=false&language=${encodeURIComponent(language)}&page=${page}`,
+				{ method: 'GET', headers },
+			),
+			getMovieGenreNameMap(language),
+		])
+
+		return {
+			results: response.results.map((item) => ({
+				title: item.title,
+				id: item.id,
+				popularity: item.popularity,
+				poster: item.poster_path,
+				backdrop: item.backdrop_path,
+				genres: item.genre_ids.flatMap((id) => {
+					const name = genreNames.get(id)
+					return name ? [name] : []
+				}),
+				rating: item.vote_average,
+				releaseYear: releaseYearFrom(item.release_date),
+			})),
+			total_pages: response.total_pages,
+		}
+	} catch {
+		throw createError({
+			statusCode: 404,
+			message: 'Error while searching for movies.',
+		})
+	}
+})

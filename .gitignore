@@ -13,12 +13,24 @@ node_modules
 logs
 *.log
 
+# Playwright (local e2e)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Local scratch (archived components, notes, experiments)
+/_temp/
+
 # Misc
 .DS_Store
 .fleet
 .idea
+.cursor
 
 # Local env files
 .env
 .env.*
 !.env.example
+sa.json
+service-account.json

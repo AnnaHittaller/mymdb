@@ -1,159 +1,148 @@
-<script setup>
+<script setup lang="ts">
+import type { Movie } from "~/types/movie";
+import type { DetailFact, DetailJob } from "~/types/detailFact";
+import { formatDetailYear, formatRatingOutOfTen, formatRuntimeMinutes } from "~/utils/formatDetailFacts";
+import { formatCreditNames } from "~/utils/normalizeDetailCredits";
+import { togglePayloadFromCatalog } from "~/utils/catalogMoviePayload";
+import { catalogMetaDescription, catalogPosterOgImage } from "~/utils/catalogSeoMeta";
+import { payloadDuringHydration } from "~/utils/trendingCache";
+
 definePageMeta({
-    middleware: "auth"
+    layout: "default",
 })
 
-const { currentUserPromise } = useFirebaseAuth()
-const { getUser, addMovie, removeMovie, updateMovie } = useFirestore()
+const { t, locale } = useI18n()
 
 const route = useRoute()
-const userData = await currentUserPromise()
-//const user = await getUser(userData.uid)
-const userMoviesStore = useUserMoviesStore();
-await userMoviesStore.fetchUserMovies();
 
-const movieId = computed(() => route.params.id)
-const baseImageUrl = "https://image.tmdb.org/t/p/w500"
+const movieId = computed(() => String(route.params.id))
 
-const { data, pending, error } = await useFetch(`/api/movies/${movieId.value}`)
-const movie = toRaw(data?.value)
+const cachedPayload = (key: string, nuxtApp: ReturnType<typeof useNuxtApp>) =>
+    payloadDuringHydration(key, nuxtApp)
 
-const { data: similar, pending: similarPending, error: similarError } = await useFetch(`/api/movies/similar?id=${movieId.value}`)
+const movieFetch = useFetch<Movie>(() => `/api/movies/${movieId.value}?language=${locale.value}`, {
+    key: computed(() => `movie-${movieId.value}-${locale.value}`),
+    watch: [locale],
+    getCachedData: cachedPayload,
+})
+const recommendationsFetch = useFetch(() => `/api/movies/recommendations?id=${movieId.value}&language=${locale.value}`, {
+    key: computed(() => `recommendations-${movieId.value}-${locale.value}`),
+    watch: [locale],
+    getCachedData: cachedPayload,
+})
 
-const moviesWithPoster = computed(() => {
-    const filtered = similar.value.filter(movie => movie.poster !== null);
-    //console.log(filtered)
-    return filtered
+const [{ data, pending, error }, { data: recommendations }] = await Promise.all([movieFetch, recommendationsFetch])
+
+const movie = computed(() => data.value)
+const moviesWithPoster = computed(() => recommendations.value ?? [])
+
+const listPayload = computed(() => {
+    const current = movie.value
+    if (!current) return null
+    return togglePayloadFromCatalog(
+        {
+            id: movieId.value,
+            mediaType: "movie",
+            title: current.title,
+            rating: current.vote_average,
+            poster: current.poster_path,
+            genres: current.genres.map((genre) => genre.name),
+        },
+        "movie",
+        current.genres.map((genre) => genre.name),
+    )
+})
+
+const facts = computed<DetailFact[]>(() => {
+    const current = movie.value
+    if (!current) return []
+    const items: DetailFact[] = []
+    const runtime = formatRuntimeMinutes(current.runtime)
+    if (runtime) items.push({ icon: "i-heroicons-clock", text: runtime })
+    const year = formatDetailYear(current.release_date)
+    if (year) items.push({ icon: "i-heroicons-calendar", text: year })
+    const rating = formatRatingOutOfTen(current.vote_average)
+    if (rating) items.push({ icon: "i-heroicons-star-20-solid", text: rating, tone: "rating" })
+    return items
+})
+
+const requestUrl = useRequestURL();
+
+useSeoMeta({
+	title: () => (movie.value?.title ? `${movie.value.title} · MyMDb` : "MyMDb"),
+	description: () =>
+		catalogMetaDescription(
+			movie.value?.overview,
+			movie.value?.title ? t("meta.seoWatchTitle", { title: movie.value.title }) : t("meta.seoMovieFallback"),
+		),
+	ogTitle: () => movie.value?.title,
+	ogDescription: () =>
+		catalogMetaDescription(
+			movie.value?.overview,
+			movie.value?.title ? t("meta.seoWatchTitle", { title: movie.value.title }) : t("meta.seoMovieFallback"),
+		),
+	ogImage: () => catalogPosterOgImage(movie.value?.poster_path),
+	ogUrl: () => `${requestUrl.origin}/movie/${movieId.value}`,
+	ogType: "website",
+	twitterCard: "summary_large_image",
+	twitterTitle: () => movie.value?.title,
+	twitterDescription: () =>
+		catalogMetaDescription(
+			movie.value?.overview,
+			movie.value?.title ? t("meta.seoWatchTitle", { title: movie.value.title }) : t("meta.seoMovieFallback"),
+		),
+	twitterImage: () => catalogPosterOgImage(movie.value?.poster_path),
 });
 
-const isInMovieList = computed(() => userMoviesStore.movies.some(movie => movie.id === route.params.id));
-const isInNextList = computed(() => userMoviesStore.movies.some(movie => movie.id === route.params.id && movie.next));
-
-// code for rating badges - for later development
-
-// const ratingBadge = reactive({
-//     red: 'outline',
-//     orange: 'outline',
-//     amber: 'outline',
-//     lime: 'outline',
-//     green: 'outline'
-// })
-
-// let selectedRating = null;
-
-// const toggleBadge = (color, rating) => {
-//     if (selectedRating && selectedRating.color === color) {
-//         // If the same badge is clicked again, deselect it
-//         for (const key in ratingBadge) {
-//             ratingBadge[key] = 'outline';
-//         }
-//         selectedRating = null; // Reset selected rating
-//     } else {
-//         for (const key in ratingBadge) {
-//             ratingBadge[key] = key === color ? 'solid' : 'outline';
-//         }
-//         selectedRating = { color, rating };
-//     }
-// }
-
-const movieToAdd = {
-    id: route.params.id,
-    title: movie.title,
-    rating: movie.vote_average,
-    poster: movie.poster_path,
-    seen: false,
-    next: false,
-    timestamp: new Date()
-}
-
-const addToMovieList = async () => {
-    await addMovie(userData.uid, movieToAdd);
-};
-
-const removeFromMovieList = async () => {
-    await removeMovie(userData.uid, route.params.id)
-}
-
-const addToNextList = async () => {
-    await updateMovie(userData.uid, route.params.id, { next: true });
-}
-
-const removeFromNextList = async () => {
-    await updateMovie(userData.uid, route.params.id, { next: false });
-}
-
+const jobs = computed<DetailJob[]>(() => {
+    const credits = movie.value?.detailCredits
+    if (!credits) return []
+    const items: DetailJob[] = []
+    const directors = formatCreditNames(credits.directors)
+    if (directors) {
+        const label = credits.directors.length > 1 ? t("detail.directorsMany") : t("detail.directorOne")
+        items.push({ icon: "i-heroicons-film", text: `${label} ${directors}` })
+    }
+    const music = formatCreditNames(credits.music)
+    if (music) items.push({ icon: "i-heroicons-musical-note", text: t("detail.musicFact", { names: music }) })
+    return items
+})
 </script>
 
 <template>
-    <div v-if="movie">
-        <Heading>{{ movie?.title }}</Heading>
-        <div class="flex flex-col md:flex-row items-center gap-8 xl:gap-16 pb-4 text-lg">
-            <div class="flex flex-col gap-4 items-center">
-                <div class="relative" v-auto-animate>
-                    <div v-auto-animate="{duration: 150}" v-if="isInMovieList" >
-                        <UIcon name="i-heroicons-star"
-                            class="z-20 text-2xl text-primary absolute -top-1 -right-1 transition scale-150 origin-center cursor-pointer"
-                            v-if="!isInNextList" @click.stop="addToNextList" />
-                        <UIcon name="i-heroicons-star-20-solid"
-                            class="z-20 text-2xl scale-150 text-primary absolute -top-1 -right-1 transition origin-center cursor-pointer"
-                            v-if="isInNextList" @click.stop="removeFromNextList" />
-                    </div>
-                    <img :src="`${baseImageUrl}${movie.poster_path}`" :alt="`${movie.title}`"
-                        class="w-full max-w-sm lg:max-w-xl ">
-                </div>
-                <div class="icon-group flex gap-4 w-full">
-                    <UButton icon="i-heroicons-list-bullet-20-solid" color="primary" variant="outline"
-                        label="Add to my movies" class="flex gap-2 items-center justify-center text-lg" block
-                        @click="addToMovieList" v-if="!isInMovieList" />
-                    <UButton icon="i-heroicons-x-circle" color="primary" variant="outline" label="Remove from watchlist"
-                        class="flex gap-2 items-center justify-center text-lg" block @click="removeFromMovieList"
-                        v-if="isInMovieList" />
+    <div v-if="pending" class="px-8 py-8 text-lg">{{ $t('common.loading') }}</div>
+    <MediaDetailView
+        v-else-if="movie && !error"
+        :title="movie.title"
+        :poster-path="movie.poster_path"
+        :genres="movie.genres"
+        :tagline="movie.tagline"
+        :overview="movie.overview"
+        :facts="facts"
+        :jobs="jobs"
+        :keywords="movie.keywords ?? []"
+        :cast="movie.detailCast"
+        :gallery="movie.gallery ?? []"
+        :media-id="movieId"
+        media-type="movie"
+        :trailer="movie.trailer"
+        :list-payload="listPayload"
+        :collection="movie.collection ?? null">
+        <template #related>
+            <div v-if="moviesWithPoster.length > 0" class="flex min-w-0 flex-col gap-3">
+                <Heading flush tier="section">{{ $t('detail.youMayAlsoLike') }}</Heading>
+                <div class="movie-grid">
+                    <MovieCard
+                        v-for="item in moviesWithPoster"
+                        :key="`${item.mediaType ?? 'movie'}-${item.id}`"
+                        :movie="item"
+                        :media-type="item.mediaType ?? 'movie'"
+                        show-media-type />
                 </div>
             </div>
-            <div class="w-full flex flex-col gap-4">
-                <div>
-                    <span v-for="genre in movie?.genres" class="text-lg font-bold">
-                        <div v-if="movie.genres[0] != genre" class="bg-primary h-4 w-[.25rem] inline-block ml-2 mr-1"></div>
-                        {{ genre.name }}
-                    </span>
-                </div>
-                <h3 class="text-lg">{{ movie.tagline }}</h3>
-                <p class="max-w-2xl">{{ movie.overview }}</p>
-                <Heading class="pt-4">Details</Heading>
-                <div>Release date: {{ movie.release_date }}</div>
-                <div>Runtime: {{ movie.runtime }} min</div>
-                <div>Average rating: {{ movie.vote_average.toFixed(1) }}</div>
-                <Heading class="pt-4">Actors</Heading>
-                <div>
-                    <span v-for="actor in movie.credits.cast.slice(0, 4)">{{ actor.name }}, </span>
-                    <span>{{ movie.credits.cast[4]?.name }}</span>
-                </div>
-                <!-- Badge group - for later development -->
-
-                <!-- <Heading class="pt-4">MyMDb rating</Heading>
-                <div class="flex gap-2">
-                    <UBadge color="red" :variant="ratingBadge.red" @click="toggleBadge('red', 1)" label="1" size="md"
-                        class="cursor-pointer" />
-                    <UBadge color="orange" :variant="ratingBadge.orange" @click="toggleBadge('orange', 2)" label="2"
-                        size="md" class="cursor-pointer" />
-                    <UBadge color="amber" :variant="ratingBadge.amber" @click="toggleBadge('amber', 3)" label="3" size="md"
-                        class="cursor-pointer" />
-                    <UBadge color="lime" :variant="ratingBadge.lime" @click="toggleBadge('lime', 4)" label="4" size="md"
-                        class="cursor-pointer" />
-                    <UBadge color="green" :variant="ratingBadge.green" @click="toggleBadge('green', 5)" label="5" size="md"
-                        class="cursor-pointer" />
-                </div> -->
-            </div>
-        </div>
-        <Heading class="pt-4">More like this</Heading>
-        <div class="movie-grid " v-if="moviesWithPoster.length > 0">
-            <MovieCard :movie="movie" v-for="movie in moviesWithPoster" :key="movie.id" />
-        </div>
-    </div>
+        </template>
+    </MediaDetailView>
     <div v-else>
         <p> {{ error }}</p>
     </div>
-</template> 
-
-<style scoped></style>
-
+</template>

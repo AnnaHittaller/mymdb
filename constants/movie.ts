@@ -1,0 +1,25 @@
+export const POSTER_IMAGE_URL = "https://image.tmdb.org/t/p/w342";
+
+/** Suggestion flyout row thumbnails (small horizontal poster). */
+export const POSTER_SUGGESTION_IMAGE_URL = "https://image.tmdb.org/t/p/w154";
+
+/** Hero coverflow slides (up to ~300px CSS); w500 keeps 2× displays sharp. */
+export const POSTER_CAROUSEL_IMAGE_URL = "https://image.tmdb.org/t/p/w500";
+
+/** Detail page poster column (up to ~384px CSS); w780 keeps 2× displays sharp. */
+export const POSTER_DETAIL_IMAGE_URL = "https://image.tmdb.org/t/p/w780";
+
+/** Narrow viewports. Same 16:9 frame as the 1280 backdrop. */
+export const BACKDROP_COMPACT_IMAGE_URL = "https://image.tmdb.org/t/p/w780";
+
+/** TV episode stills (16:9). */
+export const STILL_IMAGE_URL = "https://image.tmdb.org/t/p/w780";
+
+export const BACKDROP_IMAGE_URL = "https://image.tmdb.org/t/p/w1280";
+
+export const PROFILE_IMAGE_URL = "https://image.tmdb.org/t/p/w185";
+
+export const CACHE_DURATION = 1000 * 60 * 60 * 24; // 24 hours
+
+/** Ids sent in one catalog summary request. */
+export const CATALOG_SUMMARY_CHUNK = 20;

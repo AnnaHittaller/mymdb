@@ -1,43 +1,44 @@
-        
-<script setup>
-const colorStore = useUiColorStore()
-const { currentUserPromise } = useFirebaseAuth()
-const { getUser, updateTheme } = useFirestore()
+<script setup lang="ts">
+const { theme, setTheme } = useUserDocument();
+const { colors: themeColors, themeAccentLabel } = useThemeAccentLabels();
 
-const userData = await currentUserPromise()
-
-let selectedColor = ref('')
-
-const colors = [
-    { value: 'emerald', label: 'Emerald' },
-    { value: 'mandy', label: 'Mandy' },
-    { value: 'dusk', label: 'Dusk' },
-    { value: 'pumpkin', label: 'Pumpkin' },
-    { value: 'mauve', label: 'Mauve' },
-    { value: 'periwinkle', label: 'Periwinkle' },
-    { value: 'saffron', label: 'Saffron' },
-
-    // Add more colors as needed
-]
-
-const updateColor = async (color) => {
-    selectedColor.value = color; // Update the selectedColor value
-    await updateTheme(userData.uid, color)
-    colorStore.initialize()
-}
-
+const updateColor = async (color: string) => {
+	await setTheme(color);
+};
 </script>
-        
-<template>
-    <div class="flex flex-wrap gap-4">
-        <div v-for="color in colors" :key="color.value" class="inline-block">
-            <label :for="color.value">
-                <input type="radio" :id="color.value" :value="color.value" v-model="selectedColor"
-                    @change="updateColor(color.value)" class="hidden" />
-                <UBadge :color="color.value" size="lg" class="cursor-pointer text-lg">{{ color.label }}</UBadge>
-            </label>
-        </div>
-    </div>
-</template>
 
-<style lang="scss" scoped></style>
+<template>
+	<div class="space-y-4">
+		<p class="text-base text-fg-muted">
+			{{ $t('profile.currentTheme') }}
+			<span class="text-fg-default">{{ themeAccentLabel(theme) }}</span>
+		</p>
+		<div class="flex flex-wrap gap-4">
+			<div v-for="color in themeColors" :key="color.value" class="inline-block">
+				<label :for="`theme-${color.value}`" class="cursor-pointer">
+					<input
+						:id="`theme-${color.value}`"
+						type="radio"
+						name="theme-accent"
+						:value="color.value"
+						:checked="color.value === theme"
+						class="hidden"
+						@change="updateColor(color.value)" />
+					<UBadge
+						color="neutral"
+						variant="solid"
+						size="lg"
+						:class="[
+							color.swatchClass,
+							'cursor-pointer rounded-lg text-lg transition-colors duration-200',
+							color.value === theme
+								? 'ring-2 ring-primary ring-offset-4 ring-offset-surface-elevated'
+								: '',
+						]">
+						{{ color.label }}
+					</UBadge>
+				</label>
+			</div>
+		</div>
+	</div>
+</template>
