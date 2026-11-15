@@ -100,8 +100,9 @@ export default defineNuxtConfig({
     registerType: 'prompt',
     manifest: pwaManifest,
     generateSW: {
-      globPatterns: ['**/*.{js,css,woff2,png,ico,svg,webmanifest}'],
-      globIgnores: ['**/*.{html,json}', '**/server/**'],
+      globPatterns: ['**/*.{js,css,woff2,png,ico,svg}'],
+      // Do not ignore `**/*.json`: @vite-pwa/nuxt precaches `_nuxt/builds/**/*.json` (app manifest).
+      globIgnores: ['**/*.html', '**/server/**'],
       globStrict: false,
       navigateFallback: undefined,
       navigateFallbackDenylist: [/^\/api\//],
