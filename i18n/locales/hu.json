@@ -248,7 +248,7 @@
     "deleteProfile": "Profil törlése",
     "legalLink": "Jogi & adatvédelem",
     "deleteModalTitle": "Profil törlése",
-    "deleteModalDescription": "Ez véglegesen törli a fiókodat és minden mentett filmedet. Ezt nem lehet visszavonni.",
+    "deleteModalDescription": "Ez véglegesen törli a fiókodat és minden mentett filmedet. Ez a művelet nem vonható vissza.",
     "deletePassword": "Jelszó",
     "deletePasswordPlaceholder": "Fiókod jelszava",
     "yesDelete": "Igen, töröljük a profilomat",

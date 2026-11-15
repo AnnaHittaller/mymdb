@@ -5,6 +5,7 @@ import type { MediaType } from "~/types/catalog";
 import type { TrendingItem } from "~/types/catalog";
 import { catalogDetailPath } from "~/utils/catalogPath";
 import { defaultMediaType } from "~/utils/catalogKey";
+import { trendingItemYearLabel } from "~/utils/catalogDisplay";
 import { formatMovieRating } from "~/utils/formatMovieRating";
 import { catalogKey } from "~/utils/catalogKey";
 import { localizeTmdbGenreNames } from "~/domain/locale/tmdbGenreLabels";
@@ -41,10 +42,6 @@ function ratingLabel(item: TrendingItem) {
 
 function genreLine(item: TrendingItem) {
 	return localizeTmdbGenreNames(item.genres ?? [], locale.value).join(" · ");
-}
-
-function yearLabel(item: TrendingItem) {
-	return item.releaseDate?.slice(0, 4) ?? (item.releaseYear ? String(item.releaseYear) : "");
 }
 
 function itemMediaType(item: TrendingItem): MediaType {
@@ -172,8 +169,8 @@ async function onWatchTrailer(item: TrendingItem) {
 								</span>
 								<span class="text-base">
 									<UIcon name="i-heroicons-star-20-solid" class="mr-1 size-5 align-[-0.15em] text-rating" />
-									{{ ratingLabel(item) }}<span v-if="yearLabel(item)" class="text-fg-muted"> · {{
-										yearLabel(item) }}</span><span class="text-fg-muted"> · </span><CatalogMediaBadge
+									{{ ratingLabel(item) }}<span v-if="trendingItemYearLabel(item)" class="text-fg-muted"> · {{
+										trendingItemYearLabel(item) }}</span><span class="text-fg-muted"> · </span><CatalogMediaBadge
 										embedded
 										:media-type="itemMediaType(item)" />
 								</span>

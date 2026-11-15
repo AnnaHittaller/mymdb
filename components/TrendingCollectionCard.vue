@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { POSTER_IMAGE_URL } from "~/constants/movie";
+import { localizeTmdbGenreName } from "~/domain/locale/tmdbGenreLabels";
 import type { MediaType } from "~/types/catalog";
 import type { TrendingItem } from "~/types/catalog";
-import { formatMovieRating } from "~/utils/formatMovieRating";
-import { formatReleaseDate } from "~/utils/formatReleaseDate";
+import {
+	trendingItemFirstGenre,
+	trendingItemHasMeta,
+	trendingItemRatingLabel,
+	trendingItemReleaseBadge,
+	trendingItemYearLabel,
+} from "~/utils/catalogDisplay";
 import { trendingLeadingGenre } from "~/utils/trendingLeadingGenre";
-import { localizeTmdbGenreName, localizeTmdbGenreNames } from "~/domain/locale/tmdbGenreLabels";
 
 const { t, locale } = useI18n();
 
@@ -87,28 +92,18 @@ const emptyIcon = computed(() => {
 	return props.mediaType === "tv" ? "i-heroicons-tv-20-solid" : "i-heroicons-film-20-solid";
 });
 
-function yearLabel(item: TrendingItem) {
-	return item.releaseDate?.slice(0, 4) ?? (item.releaseYear ? String(item.releaseYear) : "");
+function itemShowsMeta(item: TrendingItem) {
+	return trendingItemHasMeta(item, locale.value, props.showReleaseDate);
 }
 
-function releaseDateBadgeLabel(item: TrendingItem) {
-	return props.showReleaseDate ? formatReleaseDate(item.releaseDate, locale.value) : "";
-}
-
-function ratingLabel(item: TrendingItem) {
-	return formatMovieRating(item.rating);
-}
-
-function firstGenre(item: TrendingItem) {
-	const names = localizeTmdbGenreNames(item.genres, locale.value);
-	return names[0] ?? "";
-}
-
-function hasMeta(item: TrendingItem) {
-	if (props.showReleaseDate) {
-		return true;
-	}
-	return ratingLabel(item) !== "N/A" || Boolean(yearLabel(item)) || Boolean(firstGenre(item));
+function itemMeta(item: TrendingItem) {
+	return {
+		rating: trendingItemRatingLabel(item),
+		year: trendingItemYearLabel(item),
+		genre: trendingItemFirstGenre(item, locale.value),
+		releaseBadge: trendingItemReleaseBadge(item, locale.value, props.showReleaseDate),
+		showReleaseDate: props.showReleaseDate,
+	};
 }
 
 const cardAriaLabel = computed(() => {
@@ -142,14 +137,6 @@ const rankFlagRowClass =
 const rankFlagOnPosterClass =
 	"absolute left-0 top-0 z-10 flex items-center justify-center rounded-br-[6px] bg-primary px-2.5 py-1 text-base font-bold leading-none text-inverted tabular-nums";
 
-const ratingInlineClass = "inline-flex items-center gap-1";
-const starIconClass = "block size-5 shrink-0 -translate-y-[2px] text-rating";
-const ratingTextClass = "text-base leading-none tabular-nums";
-const metaLineClass = "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-base leading-snug text-fg-muted";
-const releaseDateBadgeClass
-	= "inline-flex w-fit rounded-md bg-primary px-2 py-1 text-base font-medium leading-snug text-inverted";
-const itemMetaStackClass = "flex min-w-0 flex-1 flex-col gap-1.5";
-const itemMetaStackCenteredClass = "flex min-w-0 w-full flex-1 flex-col items-center gap-1.5";
 const upcomingPosterCellClass = "flex min-h-0 min-w-0 flex-1 flex-col gap-1.5";
 
 /** Viewport bands (tablet full-width row): ≥1100 → 5, 950–1099 → 4, &lt;950 → 3 */
@@ -229,42 +216,15 @@ function upcomingBannerPosterCellClass(index: number) {
 			<div
 				v-if="showUpcomingBanner"
 				class="hidden min-h-0 flex-1 items-stretch gap-4 @min-[700px]:flex">
-				<div class="flex min-w-[12rem] max-w-sm shrink-0 flex-col gap-2">
-					<UIcon
-						:name="headerIcon"
-						class="size-8 shrink-0 text-primary"
-						aria-hidden="true" />
-					<p class="text-2xl font-semibold leading-tight text-fg-default @min-[400px]:text-3xl">
-						{{ title }}
-					</p>
-					<p
-						v-if="showSubtitle"
-						class="text-base font-medium leading-snug text-fg-muted">
-						{{ subtitle }}
-					</p>
-					<div
-						v-else-if="showLeadingGenre"
-						class="flex flex-wrap items-center gap-2">
-						<span class="text-base font-medium text-fg-muted">{{ leadingGenreCaption }}</span>
-						<UBadge
-							variant="outline"
-							color="neutral"
-							size="md"
-							class="border-primary/40 px-3 py-1 text-base font-medium text-fg-default"
-							aria-hidden="true">
-							{{ leadingGenre }}
-						</UBadge>
-					</div>
-					<UButton
-						variant="iconbutton"
-						color="custom"
-						size="icon"
-						icon="i-heroicons-arrow-right-20-solid"
-						tabindex="-1"
-						aria-hidden="true"
-						class="pointer-events-none mt-1 shrink-0 group-hover:border-primary group-hover:text-primary"
-						:ui="{ leadingIcon: 'size-6' }" />
-				</div>
+				<TrendingCollectionCardHeader
+					layout="banner"
+					:title="title"
+					:header-icon="headerIcon"
+					:show-subtitle="showSubtitle"
+					:subtitle="subtitle"
+					:show-leading-genre="showLeadingGenre"
+					:leading-genre="leadingGenre ?? undefined"
+					:leading-genre-caption="leadingGenreCaption" />
 				<div :class="upcomingBannerPosterGridClass">
 					<div
 						v-for="({ item }, index) in topFiveRanked"
@@ -283,87 +243,24 @@ function upcomingBannerPosterCellClass(index: number) {
 						<p class="line-clamp-2 text-center text-base font-semibold leading-snug text-fg-default pt-1">
 							{{ item.title }}
 						</p>
-						<div
-							v-if="hasMeta(item) && showReleaseDate"
-							:class="itemMetaStackCenteredClass">
-							<p :class="[metaLineClass, 'justify-center text-center']">
-								<span :class="ratingInlineClass">
-									<UIcon name="i-heroicons-star-20-solid" :class="starIconClass" aria-hidden="true" />
-									<span :class="ratingTextClass">{{ ratingLabel(item) }}</span>
-								</span>
-								<template v-if="firstGenre(item)">
-									<span aria-hidden="true">·</span>
-									<span class="line-clamp-1">{{ firstGenre(item) }}</span>
-								</template>
-							</p>
-							<span
-								v-if="releaseDateBadgeLabel(item)"
-								:class="[releaseDateBadgeClass, 'mt-auto']">
-								{{ releaseDateBadgeLabel(item) }}
-							</span>
-						</div>
-						<p
-							v-else-if="hasMeta(item)"
-							:class="[metaLineClass, 'justify-center text-center']">
-							<template v-if="ratingLabel(item) !== 'N/A'">
-								<span :class="ratingInlineClass">
-									<UIcon name="i-heroicons-star-20-solid" :class="starIconClass" aria-hidden="true" />
-									<span :class="ratingTextClass">{{ ratingLabel(item) }}</span>
-								</span>
-							</template>
-							<template v-if="yearLabel(item)">
-								<span v-if="ratingLabel(item) !== 'N/A'" aria-hidden="true">·</span>
-								<span>{{ yearLabel(item) }}</span>
-							</template>
-							<template v-if="firstGenre(item)">
-								<span v-if="ratingLabel(item) !== 'N/A' || yearLabel(item)" aria-hidden="true">·</span>
-								<span class="line-clamp-1">{{ firstGenre(item) }}</span>
-							</template>
-						</p>
+						<TrendingCollectionItemMeta
+							v-if="itemShowsMeta(item)"
+							v-bind="itemMeta(item)"
+							align="center" />
 					</div>
 				</div>
 			</div>
 
-			<div
-				class="flex items-start gap-2.5"
-				:class="{ '@min-[700px]:hidden': showUpcomingBanner }">
-				<UIcon
-					:name="headerIcon"
-					class="mt-1 size-8 shrink-0 text-primary"
-					aria-hidden="true" />
-				<div class="min-w-0 flex-1">
-					<p class="text-2xl font-semibold leading-tight text-fg-default @min-[400px]:text-3xl">
-						{{ title }}
-					</p>
-					<p
-						v-if="showSubtitle"
-						class="mt-2 text-base font-medium leading-snug text-fg-muted">
-						{{ subtitle }}
-					</p>
-					<div
-						v-else-if="showLeadingGenre"
-						class="mt-2 flex flex-wrap items-center gap-2">
-						<span class="text-base font-medium text-fg-muted">{{ leadingGenreCaption }}</span>
-						<UBadge
-							variant="outline"
-							color="neutral"
-							size="md"
-							class="border-primary/40 px-3 py-1 text-base font-medium text-fg-default"
-							aria-hidden="true">
-							{{ leadingGenre }}
-						</UBadge>
-					</div>
-				</div>
-				<UButton
-					variant="iconbutton"
-					color="custom"
-					size="icon"
-					square
-					icon="i-heroicons-arrow-right-20-solid"
-					tabindex="-1"
-					aria-hidden="true"
-					class="pointer-events-none shrink-0 group-hover:border-primary group-hover:text-primary"
-					:ui="{ leadingIcon: 'size-6' }" />
+			<div :class="{ '@min-[700px]:hidden': showUpcomingBanner }">
+				<TrendingCollectionCardHeader
+					layout="compact"
+					:title="title"
+					:header-icon="headerIcon"
+					:show-subtitle="showSubtitle"
+					:subtitle="subtitle"
+					:show-leading-genre="showLeadingGenre"
+					:leading-genre="leadingGenre ?? undefined"
+					:leading-genre-caption="leadingGenreCaption" />
 			</div>
 
 			<div
@@ -410,45 +307,10 @@ function upcomingBannerPosterCellClass(index: number) {
 						<div class="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
 							<p class="line-clamp-2 text-base font-semibold leading-snug text-fg-default">{{ item.title }}
 							</p>
-							<div v-if="hasMeta(item) && showReleaseDate" :class="itemMetaStackClass">
-								<p :class="metaLineClass">
-									<span :class="ratingInlineClass">
-										<UIcon name="i-heroicons-star-20-solid" :class="starIconClass"
-											aria-hidden="true" />
-										<span :class="ratingTextClass">{{ ratingLabel(item) }}</span>
-									</span>
-									<template v-if="firstGenre(item)">
-										<span class="text-fg-muted" aria-hidden="true">·</span>
-										<span>{{ firstGenre(item) }}</span>
-									</template>
-								</p>
-								<span
-									v-if="releaseDateBadgeLabel(item)"
-									:class="[releaseDateBadgeClass, 'mt-auto']">
-									{{ releaseDateBadgeLabel(item) }}
-								</span>
-							</div>
-							<p v-else-if="hasMeta(item)" :class="metaLineClass">
-								<template v-if="ratingLabel(item) !== 'N/A'">
-									<span :class="ratingInlineClass">
-										<UIcon name="i-heroicons-star-20-solid" :class="starIconClass"
-											aria-hidden="true" />
-										<span :class="ratingTextClass">{{ ratingLabel(item) }}</span>
-									</span>
-								</template>
-								<template v-if="yearLabel(item)">
-									<span v-if="ratingLabel(item) !== 'N/A'" class="text-fg-muted"
-										aria-hidden="true">·</span>
-									<span>{{ yearLabel(item) }}</span>
-								</template>
-								<template v-if="firstGenre(item)">
-									<span
-										v-if="ratingLabel(item) !== 'N/A' || yearLabel(item)"
-										class="text-fg-muted"
-										aria-hidden="true">·</span>
-									<span>{{ firstGenre(item) }}</span>
-								</template>
-							</p>
+							<TrendingCollectionItemMeta
+								v-if="itemShowsMeta(item)"
+								v-bind="itemMeta(item)"
+								align="start" />
 						</div>
 					</div>
 				</div>
@@ -480,43 +342,10 @@ function upcomingBannerPosterCellClass(index: number) {
 						<p class="line-clamp-2 text-center text-base font-semibold leading-snug text-fg-default pt-2">
 							{{ item.title }}
 						</p>
-						<div
-							v-if="hasMeta(item) && showReleaseDate"
-							:class="itemMetaStackCenteredClass">
-							<p :class="[metaLineClass, 'justify-center text-center']">
-								<span :class="ratingInlineClass">
-									<UIcon name="i-heroicons-star-20-solid" :class="starIconClass" aria-hidden="true" />
-									<span :class="ratingTextClass">{{ ratingLabel(item) }}</span>
-								</span>
-								<template v-if="firstGenre(item)">
-									<span aria-hidden="true">·</span>
-									<span class="line-clamp-1">{{ firstGenre(item) }}</span>
-								</template>
-							</p>
-							<span
-								v-if="releaseDateBadgeLabel(item)"
-								:class="[releaseDateBadgeClass, 'mt-auto']">
-								{{ releaseDateBadgeLabel(item) }}
-							</span>
-						</div>
-						<p
-							v-else-if="hasMeta(item)"
-							:class="[metaLineClass, 'justify-center text-center']">
-							<template v-if="ratingLabel(item) !== 'N/A'">
-								<span :class="ratingInlineClass">
-									<UIcon name="i-heroicons-star-20-solid" :class="starIconClass" aria-hidden="true" />
-									<span :class="ratingTextClass">{{ ratingLabel(item) }}</span>
-								</span>
-							</template>
-							<template v-if="yearLabel(item)">
-								<span v-if="ratingLabel(item) !== 'N/A'" aria-hidden="true">·</span>
-								<span>{{ yearLabel(item) }}</span>
-							</template>
-							<template v-if="firstGenre(item)">
-								<span v-if="ratingLabel(item) !== 'N/A' || yearLabel(item)" aria-hidden="true">·</span>
-								<span class="line-clamp-1">{{ firstGenre(item) }}</span>
-							</template>
-						</p>
+						<TrendingCollectionItemMeta
+							v-if="itemShowsMeta(item)"
+							v-bind="itemMeta(item)"
+							align="center" />
 					</div>
 				</div>
 			</div>
