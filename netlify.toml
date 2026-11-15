@@ -3,3 +3,7 @@
 [build]
   command = "npm run build"
   publish = "dist"
+
+[build.environment]
+  # @clack/* and other toolchain expect Node >= 20.12 (styleText, etc.). Matches CI.
+  NODE_VERSION = "22"
